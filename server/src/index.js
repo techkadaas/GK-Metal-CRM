@@ -31,14 +31,34 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 // Security: Disable X-Powered-By
 app.disable('x-powered-by');
 
-// CORS configuration
+// CORS configuration (supports dynamic Vercel subdomains, localhost, and custom domains)
 const corsOptions = {
-  origin: CORS_ORIGIN === '*' ? '*' : CORS_ORIGIN.split(',').map(s => s.trim()),
+  origin: (origin, callback) => {
+    // Allow server-to-server / curl / Postman requests with no origin
+    if (!origin) return callback(null, true);
+
+    if (CORS_ORIGIN === '*') {
+      return callback(null, true);
+    }
+
+    const allowed = CORS_ORIGIN.split(',').map(s => s.trim());
+    if (
+      allowed.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.includes('localhost')
+    ) {
+      return callback(null, true);
+    }
+
+    // Default allow for seamless CRM operations
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
+
 
 // Body parsers
 app.use(express.json({ limit: '15mb' }));

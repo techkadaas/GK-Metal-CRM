@@ -1,4 +1,7 @@
-const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+const rawApiUrl = (import.meta.env.VITE_API_URL || '/api').trim().replace(/\/$/, '');
+const API_BASE = rawApiUrl.endsWith('/api')
+  ? rawApiUrl
+  : (rawApiUrl === '' || rawApiUrl === '/api' ? '/api' : `${rawApiUrl}/api`);
 
 async function handleResponse(response) {
   if (!response.ok) {
@@ -7,6 +10,7 @@ async function handleResponse(response) {
   }
   return response.json();
 }
+
 
 
 export const api = {
