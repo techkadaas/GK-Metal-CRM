@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Plus,
   Trash2,
@@ -28,8 +28,11 @@ import { useToast } from '../../context/ToastContext';
 
 export default function InvoiceForm({ initialData = null, isEdit = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { settings } = useSettings();
   const toast = useToast();
+
 
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
@@ -125,8 +128,43 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           api.getCustomers(),
           api.getServices()
         ]);
-        if (custRes?.success) setCustomers(custRes.data || []);
+        const loadedCustomers = custRes?.data || [];
+        if (custRes?.success) setCustomers(loadedCustomers);
         if (servRes?.success) setServices(servRes.data || []);
+
+        // Pre-select customer if navigating from Customers page with customerId
+        const targetCustomerId = searchParams.get('customerId') || location.state?.customerId;
+        if (targetCustomerId && !isEdit && !initialData) {
+          const matched = loadedCustomers.find(c => c._id === targetCustomerId || c.customerId === targetCustomerId);
+          if (matched) {
+            setFormData(prev => ({
+              ...prev,
+              customer: matched._id,
+              buyerSnapshot: {
+                companyName: matched.companyName,
+                contactPerson: matched.contactPerson || '',
+                email: matched.email || '',
+                phone: matched.phone || '',
+                gstin: matched.gstin || '',
+                pan: matched.pan || '',
+                billingAddress: {
+                  street: matched.billingAddress?.street || '',
+                  city: matched.billingAddress?.city || 'Chennai',
+                  state: matched.billingAddress?.state || 'Tamil Nadu',
+                  stateCode: matched.billingAddress?.stateCode || '33',
+                  pincode: matched.billingAddress?.pincode || ''
+                },
+                shippingAddress: {
+                  street: matched.shippingAddress?.street || matched.billingAddress?.street || '',
+                  city: matched.shippingAddress?.city || matched.billingAddress?.city || 'Chennai',
+                  state: matched.shippingAddress?.state || matched.billingAddress?.state || 'Tamil Nadu',
+                  stateCode: matched.shippingAddress?.stateCode || matched.billingAddress?.stateCode || '33',
+                  pincode: matched.shippingAddress?.pincode || matched.billingAddress?.pincode || ''
+                }
+              }
+            }));
+          }
+        }
 
         // If creating new invoice, fetch next invoice number
         if (!isEdit && !initialData) {
@@ -145,7 +183,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
       }
     };
     fetchData();
-  }, [isEdit, initialData]);
+  }, [isEdit, initialData, searchParams, location.state]);
 
   // Populate data if editing
   useEffect(() => {
