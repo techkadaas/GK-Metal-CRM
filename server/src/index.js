@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
+import dns from 'dns';
 import { fileURLToPath } from 'url';
+
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
@@ -51,6 +53,11 @@ if (NODE_ENV === 'production') {
 
 // MongoDB optional connection (smooth fallback to file/memory store)
 if (MONGODB_URI) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {
+    // Ignore if system restricts dns override
+  }
   mongoose.connect(MONGODB_URI)
     .then(() => console.log('✓ Connected to MongoDB database successfully.'))
     .catch(err => console.warn('! MongoDB connection skipped (using JSON file store fallback):', err.message));
