@@ -1,0 +1,25 @@
+{
+  "name": "gk-metal-crm-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend API for GK Metal Testing Lab CRM",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "seed": "node src/seed/seedData.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "sharp": "^0.35.4"
+  }
+}
