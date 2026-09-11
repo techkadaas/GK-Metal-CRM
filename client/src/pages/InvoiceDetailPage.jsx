@@ -6,17 +6,8 @@ import {
   Edit,
   Copy,
   Share2,
-  CheckCircle2,
-  XCircle,
-  CreditCard,
   ArrowLeft,
-  Calendar,
-  Building2,
-  FileText,
-  Clock,
-  Send,
-  IndianRupee,
-  RefreshCw
+  IndianRupee
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -116,18 +107,6 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  // Status Transitions (Mark Sent, Cancel)
-  const handleStatusChange = async (newStatus) => {
-    try {
-      const res = await api.updateInvoice(invoice._id, { status: newStatus });
-      if (res.success) {
-        toast.success(`Invoice status updated to ${newStatus}`);
-        setInvoice(res.data);
-      }
-    } catch (e) {
-      toast.error('Failed to update status');
-    }
-  };
 
   // Record Payment Callback
   const handlePaymentRecorded = async (paymentData) => {
@@ -238,140 +217,9 @@ export default function InvoiceDetailPage() {
         </div>
       </div>
 
-      {/* Main Grid: Document Preview (Left/Center) + Lifecycle Panel (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Printable Tax Invoice Document Container */}
-        <div className="lg:col-span-8 bg-slate-200/90 p-4 sm:p-6 rounded-xl border border-slate-300 shadow-inner overflow-x-auto print-container">
-          <InvoiceDocument invoice={invoice} id="tax-invoice-printable" />
-        </div>
-
-        {/* Right Operations & Audit Panel (Hidden in print) */}
-        <div className="no-print lg:col-span-4 space-y-4">
-          {/* Payment & Balance Summary Card */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2 flex items-center justify-between">
-              <span>Financial Ledger</span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                invoice.paymentStatus === 'Paid'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : invoice.paymentStatus === 'Partially Paid'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-amber-100 text-amber-800'
-              }`}>
-                {invoice.paymentStatus || 'Unpaid'}
-              </span>
-            </h3>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between text-slate-600">
-                <span>Grand Total:</span>
-                <span className="font-mono font-bold text-slate-900">{formatINR(invoice.grandTotal)}</span>
-              </div>
-              <div className="flex justify-between text-emerald-700">
-                <span>Paid Amount:</span>
-                <span className="font-mono font-bold">{formatINR(invoice.paidAmount || 0)}</span>
-              </div>
-              <div className="flex justify-between text-amber-700 pt-2 border-t border-slate-100 font-bold">
-                <span>Balance Due:</span>
-                <span className="font-mono text-sm">{formatINR(invoice.balanceDue !== undefined ? invoice.balanceDue : invoice.grandTotal)}</span>
-              </div>
-            </div>
-
-            {invoice.paymentStatus !== 'Paid' && (
-              <button
-                onClick={() => setShowPaymentModal(true)}
-                className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center justify-center gap-2"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Record Payment Receipt</span>
-              </button>
-            )}
-          </div>
-
-          {/* Payment History Log */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2">
-              Payment Receipts Log ({invoice.payments?.length || 0})
-            </h3>
-
-            {invoice.payments && invoice.payments.length > 0 ? (
-              <div className="space-y-2.5">
-                {invoice.payments.map((p, idx) => (
-                  <div key={idx} className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1">
-                    <div className="flex justify-between font-bold text-slate-900">
-                      <span className="text-emerald-700 font-mono">{formatINR(p.amount)}</span>
-                      <span className="text-[11px] text-slate-500">{formatDate(p.paymentDate)}</span>
-                    </div>
-                    <div className="text-[11px] text-slate-600">
-                      Mode: <span className="font-semibold text-slate-800">{p.mode}</span> {p.referenceNo ? `• Ref: ${p.referenceNo}` : ''}
-                    </div>
-                    {p.notes && <div className="text-[11px] text-slate-500 italic">"{p.notes}"</div>}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 text-center py-3">No payments recorded yet.</p>
-            )}
-          </div>
-
-          {/* Lifecycle & Status Controls */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2">
-              Workflow Status Actions
-            </h3>
-
-            <div className="space-y-2">
-              {invoice.status === 'Draft' && (
-                <button
-                  onClick={() => handleStatusChange('Generated')}
-                  className="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition"
-                >
-                  Mark as Finalized (Generated)
-                </button>
-              )}
-
-              {(invoice.status === 'Generated' || invoice.status === 'Draft') && (
-                <button
-                  onClick={() => handleStatusChange('Sent')}
-                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Mark as Sent to Client</span>
-                </button>
-              )}
-
-              {invoice.status !== 'Cancelled' && (
-                <button
-                  onClick={() => {
-                    if (window.confirm('Mark this invoice as Void / Cancelled?')) {
-                      handleStatusChange('Cancelled');
-                    }
-                  }}
-                  className="w-full py-2 text-rose-700 hover:bg-rose-50 border border-rose-200 text-xs font-semibold rounded-lg transition"
-                >
-                  Cancel Invoice
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Audit Trail */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs text-xs space-y-2 text-slate-500">
-            <h3 className="font-bold text-slate-700 border-b border-slate-100 pb-1.5">Audit Record</h3>
-            <div className="flex justify-between">
-              <span>Created By:</span>
-              <span className="font-medium text-slate-800">{invoice.createdBy || 'Staff'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Created On:</span>
-              <span className="text-slate-800">{formatDate(invoice.createdAt)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Last Modified:</span>
-              <span className="text-slate-800">{formatDate(invoice.updatedAt)}</span>
-            </div>
-          </div>
-        </div>
+      {/* Printable Tax Invoice Document Container */}
+      <div className="bg-slate-200/90 p-4 sm:p-6 rounded-xl border border-slate-300 shadow-inner overflow-x-auto print-container flex justify-center">
+        <InvoiceDocument invoice={invoice} id="tax-invoice-printable" />
       </div>
 
       {/* Modals */}

@@ -30,6 +30,7 @@ export const getAllCustomers = (req, res) => {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(c =>
+        c.customerId?.toLowerCase().includes(q) ||
         c.companyName?.toLowerCase().includes(q) ||
         c.gstin?.toLowerCase().includes(q) ||
         c.contactPerson?.toLowerCase().includes(q) ||
