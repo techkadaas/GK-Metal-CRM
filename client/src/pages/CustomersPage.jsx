@@ -1525,18 +1525,7 @@ export default function CustomersPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Customer ID</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. CUST-1081"
-                          value={formData.customerId}
-                          onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition"
-                        />
-                      </div>
-
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Terms</label>
                         <select

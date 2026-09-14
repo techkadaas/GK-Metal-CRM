@@ -39,13 +39,7 @@ export default function InvoiceListPage() {
   const [endDate, setEndDate] = useState('');
 
   const statusTabs = [
-    { label: 'All', value: 'All' },
-    { label: 'Drafts', value: 'Draft' },
-    { label: 'Generated', value: 'Generated' },
-    { label: 'Pending Payment', value: 'Pending' },
-    { label: 'Partially Paid', value: 'Partially Paid' },
-    { label: 'Paid', value: 'Paid' },
-    { label: 'Cancelled', value: 'Cancelled' }
+    { label: 'All', value: 'All' }
   ];
 
   const fetchInvoices = async () => {
