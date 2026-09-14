@@ -1,37 +1,43 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
+import { Customer } from '../models/Customer.js';
+import { Invoice } from '../models/Invoice.js';
+import { Service } from '../models/Service.js';
+import { CompanySettings } from '../models/CompanySettings.js';
+import { User } from '../models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, 'db_data.json');
 
-// Initial seed data with clear settings, 1 employee, 1 customer, 1 invoice, and 0 catalog items
+// Initial seed data with clear settings, 1 employee, 1 customer, 1 invoice, and catalog items
 export const initialData = {
   companySettings: {
-    companyName: '',
+    companyName: 'GK Metal Testing Lab',
     tagline: '',
-    logo: '/logo.png',
+    logo: '/logo-icon.png',
     address: {
-      street: '',
-      city: '',
-      state: 'Tamil Nadu',
+      street: 'No.1, Parayadi Street, Sankaran Pillai Road',
+      city: 'Trichy',
+      state: 'Tamilnadu',
       stateCode: '33',
-      pincode: ''
+      pincode: '620 002'
     },
     phone: '',
-    email: '',
+    email: 'gkmetaltestinglab@gmail.com',
     website: '',
-    gstin: '',
-    pan: '',
+    gstin: '33CRZPV0007J1ZD',
+    pan: 'CRZPV0007J',
     cin: '',
     nablAccreditationNo: '',
     bankDetails: {
-      bankName: '',
-      accountName: '',
-      accountNumber: '',
-      branch: '',
-      ifscCode: '',
+      bankName: 'Karur Vysya Bank',
+      accountName: 'GK Metal Testing Lab',
+      accountNumber: '1195135000016609',
+      branch: 'TRICHY MAIN BRANCH',
+      ifscCode: 'KVBL0001195',
       accountType: 'Current Account',
       upiId: ''
     },
@@ -39,13 +45,13 @@ export const initialData = {
       prefix: 'GK/INV/',
       financialYear: '26-27',
       startingNumber: 1,
-      currentSequence: 1,
-      defaultPaymentTerms: '30 Days Net from date of Invoice',
+      currentSequence: 3,
+      defaultPaymentTerms: '30 Days',
       defaultNotes: '',
       declaration: '1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. "This is purely a service contract."\n4) All disputes Subject to Chennai Jurisdiction.',
       authorizedSignatoryName: '',
-      signatoryTitle: 'Authorized Signatory',
-      signatureImageUrl: ''
+      signatoryTitle: 'Authorised Signatory',
+      signatureImageUrl: '/signature.png'
     },
     taxConfig: {
       defaultCgstRate: 9,
@@ -56,167 +62,24 @@ export const initialData = {
     }
   },
   services: [],
-  customers: [
-    {
-      _id: 'cust_1',
-      customerId: 'CUST-1001',
-      companyName: 'L&T Heavy Engineering Limited',
-      contactPerson: 'Mr. R. Raghavan (Senior QC Manager)',
-      email: 'raghavan.r@lnthe.com',
-      phone: '+91 98401 23456',
-      gstin: '33AABCL1234F1Z2',
-      pan: 'AABCL1234F',
-      billingAddress: {
-        street: 'Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        stateCode: '33',
-        pincode: '600089'
-      },
-      shippingAddress: {
-        street: 'Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        stateCode: '33',
-        pincode: '600089'
-      },
-      paymentTerms: '45 Days Net',
-      status: 'Active',
-      stats: {
-        totalInvoices: 1,
-        totalBilled: 2950,
-        totalPaid: 0,
-        outstandingBalance: 2950,
-        lastInvoiceDate: '2026-09-02T10:30:00.000Z'
-      }
-    }
-  ],
-  employees: [
-    {
-      _id: 'emp_1',
-      employeeId: 'EMP-01',
-      name: 'G. Karthikeyan',
-      email: 'karthik@gkmetallab.com',
-      role: 'Admin',
-      department: 'Management & Technical QA',
-      phone: '+91 94440 12345',
-      status: 'Active'
-    }
-  ],
-  invoices: [
-    {
-      _id: 'inv_1',
-      invoiceNumber: 'GK/INV/26-27/001',
-      financialYear: '26-27',
-      sequenceNumber: 1,
-      invoiceDate: '2026-09-02T10:30:00.000Z',
-      dueDate: '2026-10-02T10:30:00.000Z',
-      status: 'Pending Payment',
-      paymentStatus: 'Unpaid',
-      metadata: {
-        deliveryNote: 'DN/2026/884',
-        modeOfPayment: '30 Days Net',
-        supplierRef: 'GK/TR/9482',
-        otherRef: 'NABL-LAB-09',
-        buyerOrderNo: 'PO-LT-99201',
-        orderDate: '28-Aug-2026',
-        despatchedThrough: 'Lab Courier / Hand Delivery',
-        destination: 'Chennai',
-        termsOfDelivery: 'Door Delivery Test Report',
-        sampleBatchRef: 'Forged Flange Heat #F892',
-        testReportRef: 'GK/TR/2026/09482'
-      },
-      customer: 'cust_1',
-      buyerSnapshot: {
-        companyName: 'L&T Heavy Engineering Limited',
-        contactPerson: 'Mr. R. Raghavan (Senior QC Manager)',
-        email: 'raghavan.r@lnthe.com',
-        phone: '+91 98401 23456',
-        gstin: '33AABCL1234F1Z2',
-        pan: 'AABCL1234F',
-        billingAddress: {
-          street: 'Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam',
-          city: 'Chennai',
-          state: 'Tamil Nadu',
-          stateCode: '33',
-          pincode: '600089'
-        },
-        shippingAddress: {
-          street: 'Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam',
-          city: 'Chennai',
-          state: 'Tamil Nadu',
-          stateCode: '33',
-          pincode: '600089'
-        }
-      },
-      companySnapshot: {
-        companyName: '',
-        tagline: '',
-        address: {
-          street: '',
-          city: '',
-          state: 'Tamil Nadu',
-          stateCode: '33',
-          pincode: ''
-        },
-        phone: '',
-        email: '',
-        gstin: '',
-        pan: '',
-        bankDetails: {
-          bankName: '',
-          accountName: '',
-          accountNumber: '',
-          branch: '',
-          ifscCode: ''
-        },
-        nablAccreditationNo: ''
-      },
-      items: [
-        {
-          slNo: 1,
-          serviceId: '',
-          description: 'PMI TESTING CHARGES (Positive Material Identification on SS316L Forged Flanges)',
-          hsnSac: '998346',
-          quantity: 1,
-          rate: 2500,
-          per: 'No.',
-          discountPercent: 0,
-          taxableAmount: 2500
-        }
-      ],
-      subtotal: 2500,
-      discountTotal: 0,
-      taxableTotal: 2500,
-      isInterstate: false,
-      cgstRate: 9,
-      cgstAmount: 225,
-      sgstRate: 9,
-      sgstAmount: 225,
-      igstRate: 0,
-      igstAmount: 0,
-      totalTax: 450,
-      roundOff: 0,
-      grandTotal: 2950,
-      amountInWords: 'INR Two Thousand Nine Hundred and Fifty Rupees Only',
-      paidAmount: 0,
-      balanceDue: 2950,
-      payments: [],
-      notes: '',
-      declaration: '1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. "This is purely a service contract."\n4) All disputes Subject to Chennai Jurisdiction.',
-      createdBy: 'G. Karthikeyan',
-      updatedBy: 'G. Karthikeyan',
-      createdAt: '2026-09-02T10:30:00.000Z',
-      updatedAt: '2026-09-02T10:30:00.000Z'
-    }
-  ]
+  customers: [],
+  employees: [],
+  invoices: []
 };
 
-// JSON-backed store loader & saver for instant operation
+// Hybrid high-speed memory store with automatic MongoDB Atlas cloud persistence
 class MemoryStore {
   constructor() {
     this.data = null;
+    this.isMongoSynced = false;
     this.load();
+
+    // Hook mongoose connection event
+    if (mongoose.connection) {
+      mongoose.connection.on('connected', () => {
+        this.syncWithMongo();
+      });
+    }
   }
 
   load() {
@@ -236,9 +99,92 @@ class MemoryStore {
 
   save() {
     try {
+      const dir = path.dirname(DATA_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
       fs.writeFileSync(DATA_FILE, JSON.stringify(this.data, null, 2), 'utf8');
     } catch (e) {
       console.error('Error saving data store file:', e.message);
+    }
+  }
+
+  // Synchronize memory cache with MongoDB Atlas database
+  async syncWithMongo() {
+    if (mongoose.connection.readyState !== 1) return;
+
+    try {
+      console.log('🔄 Synchronizing data with MongoDB Atlas cloud database...');
+
+      const [mongoCustomers, mongoInvoices, mongoServices, mongoSettings, mongoUsers] = await Promise.all([
+        Customer.find().lean().catch(() => []),
+        Invoice.find().lean().catch(() => []),
+        Service.find().lean().catch(() => []),
+        CompanySettings.findOne().lean().catch(() => null),
+        User.find().lean().catch(() => [])
+      ]);
+
+      const hasCloudData = (mongoCustomers && mongoCustomers.length > 0) ||
+                           (mongoInvoices && mongoInvoices.length > 0) ||
+                           (mongoServices && mongoServices.length > 0);
+
+      if (hasCloudData) {
+        // Cloud has existing records — load them into memory cache
+        if (mongoCustomers && mongoCustomers.length > 0) {
+          this.data.customers = mongoCustomers;
+        }
+        if (mongoInvoices && mongoInvoices.length > 0) {
+          this.data.invoices = mongoInvoices;
+        }
+        if (mongoServices && mongoServices.length > 0) {
+          this.data.services = mongoServices;
+        }
+        if (mongoSettings) {
+          this.data.companySettings = {
+            ...this.data.companySettings,
+            ...mongoSettings
+          };
+        }
+        if (mongoUsers && mongoUsers.length > 0) {
+          this.data.employees = mongoUsers;
+        }
+
+        this.save();
+        this.isMongoSynced = true;
+        console.log(`✓ Loaded ${this.data.customers.length} customers and ${this.data.invoices.length} invoices from MongoDB Atlas.`);
+      } else {
+        // MongoDB is clean/empty — seed it with current data so nothing is lost
+        console.log('ℹ Cloud database is empty. Initializing MongoDB Atlas with local records...');
+
+        if (this.data.customers && this.data.customers.length > 0) {
+          for (const c of this.data.customers) {
+            await Customer.findOneAndUpdate({ customerId: c.customerId }, c, { upsert: true });
+          }
+        }
+        if (this.data.invoices && this.data.invoices.length > 0) {
+          for (const inv of this.data.invoices) {
+            await Invoice.findOneAndUpdate({ invoiceNumber: inv.invoiceNumber }, inv, { upsert: true });
+          }
+        }
+        if (this.data.services && this.data.services.length > 0) {
+          for (const s of this.data.services) {
+            await Service.findOneAndUpdate({ serviceCode: s.serviceCode }, s, { upsert: true });
+          }
+        }
+        if (this.data.companySettings) {
+          await CompanySettings.findOneAndUpdate({}, this.data.companySettings, { upsert: true });
+        }
+        if (this.data.employees && this.data.employees.length > 0) {
+          for (const emp of this.data.employees) {
+            await User.findOneAndUpdate({ email: emp.email }, emp, { upsert: true });
+          }
+        }
+
+        this.isMongoSynced = true;
+        console.log('✓ Successfully seeded MongoDB Atlas cloud database.');
+      }
+    } catch (err) {
+      console.error('! Error during MongoDB sync:', err.message);
     }
   }
 
@@ -257,6 +203,13 @@ class MemoryStore {
       taxConfig: { ...this.data.companySettings.taxConfig, ...(newSettings.taxConfig || {}) }
     };
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      CompanySettings.findOneAndUpdate({}, this.data.companySettings, { upsert: true })
+        .catch(err => console.error('Mongo sync error (settings):', err.message));
+    }
+
     return this.data.companySettings;
   }
 
@@ -269,25 +222,50 @@ class MemoryStore {
     return this.data.invoices.find(inv => inv._id === id || inv.invoiceNumber === id);
   }
 
-  createInvoice(invoicePayload) {
-    const nextSeq = (this.data.companySettings.invoiceConfig.currentSequence || 1) + 1;
-    this.data.companySettings.invoiceConfig.currentSequence = nextSeq;
+  createInvoice(payload) {
+    const settings = this.getSettings();
+    const currentSeq = settings?.invoiceConfig?.currentSequence || 1;
+    const nextSeq = currentSeq + 1;
+    const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
+    const fy = settings?.invoiceConfig?.financialYear || '26-27';
+    const formattedSeq = String(nextSeq).padStart(3, '0');
+    const autoInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
 
-    const newInv = {
+    const newInvoice = {
       _id: 'inv_' + Date.now(),
-      sequenceNumber: nextSeq,
+      invoiceNumber: payload.invoiceNumber || autoInvoiceNumber,
+      financialYear: payload.financialYear || fy,
+      sequenceNumber: payload.sequenceNumber || nextSeq,
+      status: payload.status || 'Generated',
+      paymentStatus: payload.paymentStatus || 'Unpaid',
+      paidAmount: payload.paidAmount || 0,
+      balanceDue: payload.balanceDue !== undefined ? payload.balanceDue : (payload.grandTotal || 0),
+      payments: payload.payments || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ...invoicePayload
+      ...payload
     };
 
-    this.data.invoices.unshift(newInv);
+    // Update sequence in settings
+    if (settings?.invoiceConfig) {
+      settings.invoiceConfig.currentSequence = Math.max(currentSeq, nextSeq);
+      this.updateSettings(settings);
+    }
+
+    this.data.invoices.unshift(newInvoice);
     this.save();
-    return newInv;
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Invoice.findOneAndUpdate({ invoiceNumber: newInvoice.invoiceNumber }, newInvoice, { upsert: true })
+        .catch(err => console.error('Mongo sync error (create invoice):', err.message));
+    }
+
+    return newInvoice;
   }
 
   updateInvoice(id, updatePayload) {
-    const index = this.data.invoices.findIndex(inv => inv._id === id);
+    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
     if (index === -1) return null;
 
     this.data.invoices[index] = {
@@ -296,14 +274,28 @@ class MemoryStore {
       updatedAt: new Date().toISOString()
     };
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Invoice.findOneAndUpdate({ $or: [{ _id: id }, { invoiceNumber: id }] }, this.data.invoices[index], { new: true })
+        .catch(err => console.error('Mongo sync error (update invoice):', err.message));
+    }
+
     return this.data.invoices[index];
   }
 
   deleteInvoice(id) {
-    const index = this.data.invoices.findIndex(inv => inv._id === id);
+    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
     if (index === -1) return false;
-    this.data.invoices.splice(index, 1);
+    const deleted = this.data.invoices.splice(index, 1)[0];
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Invoice.findOneAndDelete({ $or: [{ _id: id }, { invoiceNumber: id }] })
+        .catch(err => console.error('Mongo sync error (delete invoice):', err.message));
+    }
+
     return true;
   }
 
@@ -333,11 +325,18 @@ class MemoryStore {
     };
     this.data.customers.push(newCust);
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Customer.findOneAndUpdate({ customerId: newCust.customerId }, newCust, { upsert: true })
+        .catch(err => console.error('Mongo sync error (create customer):', err.message));
+    }
+
     return newCust;
   }
 
   updateCustomer(id, payload) {
-    const index = this.data.customers.findIndex(c => c._id === id);
+    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
     if (index === -1) return null;
     this.data.customers[index] = {
       ...this.data.customers[index],
@@ -345,14 +344,28 @@ class MemoryStore {
       updatedAt: new Date().toISOString()
     };
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Customer.findOneAndUpdate({ $or: [{ _id: id }, { customerId: id }] }, this.data.customers[index], { new: true })
+        .catch(err => console.error('Mongo sync error (update customer):', err.message));
+    }
+
     return this.data.customers[index];
   }
 
   deleteCustomer(id) {
-    const index = this.data.customers.findIndex(c => c._id === id);
+    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
     if (index === -1) return false;
     this.data.customers.splice(index, 1);
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Customer.findOneAndDelete({ $or: [{ _id: id }, { customerId: id }] })
+        .catch(err => console.error('Mongo sync error (delete customer):', err.message));
+    }
+
     return true;
   }
 
@@ -376,6 +389,13 @@ class MemoryStore {
     };
     this.data.services.push(newService);
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Service.findOneAndUpdate({ serviceCode: newService.serviceCode }, newService, { upsert: true })
+        .catch(err => console.error('Mongo sync error (create service):', err.message));
+    }
+
     return newService;
   }
 
@@ -394,13 +414,18 @@ class MemoryStore {
       };
       this.data.services.push(newService);
       createdList.push(newService);
+
+      if (mongoose.connection.readyState === 1) {
+        Service.findOneAndUpdate({ serviceCode: newService.serviceCode }, newService, { upsert: true })
+          .catch(err => console.error('Mongo sync error (create services):', err.message));
+      }
     }
     this.save();
     return createdList;
   }
 
   updateService(id, payload) {
-    const index = this.data.services.findIndex(s => s._id === id);
+    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
     if (index === -1) return null;
     this.data.services[index] = {
       ...this.data.services[index],
@@ -408,14 +433,28 @@ class MemoryStore {
       updatedAt: new Date().toISOString()
     };
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Service.findOneAndUpdate({ $or: [{ _id: id }, { serviceCode: id }] }, this.data.services[index], { new: true })
+        .catch(err => console.error('Mongo sync error (update service):', err.message));
+    }
+
     return this.data.services[index];
   }
 
   deleteService(id) {
-    const index = this.data.services.findIndex(s => s._id === id);
+    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
     if (index === -1) return false;
     this.data.services.splice(index, 1);
     this.save();
+
+    // Persist to MongoDB
+    if (mongoose.connection.readyState === 1) {
+      Service.findOneAndDelete({ $or: [{ _id: id }, { serviceCode: id }] })
+        .catch(err => console.error('Mongo sync error (delete service):', err.message));
+    }
+
     return true;
   }
 
@@ -433,22 +472,40 @@ class MemoryStore {
     };
     this.data.employees.push(newEmp);
     this.save();
+
+    if (mongoose.connection.readyState === 1) {
+      User.findOneAndUpdate({ email: newEmp.email }, newEmp, { upsert: true })
+        .catch(err => console.error('Mongo sync error (create employee):', err.message));
+    }
+
     return newEmp;
   }
 
   updateEmployee(id, payload) {
-    const index = this.data.employees.findIndex(e => e._id === id);
+    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
     if (index === -1) return null;
     this.data.employees[index] = { ...this.data.employees[index], ...payload };
     this.save();
+
+    if (mongoose.connection.readyState === 1) {
+      User.findOneAndUpdate({ $or: [{ _id: id }, { employeeId: id }] }, this.data.employees[index], { new: true })
+        .catch(err => console.error('Mongo sync error (update employee):', err.message));
+    }
+
     return this.data.employees[index];
   }
 
   deleteEmployee(id) {
-    const index = this.data.employees.findIndex(e => e._id === id);
+    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
     if (index === -1) return false;
     this.data.employees.splice(index, 1);
     this.save();
+
+    if (mongoose.connection.readyState === 1) {
+      User.findOneAndDelete({ $or: [{ _id: id }, { employeeId: id }] })
+        .catch(err => console.error('Mongo sync error (delete employee):', err.message));
+    }
+
     return true;
   }
 }

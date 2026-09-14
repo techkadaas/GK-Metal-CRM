@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const companySettingsSchema = new mongoose.Schema({
+  _id: { type: String, default: 'settings_default' },
   companyName: {
     type: String,
     required: true,

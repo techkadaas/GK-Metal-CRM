@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const serviceSchema = new mongoose.Schema({
+  _id: { type: String },
   serviceCode: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   name: {
     type: String,

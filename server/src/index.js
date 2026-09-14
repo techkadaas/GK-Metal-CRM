@@ -16,6 +16,7 @@ import serviceRoutes from './routes/serviceRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import { store } from './store/memoryStore.js';
 
 dotenv.config();
 
@@ -71,16 +72,19 @@ if (NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
-// MongoDB optional connection (smooth fallback to file/memory store)
+// MongoDB connection with automatic cloud persistence sync
 if (MONGODB_URI) {
-  try {
-    dns.setServers(['8.8.8.8', '1.1.1.1']);
-  } catch (e) {
-    // Ignore if system restricts dns override
-  }
-  mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✓ Connected to MongoDB database successfully.'))
-    .catch(err => console.warn('! MongoDB connection skipped (using JSON file store fallback):', err.message));
+  mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 8000,
+    connectTimeoutMS: 8000
+  })
+    .then(() => {
+      console.log('✓ Connected to MongoDB database successfully.');
+      store.syncWithMongo();
+    })
+    .catch(err => {
+      console.warn('! MongoDB connection skipped (using JSON file store fallback):', err.message);
+    });
 } else {
   console.log('ℹ Running with local JSON data persistence engine.');
 }

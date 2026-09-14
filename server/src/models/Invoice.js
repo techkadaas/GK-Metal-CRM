@@ -23,6 +23,7 @@ const paymentRecordSchema = new mongoose.Schema({
 });
 
 const invoiceSchema = new mongoose.Schema({
+  _id: { type: String },
   invoiceNumber: {
     type: String,
     required: true,
@@ -73,8 +74,7 @@ const invoiceSchema = new mongoose.Schema({
 
   // Customer Reference & Immutable Snapshot
   customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Customer'
+    type: mongoose.Schema.Types.Mixed
   },
   buyerSnapshot: {
     companyName: { type: String, required: true },
