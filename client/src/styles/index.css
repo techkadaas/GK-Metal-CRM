@@ -61,16 +61,18 @@
   }
 
   .invoice-document {
-    border: 1.5px solid #000000 !important;
+    border: none !important;
     box-shadow: none !important;
     width: 100% !important;
-    margin: 0 !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    font-family: 'Times New Roman', Times, serif !important;
     page-break-inside: avoid;
   }
 
   @page {
     size: A4 portrait;
-    margin: 8mm 8mm 8mm 8mm;
+    margin: 6mm 6mm 6mm 6mm;
   }
 }
 
