@@ -16,7 +16,7 @@ import InvoiceStatusBadge from '../components/invoice/InvoiceStatusBadge';
 import PaymentRecordModal from '../components/invoice/PaymentRecordModal';
 import ShareInvoiceModal from '../components/invoice/ShareInvoiceModal';
 import { api } from '../services/api';
-import { formatINR, formatDate } from '../utils/formatters';
+import { formatINR, formatDate, formatInvoiceNumber } from '../utils/formatters';
 import { useToast } from '../context/ToastContext';
 
 export default function InvoiceDetailPage() {
@@ -146,7 +146,7 @@ export default function InvoiceDetailPage() {
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-xl font-bold font-mono text-slate-900">
-                {invoice.invoiceNumber}
+                {formatInvoiceNumber(invoice.invoiceNumber)}
               </h1>
               <InvoiceStatusBadge status={invoice.status} />
             </div>

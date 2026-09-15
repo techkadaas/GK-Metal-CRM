@@ -51,6 +51,7 @@ export const getNextInvoiceNumber = (req, res) => {
       success: true,
       data: {
         nextInvoiceNumber,
+        invoiceNumber: nextInvoiceNumber,
         sequenceNumber: nextSeq,
         financialYear: fy,
         prefix
@@ -197,6 +198,8 @@ export const createInvoice = (req, res) => {
       cin: settings.cin,
       bankDetails: settings.bankDetails,
       nablAccreditationNo: settings.nablAccreditationNo,
+      invoicePrefix: settings.invoiceConfig?.prefix || 'GK/INV/',
+      invoiceConfig: settings.invoiceConfig,
       authorizedSignatoryName: settings.invoiceConfig?.authorizedSignatoryName,
       signatoryTitle: settings.invoiceConfig?.signatoryTitle
     };

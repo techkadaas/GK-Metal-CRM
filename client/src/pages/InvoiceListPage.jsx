@@ -18,7 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { api } from '../services/api';
-import { formatINR, formatDate } from '../utils/formatters';
+import { formatINR, formatDate, formatInvoiceNumber } from '../utils/formatters';
 import InvoiceStatusBadge from '../components/invoice/InvoiceStatusBadge';
 import { useToast } from '../context/ToastContext';
 
@@ -239,7 +239,7 @@ export default function InvoiceListPage() {
                         to={`/invoices/${inv._id}`}
                         className="font-mono font-bold text-sky-700 hover:text-sky-800 hover:underline block truncate"
                       >
-                        {inv.invoiceNumber}
+                        {formatInvoiceNumber(inv.invoiceNumber)}
                       </NavLink>
                       {inv.metadata?.testReportRef && (
                         <span className="text-[10px] text-slate-400 font-mono block truncate">

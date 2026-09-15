@@ -58,6 +58,15 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
   const rawWords = invoice.amountInWords || convertNumberToWords(invoice.grandTotal);
   const cleanAmountWords = rawWords.replace(/^INR\s+/i, '');
 
+  // Format invoice number to ensure prefix is always present
+  const prefix = company.invoicePrefix || company.invoiceConfig?.prefix || 'GK/INV/';
+  const rawInvoiceNumber = String(invoice.invoiceNumber || '').trim();
+  const displayInvoiceNumber = rawInvoiceNumber
+    ? (rawInvoiceNumber.toLowerCase().startsWith(prefix.toLowerCase()) || rawInvoiceNumber.toLowerCase().startsWith('gk/')
+        ? rawInvoiceNumber
+        : `${prefix}${rawInvoiceNumber}`)
+    : `${prefix}${invoice.financialYear || '26-27'}/${String(invoice.sequenceNumber || 1).padStart(3, '0')}`;
+
   return (
     <div
       id={id}
@@ -80,7 +89,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
       {/* 2. Main Bordered Invoice Container */}
       <div className="border border-black">
         {/* Top Split Section: Left Company & Buyer, Right Metadata Table */}
-        <div className="grid grid-cols-[1.15fr_1fr]">
+        <div className="grid grid-cols-[1fr_320px]">
           {/* Left Column: Company Details & Buyer Details */}
           <div className="flex flex-col justify-between border-r border-black">
             {/* Company Info Box */}
@@ -151,7 +160,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
             <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
               <div className="p-1 border-r border-black flex flex-col justify-between">
                 <span className="text-black block text-[10.5px]">Invoice No.</span>
-                <span className="font-bold text-[12px] text-black block mt-0.5">{invoice.invoiceNumber}</span>
+                <span className="font-bold text-[12px] text-black block mt-0.5">{displayInvoiceNumber}</span>
               </div>
               <div className="p-1 flex flex-col justify-between">
                 <span className="text-black block text-[10.5px]">Date</span>
@@ -333,8 +342,8 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           </div>
         </div>
 
-        {/* 6. Amount Chargeable In Words & Tax In Words */}
-        <div className="border-b border-black p-1.5 text-[11px]">
+        {/* 6. Amount Chargeable In Words */}
+        <div className="border-b border-black px-1.5 py-1 text-[11px]">
           <div className="flex justify-between items-center text-black">
             <span>Amount Chargeable (in words)</span>
             <span className="text-black text-[11px]">E. & O.E</span>
@@ -342,36 +351,46 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           <div className="text-[11.5px] text-black mt-0.5">
             INR <strong className="font-bold">{cleanAmountWords}</strong>
           </div>
-          <div className="text-[11px] text-black mt-0.5">
-            Tax Amount (in Words) <strong className="font-bold">{convertTaxToWords(totalTaxAmount)}</strong>
-          </div>
         </div>
 
-        {/* 7. Bottom Section: PAN, Declaration, Bank Details & Signatory */}
-        <div className="grid grid-cols-2">
-          {/* Left Sub-Section: PAN + Declaration */}
-          <div className="p-2 flex flex-col justify-between border-r border-black">
-            <div>
-              <div className="font-bold text-[11.5px] text-black mb-3">
+        {/* 7. Tax Amount In Words */}
+        <div className="px-1.5 pt-1.5 pb-1 text-[11px] text-black">
+          Tax Amount (in Words) <strong className="font-bold">{convertTaxToWords(totalTaxAmount)}</strong>
+        </div>
+
+        {/* 8. Bottom Section: PAN, Declaration, Bank Details & Signatory */}
+        <div className="grid grid-cols-[1fr_320px]">
+          {/* Left Sub-Section: PAN (top) + Declaration (bottom) */}
+          <div className="px-2 pb-2 flex flex-col justify-between">
+            <div className="mt-2.5">
+              <div className="font-bold text-[11.5px] text-black">
                 Company&apos;s PAN : {company.pan || 'CRZPV0007J'}
               </div>
+            </div>
 
+            <div className="mt-4">
               <div className="text-[11px] font-bold text-black mb-1">
                 Declaration:
               </div>
-              <div className="text-[9.5px] text-black leading-[1.35] space-y-0.5">
-                <p>1) Cheque, DD / RTGS in favour of <strong>GK Metal Testing Lab</strong> Payable at Trichy.</p>
-                <p>2) GST category: (998346) technical testing and analysis service.</p>
-                <p>3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. <strong>“This is purely a service contract.”</strong></p>
-                <p>4) All disputes Subject to Chennai Jurisdiction.</p>
-              </div>
+              {invoice.declaration ? (
+                <div className="text-[9.5px] text-black leading-[1.35] space-y-0.5 whitespace-pre-line">
+                  {invoice.declaration}
+                </div>
+              ) : (
+                <div className="text-[9.5px] text-black leading-[1.35] space-y-0.5">
+                  <p>1) Cheque, DD / RTGS in favour of <strong>GK Metal Testing Lab</strong> Payable at Trichy.</p>
+                  <p>2) GST category: (998346) technical testing and analysis service.</p>
+                  <p>3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. <strong>“This is purely a service contract.”</strong></p>
+                  <p>4) All disputes Subject to Chennai Jurisdiction.</p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right Sub-Section: Bank Details + Signatory */}
-          <div className="p-2 flex flex-col justify-between">
+          <div className="flex flex-col justify-between">
             {/* Bank Details */}
-            <div className="text-[10.5px] mb-2">
+            <div className="p-2 text-[10.5px]">
               <div className="font-bold text-[11px] text-black mb-1">Company&apos;s Bank Details :</div>
               <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.35] text-black">
                 <span>Name of the Bank</span>
@@ -386,18 +405,18 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
             </div>
 
             {/* Authorised Signatory Box */}
-            <div className="border border-black p-1.5 flex flex-col justify-between h-[100px] text-right bg-white">
-              <div className="font-bold text-[11px] text-black">
+            <div className="border-t border-l border-black px-2.5 py-1.5 flex flex-col justify-between h-[90px] text-right bg-white relative overflow-hidden">
+              <div className="font-bold text-[11px] text-black relative z-10">
                 For {company.companyName || 'GK Metal Testing Lab'}
               </div>
-              <div className="flex justify-center items-center my-0.5">
+              <div className="absolute inset-0 flex items-center justify-start pl-6 pointer-events-none">
                 <img
                   src={company.signatureUrl || signatureImg}
                   alt="Authorised Signatory"
-                  className="h-10 w-auto max-w-[130px] object-contain"
+                  className="h-[70px] w-auto max-w-[175px] object-contain"
                 />
               </div>
-              <div className="font-bold text-[11px] text-black">
+              <div className="font-bold text-[11px] text-black relative z-10">
                 Authorised Signatory
               </div>
             </div>

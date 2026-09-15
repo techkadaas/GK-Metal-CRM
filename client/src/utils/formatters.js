@@ -75,3 +75,13 @@ export function getStatusColor(status) {
       };
   }
 }
+
+export function formatInvoiceNumber(invNum, prefix = 'GK/INV/') {
+  if (!invNum) return '';
+  const cleanPrefix = prefix || 'GK/INV/';
+  const str = String(invNum).trim();
+  if (str.toLowerCase().startsWith(cleanPrefix.toLowerCase()) || str.toLowerCase().startsWith('gk/')) {
+    return str;
+  }
+  return `${cleanPrefix}${str}`;
+}

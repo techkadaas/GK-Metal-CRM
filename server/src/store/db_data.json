@@ -30,7 +30,7 @@
       "prefix": "GK/INV/",
       "financialYear": "26-27",
       "startingNumber": 1,
-      "currentSequence": 3,
+      "currentSequence": 4,
       "defaultPaymentTerms": "30 Days",
       "defaultNotes": "",
       "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
@@ -101,14 +101,14 @@
       "_id": "cust_1788962096688",
       "customerId": "",
       "stats": {
-        "totalInvoices": 1,
-        "totalBilled": 2950,
+        "totalInvoices": 2,
+        "totalBilled": 5900,
         "totalPaid": 0,
-        "outstandingBalance": 2950,
-        "lastInvoiceDate": "2026-09-09"
+        "outstandingBalance": 5900,
+        "lastInvoiceDate": "2026-09-15"
       },
       "createdAt": "2026-09-09T13:54:56.688Z",
-      "updatedAt": "2026-09-09T14:17:13.564Z",
+      "updatedAt": "2026-09-15T06:10:36.973Z",
       "companyName": "Kadaas",
       "contactPerson": "R.Ahamed Haden",
       "email": "ahamedhaden.r@gmail.com",
@@ -144,6 +144,129 @@
     }
   ],
   "invoices": [
+    {
+      "_id": "inv_1789452636969",
+      "invoiceNumber": "GK/INV/26-27/004",
+      "financialYear": "26-27",
+      "sequenceNumber": 4,
+      "status": "Generated",
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "payments": [],
+      "createdAt": "2026-09-15T06:10:36.969Z",
+      "updatedAt": "2026-09-15T06:10:36.969Z",
+      "invoiceDate": "2026-09-15",
+      "dueDate": "",
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "30 Days",
+        "supplierRef": "1233",
+        "otherRef": "",
+        "buyerOrderNo": "12",
+        "orderDate": "",
+        "despatchedThrough": "Hand Delivery / Courier",
+        "destination": "Chennai",
+        "termsOfDelivery": "Door Delivery / Lab Premises",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1788962096688",
+      "buyerSnapshot": {
+        "companyName": "Kadaas",
+        "contactPerson": "R.Ahamed Haden",
+        "email": "ahamedhaden.r@gmail.com",
+        "phone": "8270223203",
+        "gstin": "33A1233232",
+        "pan": "",
+        "billingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "shippingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": false,
+      "cgstRate": 9,
+      "sgstRate": 9,
+      "igstRate": 0,
+      "manualRoundOff": null,
+      "notes": "",
+      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 225,
+      "sgstAmount": 225,
+      "igstAmount": 0,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "companySnapshot": {
+        "companyName": "GK Metal Testing Lab",
+        "tagline": "",
+        "address": {
+          "street": "No.1, Parayadi Street, Sankaran Pillai Road",
+          "city": "Trichy",
+          "state": "Tamilnadu",
+          "stateCode": "33",
+          "pincode": "620 002"
+        },
+        "phone": "",
+        "email": "gkmetaltestinglab@gmail.com",
+        "website": "",
+        "gstin": "33CRZPV0007J1ZD",
+        "pan": "CRZPV0007J",
+        "cin": "",
+        "bankDetails": {
+          "bankName": "Karur Vysya Bank",
+          "accountName": "GK Metal Testing Lab",
+          "accountNumber": "1195135000016609",
+          "branch": "TRICHY MAIN BRANCH",
+          "ifscCode": "KVBL0001195",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": "",
+        "invoicePrefix": "GK/INV/",
+        "invoiceConfig": {
+          "prefix": "GK/INV/",
+          "financialYear": "26-27",
+          "startingNumber": 1,
+          "currentSequence": 4,
+          "defaultPaymentTerms": "30 Days",
+          "defaultNotes": "",
+          "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
+          "authorizedSignatoryName": "",
+          "signatoryTitle": "Authorised Signatory",
+          "signatureImageUrl": "/signature.png"
+        },
+        "authorizedSignatoryName": "",
+        "signatoryTitle": "Authorised Signatory"
+      }
+    },
     {
       "_id": "inv_1788963433559",
       "sequenceNumber": 3,

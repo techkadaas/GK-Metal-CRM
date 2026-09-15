@@ -172,7 +172,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           if (nextRes?.success && nextRes.data) {
             setFormData(prev => ({
               ...prev,
-              invoiceNumber: nextRes.data.invoiceNumber,
+              invoiceNumber: nextRes.data.nextInvoiceNumber || nextRes.data.invoiceNumber || '',
               sequenceNumber: nextRes.data.sequenceNumber,
               financialYear: nextRes.data.financialYear
             }));
