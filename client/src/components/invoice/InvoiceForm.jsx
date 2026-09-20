@@ -987,16 +987,17 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Day (Half Day / Full Day)
+                    Day / Visit (Half Day / Full Day / Minimum Visit)
                   </label>
                   <select
                     value={item.dayType || ''}
                     onChange={(e) => handleItemChange(idx, 'dayType', e.target.value)}
                     className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 bg-white focus:ring-2 focus:ring-sky-500 transition"
                   >
-                    <option value="">-- Select Day (Optional) --</option>
-                    <option value="Full Day">Full Day</option>
+                    <option value="">-- Select Day / Visit (Optional) --</option>
                     <option value="Half Day">Half Day</option>
+                    <option value="Full Day">Full Day</option>
+                    <option value="Minimum Visit">Minimum Visit</option>
                     <option value="1 Day">1 Day</option>
                     <option value="2 Days">2 Days</option>
                     <option value="3 Days">3 Days</option>

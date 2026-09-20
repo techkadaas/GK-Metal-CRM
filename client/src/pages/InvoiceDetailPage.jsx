@@ -57,7 +57,7 @@ export default function InvoiceDetailPage() {
     window.print();
   };
 
-  // High-Resolution A4 PDF Generation
+  // High-Resolution A4 PDF Generation (Exact Match to Preview)
   const handleDownloadPDF = async () => {
     const docElement = document.getElementById('tax-invoice-printable');
     if (!docElement) {
@@ -69,20 +69,75 @@ export default function InvoiceDetailPage() {
       setDownloading(true);
       toast.info('Generating high-resolution A4 PDF...');
 
-      const canvas = await html2canvas(docElement, {
-        scale: 2.5,
+      // Clone element into an isolated offscreen container with exact fixed preview width (760px)
+      const clone = docElement.cloneNode(true);
+      clone.style.width = '760px';
+      clone.style.maxWidth = '760px';
+      clone.style.minWidth = '760px';
+      clone.style.padding = '12px';
+      clone.style.boxSizing = 'border-box';
+      clone.style.position = 'fixed';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.zIndex = '-9999';
+      clone.style.background = '#ffffff';
+      document.body.appendChild(clone);
+
+      // Ensure all images inside clone are loaded
+      const images = Array.from(clone.getElementsByTagName('img'));
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+
+      const canvas = await html2canvas(clone, {
+        scale: 3,
         useCORS: true,
+        allowTaint: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: 760,
+        windowWidth: 760
       });
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      // Remove the offscreen clone
+      document.body.removeChild(clone);
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-      const safeFilename = `${invoice.invoiceNumber.replace(/[\/\\]/g, '_')}_Tax_Invoice.pdf`;
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+      // Balanced standard margin (6mm matching print stylesheet)
+      const margin = 6;
+      const availWidth = pageWidth - margin * 2;
+      const availHeight = pageHeight - margin * 2;
+
+      const imgRatio = canvas.width / canvas.height;
+      let finalWidth = availWidth;
+      let finalHeight = finalWidth / imgRatio;
+
+      if (finalHeight > availHeight) {
+        finalHeight = availHeight;
+        finalWidth = finalHeight * imgRatio;
+      }
+
+      const posX = (pageWidth - finalWidth) / 2;
+      const posY = (pageHeight - finalHeight) / 2;
+
+      pdf.addImage(imgData, 'PNG', posX, posY, finalWidth, finalHeight, undefined, 'SLOW');
+      const safeFilename = `${(invoice.invoiceNumber || 'Invoice').replace(/[\/\\]/g, '_')}_Tax_Invoice.pdf`;
       pdf.save(safeFilename);
 
       toast.success(`Downloaded ${safeFilename}`);
