@@ -1315,7 +1315,7 @@ export default function CustomersPage() {
                         <MapPin className="w-3.5 h-3.5 text-slate-500" />
                         <span>Billing Address</span>
                       </div>
-                      <p className="text-slate-700 font-medium leading-relaxed">
+                      <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-line">
                         {selectedCustomer.billingAddress?.street || 'No street address specified'}<br />
                         {selectedCustomer.billingAddress?.city ? `${selectedCustomer.billingAddress.city}, ` : ''}{selectedCustomer.billingAddress?.state || 'Tamil Nadu'}
                         {selectedCustomer.billingAddress?.pincode ? ` - ${selectedCustomer.billingAddress.pincode}` : ''}

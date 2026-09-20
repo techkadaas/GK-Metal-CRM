@@ -123,7 +123,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
               <div className="font-bold text-[12.5px] text-black">
                 {buyer.companyName || '—'}
               </div>
-              {billingAddr.street && <div>{billingAddr.street}</div>}
+              {billingAddr.street && <div className="whitespace-pre-line">{billingAddr.street}</div>}
               {(billingAddr.city || billingAddr.pincode) && (
                 <div>
                   {billingAddr.city}
