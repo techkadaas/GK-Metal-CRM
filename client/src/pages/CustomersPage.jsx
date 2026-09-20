@@ -117,14 +117,14 @@ export default function CustomersPage() {
     status: 'Active',
     billingAddress: {
       street: '',
-      city: 'Chennai',
+      city: '',
       state: 'Tamil Nadu',
       stateCode: '33',
       pincode: ''
     },
     shippingAddress: {
       street: '',
-      city: 'Chennai',
+      city: '',
       state: 'Tamil Nadu',
       stateCode: '33',
       pincode: ''
@@ -321,14 +321,14 @@ export default function CustomersPage() {
       status: cust.status || 'Active',
       billingAddress: {
         street: cust.billingAddress?.street || '',
-        city: cust.billingAddress?.city || 'Chennai',
+        city: cust.billingAddress?.city || '',
         state: cust.billingAddress?.state || 'Tamil Nadu',
         stateCode: cust.billingAddress?.stateCode || '33',
         pincode: cust.billingAddress?.pincode || ''
       },
       shippingAddress: {
         street: cust.shippingAddress?.street || cust.billingAddress?.street || '',
-        city: cust.shippingAddress?.city || cust.billingAddress?.city || 'Chennai',
+        city: cust.shippingAddress?.city || cust.billingAddress?.city || '',
         state: cust.shippingAddress?.state || cust.billingAddress?.state || 'Tamil Nadu',
         stateCode: cust.shippingAddress?.stateCode || cust.billingAddress?.stateCode || '33',
         pincode: cust.shippingAddress?.pincode || cust.billingAddress?.pincode || ''
@@ -899,7 +899,7 @@ export default function CustomersPage() {
                       {/* Location Column */}
                       <td className="py-3 px-3">
                         <div className="text-slate-700 font-medium truncate text-[11px]">
-                          {cust.billingAddress?.city || 'Chennai'}
+                          {cust.billingAddress?.city || '-'}
                         </div>
                         <div className="text-[10px] text-slate-400 truncate">
                           {cust.billingAddress?.state || 'Tamil Nadu'} ({cust.billingAddress?.stateCode || '33'})
@@ -1130,7 +1130,7 @@ export default function CustomersPage() {
                           {cust.companyName}
                         </h4>
                         <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                          {cust.customerId} • {cust.billingAddress?.city || 'Chennai'}
+                          {cust.customerId}{cust.billingAddress?.city ? ` • ${cust.billingAddress.city}` : ''}
                         </div>
                       </div>
                     </div>
@@ -1317,7 +1317,7 @@ export default function CustomersPage() {
                       </div>
                       <p className="text-slate-700 font-medium leading-relaxed">
                         {selectedCustomer.billingAddress?.street || 'No street address specified'}<br />
-                        {selectedCustomer.billingAddress?.city || 'Chennai'}, {selectedCustomer.billingAddress?.state || 'Tamil Nadu'}
+                        {selectedCustomer.billingAddress?.city ? `${selectedCustomer.billingAddress.city}, ` : ''}{selectedCustomer.billingAddress?.state || 'Tamil Nadu'}
                         {selectedCustomer.billingAddress?.pincode ? ` - ${selectedCustomer.billingAddress.pincode}` : ''}
                       </p>
                       <div className="pt-2 text-[11px] text-slate-500 font-mono">
@@ -1675,7 +1675,7 @@ export default function CustomersPage() {
                         <label className="block text-xs font-semibold text-slate-700 mb-1">City</label>
                         <input
                           type="text"
-                          placeholder="e.g. Chennai"
+                          placeholder="Enter city"
                           value={formData.billingAddress?.city || ''}
                           onChange={(e) => setFormData({
                             ...formData,

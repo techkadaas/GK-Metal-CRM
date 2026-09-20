@@ -49,7 +49,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
     state: 'Tamil Nadu',
     stateCode: '33',
     street: '',
-    city: 'Chennai',
+    city: '',
     pincode: ''
   });
 
@@ -85,14 +85,14 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
       pan: '',
       billingAddress: {
         street: '',
-        city: 'Chennai',
+        city: '',
         state: 'Tamil Nadu',
         stateCode: '33',
         pincode: ''
       },
       shippingAddress: {
         street: '',
-        city: 'Chennai',
+        city: '',
         state: 'Tamil Nadu',
         stateCode: '33',
         pincode: ''
@@ -149,14 +149,14 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                 pan: matched.pan || '',
                 billingAddress: {
                   street: matched.billingAddress?.street || '',
-                  city: matched.billingAddress?.city || 'Chennai',
+                  city: matched.billingAddress?.city || '',
                   state: matched.billingAddress?.state || 'Tamil Nadu',
                   stateCode: matched.billingAddress?.stateCode || '33',
                   pincode: matched.billingAddress?.pincode || ''
                 },
                 shippingAddress: {
                   street: matched.shippingAddress?.street || matched.billingAddress?.street || '',
-                  city: matched.shippingAddress?.city || matched.billingAddress?.city || 'Chennai',
+                  city: matched.shippingAddress?.city || matched.billingAddress?.city || '',
                   state: matched.shippingAddress?.state || matched.billingAddress?.state || 'Tamil Nadu',
                   stateCode: matched.shippingAddress?.stateCode || matched.billingAddress?.stateCode || '33',
                   pincode: matched.shippingAddress?.pincode || matched.billingAddress?.pincode || ''
@@ -216,8 +216,8 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           phone: '',
           gstin: '',
           pan: '',
-          billingAddress: { street: '', city: 'Chennai', state: 'Tamil Nadu', stateCode: '33', pincode: '' },
-          shippingAddress: { street: '', city: 'Chennai', state: 'Tamil Nadu', stateCode: '33', pincode: '' }
+          billingAddress: { street: '', city: '', state: 'Tamil Nadu', stateCode: '33', pincode: '' },
+          shippingAddress: { street: '', city: '', state: 'Tamil Nadu', stateCode: '33', pincode: '' }
         }
       }));
       return;
@@ -240,14 +240,14 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
         pan: selected.pan || '',
         billingAddress: {
           street: selected.billingAddress?.street || '',
-          city: selected.billingAddress?.city || 'Chennai',
+          city: selected.billingAddress?.city || '',
           state: selected.billingAddress?.state || 'Tamil Nadu',
           stateCode: selected.billingAddress?.stateCode || '33',
           pincode: selected.billingAddress?.pincode || ''
         },
         shippingAddress: {
           street: selected.shippingAddress?.street || selected.billingAddress?.street || '',
-          city: selected.shippingAddress?.city || selected.billingAddress?.city || 'Chennai',
+          city: selected.shippingAddress?.city || selected.billingAddress?.city || '',
           state: selected.shippingAddress?.state || selected.billingAddress?.state || 'Tamil Nadu',
           stateCode: selected.shippingAddress?.stateCode || selected.billingAddress?.stateCode || '33',
           pincode: selected.shippingAddress?.pincode || selected.billingAddress?.pincode || ''
