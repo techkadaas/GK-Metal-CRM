@@ -65,9 +65,9 @@ const invoiceSchema = new mongoose.Schema({
     otherRef: { type: String, default: '' },
     buyerOrderNo: { type: String, default: '' },
     orderDate: { type: String, default: '' },
-    despatchedThrough: { type: String, default: 'Hand Delivery / Courier' },
+    despatchedThrough: { type: String, default: '' },
     destination: { type: String, default: '' },
-    termsOfDelivery: { type: String, default: 'Ex-Works / Lab Premises' },
+    termsOfDelivery: { type: String, default: '' },
     sampleBatchRef: { type: String, default: '' },
     testReportRef: { type: String, default: '' }
   },

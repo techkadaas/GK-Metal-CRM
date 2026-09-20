@@ -69,9 +69,9 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
       otherRef: '',
       buyerOrderNo: '',
       orderDate: '',
-      despatchedThrough: 'Hand Delivery / Courier',
-      destination: 'Chennai',
-      termsOfDelivery: 'Door Delivery / Lab Premises',
+      despatchedThrough: '',
+      destination: '',
+      termsOfDelivery: '',
       sampleBatchRef: '',
       testReportRef: ''
     },
