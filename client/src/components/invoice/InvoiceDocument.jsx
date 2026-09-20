@@ -157,122 +157,122 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           {/* Right Column: Metadata Grid */}
           <div className="flex flex-col text-[10.5px]">
             {/* Row 1: Invoice No & Date */}
-            <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
-              <div className="p-1 border-r border-black flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Invoice No.</span>
-                <span className="font-bold text-[12px] text-black block mt-0.5">{displayInvoiceNumber}</span>
+            <div className="grid grid-cols-2 border-b border-black">
+              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Invoice No.</span>
+                <span className="font-bold text-[12px] text-black block mt-0.5 leading-tight">{displayInvoiceNumber}</span>
               </div>
-              <div className="p-1 flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Date</span>
-                <span className="font-bold text-[12px] text-black block mt-0.5">{formatInvoiceDate(invoice.invoiceDate)}</span>
+              <div className="px-2 py-1.5 flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Date</span>
+                <span className="font-bold text-[12px] text-black block mt-0.5 leading-tight">{formatInvoiceDate(invoice.invoiceDate)}</span>
               </div>
             </div>
 
             {/* Row 2: Delivery Note & Mode/Terms of Payment */}
-            <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
-              <div className="p-1 border-r border-black flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Delivery Note</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.deliveryNote || ''}</span>
+            <div className="grid grid-cols-2 border-b border-black">
+              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Delivery Note</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.deliveryNote || ''}</span>
               </div>
-              <div className="p-1 flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Mode/Terms of Payment</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.modeOfPayment || ''}</span>
+              <div className="px-2 py-1.5 flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Mode/Terms of Payment</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.modeOfPayment || ''}</span>
               </div>
             </div>
 
             {/* Row 3: Supplier's Ref & Other Ref */}
-            <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
-              <div className="p-1 border-r border-black flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Supplier&apos;s Ref.</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.supplierRef || meta.testReportRef || ''}</span>
+            <div className="grid grid-cols-2 border-b border-black">
+              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Supplier&apos;s Ref.</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.supplierRef || meta.testReportRef || ''}</span>
               </div>
-              <div className="p-1 flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Other Reference(s)</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.otherRef || ''}</span>
+              <div className="px-2 py-1.5 flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Other Reference(s)</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.otherRef || ''}</span>
               </div>
             </div>
 
             {/* Row 4: Buyer's Order No & Dated */}
-            <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
-              <div className="p-1 border-r border-black flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Buyer&apos;s Order No.:</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.buyerOrderNo || ''}</span>
+            <div className="grid grid-cols-2 border-b border-black">
+              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Buyer&apos;s Order No.:</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.buyerOrderNo || ''}</span>
               </div>
-              <div className="p-1 flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Dated.</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.orderDate ? formatInvoiceDate(meta.orderDate) : ''}</span>
+              <div className="px-2 py-1.5 flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Dated.</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.orderDate ? formatInvoiceDate(meta.orderDate) : ''}</span>
               </div>
             </div>
 
             {/* Row 5: Despatched through & Destination */}
-            <div className="grid grid-cols-2 border-b border-black min-h-[36px]">
-              <div className="p-1 border-r border-black flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Despatched through</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.despatchedThrough || ''}</span>
+            <div className="grid grid-cols-2 border-b border-black">
+              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Despatched through</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.despatchedThrough || ''}</span>
               </div>
-              <div className="p-1 flex flex-col justify-between">
-                <span className="text-black block text-[10.5px]">Destination.</span>
-                <span className="text-[11px] text-black block mt-0.5">{meta.destination || ''}</span>
+              <div className="px-2 py-1.5 flex flex-col justify-center">
+                <span className="text-black block text-[10px] leading-tight">Destination.</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.destination || ''}</span>
               </div>
             </div>
 
             {/* Row 6: Terms of Delivery */}
-            <div className="p-1 min-h-[36px] flex-1 flex flex-col justify-between">
-              <span className="text-black block text-[10.5px]">Terms of Delivery</span>
-              <span className="text-[11px] text-black block mt-0.5">{meta.termsOfDelivery || ''}</span>
+            <div className="px-2 py-1.5 flex-1 flex flex-col justify-center">
+              <span className="text-black block text-[10px] leading-tight">Terms of Delivery</span>
+              <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.termsOfDelivery || ''}</span>
             </div>
           </div>
         </div>
 
         {/* 3. Items Table Header */}
         <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] border-t border-b border-black text-center font-bold text-[11px] bg-white">
-          <div className="py-1 border-r border-black flex items-center justify-center">Sl.<br/>No</div>
-          <div className="py-1 px-2 border-r border-black flex items-center justify-center">Description of Services</div>
-          <div className="py-1 border-r border-black flex items-center justify-center">HSN/SAC</div>
-          <div className="py-1 border-r border-black flex items-center justify-center">Quantity</div>
-          <div className="py-1 border-r border-black flex items-center justify-center">Rate</div>
-          <div className="py-1 border-r border-black flex items-center justify-center">Per</div>
-          <div className="py-1 px-2 flex items-center justify-center">Amount</div>
+          <div className="py-2 border-r border-black flex items-center justify-center">Sl.<br/>No</div>
+          <div className="py-2 px-2 border-r border-black flex items-center justify-center">Description of Services</div>
+          <div className="py-2 border-r border-black flex items-center justify-center">HSN/SAC</div>
+          <div className="py-2 border-r border-black flex items-center justify-center">Quantity</div>
+          <div className="py-2 border-r border-black flex items-center justify-center">Rate</div>
+          <div className="py-2 border-r border-black flex items-center justify-center">Per</div>
+          <div className="py-2 px-2 flex items-center justify-center">Amount</div>
         </div>
 
         {/* 4. Items Table Body (continuous vertical divider lines) */}
-        <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] min-h-[310px] text-[11px] text-black">
+        <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] min-h-[300px] text-[11px] text-black">
           {/* Sl No Col */}
-          <div className="border-r border-black p-1 text-center font-normal">
+          <div className="border-r border-black p-2 text-center font-normal">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.slNo || `${idx + 1}.`}</div>
             ))}
           </div>
 
           {/* Description Col */}
-          <div className="border-r border-black p-1.5 flex flex-col justify-between">
+          <div className="border-r border-black p-2 flex flex-col justify-between">
             <div className="space-y-1">
               {items.map((item, idx) => (
                 <div key={idx} className="space-y-0.5">
-                  <div className="font-bold text-[11.5px] text-black uppercase">{item.description}</div>
+                  <div className="font-bold text-[11.5px] text-black uppercase leading-snug">{item.description}</div>
                   {(item.testedDate || item.testedOn) && (
-                    <div className="text-[11px] text-black">
+                    <div className="text-[11px] text-black leading-snug">
                       Tested on : {formatInvoiceDate(item.testedDate || item.testedOn)}
                     </div>
                   )}
                   {(item.dayType || item.visitType) && (
-                    <div className="text-[11px] text-black">
+                    <div className="text-[11px] text-black leading-snug">
                       ({item.dayType || item.visitType})
                     </div>
                   )}
-                  {item.testingSite && <div className="text-[11px] text-black">Site of Testing : {item.testingSite}</div>}
-                  {item.sampleDetails && <div className="text-[11px] text-black">{item.sampleDetails}</div>}
-                  {item.notes && <div className="text-[11px] text-black">{item.notes}</div>}
+                  {item.testingSite && <div className="text-[11px] text-black leading-snug">Site of Testing : {item.testingSite}</div>}
+                  {item.sampleDetails && <div className="text-[11px] text-black leading-snug">{item.sampleDetails}</div>}
+                  {item.notes && <div className="text-[11px] text-black leading-snug">{item.notes}</div>}
                   {item.discountPercent > 0 && (
-                    <div className="text-[10px] text-black">Less Discount @ {item.discountPercent}%</div>
+                    <div className="text-[10px] text-black leading-snug">Less Discount @ {item.discountPercent}%</div>
                   )}
                 </div>
               ))}
             </div>
 
             {/* Bottom within Description Column: Tax lines right aligned */}
-            <div className="pt-4 flex justify-end">
-              <div className="text-right text-[11px] font-normal space-y-0.5 pr-2">
+            <div className="pt-4 pb-1.5 flex justify-end">
+              <div className="text-right text-[11px] font-normal space-y-1 pr-2">
                 {!invoice.isInterstate ? (
                   <>
                     <div>Output CGST {invoice.cgstRate || 9}%</div>
@@ -286,35 +286,35 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           </div>
 
           {/* HSN/SAC Col */}
-          <div className="border-r border-black p-1 text-center">
+          <div className="border-r border-black p-2 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.hsnSac || '998346'}</div>
             ))}
           </div>
 
           {/* Quantity Col */}
-          <div className="border-r border-black p-1 text-center">
+          <div className="border-r border-black p-2 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.quantity}</div>
             ))}
           </div>
 
           {/* Rate Col */}
-          <div className="border-r border-black p-1 text-center">
+          <div className="border-r border-black p-2 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{Number(item.rate).toFixed(0)}</div>
             ))}
           </div>
 
           {/* Per Col */}
-          <div className="border-r border-black p-1 text-center">
+          <div className="border-r border-black p-2 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.per || 'No.'}</div>
             ))}
           </div>
 
           {/* Amount Col */}
-          <div className="p-1.5 text-right flex flex-col justify-between">
+          <div className="p-2 text-right flex flex-col justify-between">
             <div className="space-y-0.5">
               {items.map((item, idx) => (
                 <div key={idx}>
@@ -324,7 +324,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
             </div>
 
             {/* Tax values aligned with CGST / SGST */}
-            <div className="space-y-0.5">
+            <div className="space-y-1 pb-1.5">
               {!invoice.isInterstate ? (
                 <>
                   <div>{Number(invoice.cgstAmount || (totalTaxAmount / 2)).toFixed(2)}</div>
@@ -340,43 +340,43 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
         {/* 5. Total Row */}
         <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] border-t border-b border-black text-[11px]">
           <div className="border-r border-black"></div>
-          <div className="border-r border-black py-0.5 text-center font-normal">Total</div>
+          <div className="border-r border-black py-1.5 text-center font-bold">Total</div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
-          <div className="py-0.5 px-1.5 text-right font-bold text-[11.5px]">
+          <div className="py-1.5 px-2 text-right font-bold text-[11.5px]">
             {Number(invoice.grandTotal || 0).toFixed(2)}
           </div>
         </div>
 
         {/* 6. Amount Chargeable In Words */}
-        <div className="border-b border-black px-1.5 py-1 text-[11px]">
-          <div className="flex justify-between items-center text-black">
-            <span>Amount Chargeable (in words)</span>
-            <span className="text-black text-[11px]">E. & O.E</span>
+        <div className="border-b border-black px-2.5 py-1.5 text-[11px]">
+          <div className="flex justify-between items-center text-black mb-1">
+            <span className="text-[10.5px]">Amount Chargeable (in words)</span>
+            <span className="text-black text-[10.5px]">E. & O.E</span>
           </div>
-          <div className="text-[11.5px] text-black mt-0.5">
+          <div className="text-[11.5px] text-black pb-1 leading-snug">
             INR <strong className="font-bold">{cleanAmountWords}</strong>
           </div>
         </div>
 
         {/* 7. Tax Amount In Words */}
-        <div className="px-1.5 pt-1.5 pb-1 text-[11px] text-black">
+        <div className="border-b border-black px-2.5 py-1.5 text-[11px] text-black">
           Tax Amount (in Words) <strong className="font-bold">{convertTaxToWords(totalTaxAmount)}</strong>
         </div>
 
         {/* 8. Bottom Section: PAN, Declaration, Bank Details & Signatory */}
         <div className="grid grid-cols-[1fr_320px]">
           {/* Left Sub-Section: PAN (top) + Declaration (bottom) */}
-          <div className="px-2 pb-2 flex flex-col justify-between">
-            <div className="mt-2.5">
+          <div className="p-2.5 flex flex-col justify-between border-r border-black">
+            <div>
               <div className="font-bold text-[11.5px] text-black">
                 Company&apos;s PAN : {company.pan || 'CRZPV0007J'}
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
               <div className="text-[11px] font-bold text-black mb-1">
                 Declaration:
               </div>
@@ -398,9 +398,9 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           {/* Right Sub-Section: Bank Details + Signatory */}
           <div className="flex flex-col justify-between">
             {/* Bank Details */}
-            <div className="p-2 text-[10.5px]">
+            <div className="p-2.5 text-[10.5px]">
               <div className="font-bold text-[11px] text-black mb-1">Company&apos;s Bank Details :</div>
-              <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.35] text-black">
+              <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.35] text-black gap-y-0.5">
                 <span>Name of the Bank</span>
                 <span>: <strong>{company.bankDetails?.bankName || 'Karur Vysya Bank'}</strong></span>
                 <span>Account No.</span>
@@ -413,7 +413,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
             </div>
 
             {/* Authorised Signatory Box */}
-            <div className="border-t border-l border-black px-2.5 py-1.5 flex flex-col justify-between h-[90px] text-right bg-white relative overflow-hidden">
+            <div className="border-t border-black px-2.5 py-1.5 flex flex-col justify-between h-[90px] text-right bg-white relative overflow-hidden">
               <div className="font-bold text-[11px] text-black relative z-10">
                 For {company.companyName || 'GK Metal Testing Lab'}
               </div>
