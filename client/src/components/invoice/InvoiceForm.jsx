@@ -103,6 +103,8 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
         slNo: 1,
         serviceId: '',
         description: '',
+        testedDate: '',
+        dayType: '',
         hsnSac: '998346',
         quantity: 1,
         rate: 0,
@@ -310,6 +312,8 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           slNo: prev.items.length + 1,
           serviceId: '',
           description: '',
+          testedDate: '',
+          dayType: '',
           hsnSac: '998346',
           quantity: 1,
           rate: 0,
@@ -965,6 +969,39 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                   onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
                   className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 bg-white focus:ring-2 focus:ring-sky-500 transition"
                 ></textarea>
+              </div>
+
+              {/* Tested On Date & Day / Duration Inputs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Tested on (Test Date)
+                  </label>
+                  <input
+                    type="date"
+                    value={item.testedDate || ''}
+                    onChange={(e) => handleItemChange(idx, 'testedDate', e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 bg-white focus:ring-2 focus:ring-sky-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Day (Half Day / Full Day)
+                  </label>
+                  <select
+                    value={item.dayType || ''}
+                    onChange={(e) => handleItemChange(idx, 'dayType', e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 bg-white focus:ring-2 focus:ring-sky-500 transition"
+                  >
+                    <option value="">-- Select Day (Optional) --</option>
+                    <option value="Full Day">Full Day</option>
+                    <option value="Half Day">Half Day</option>
+                    <option value="1 Day">1 Day</option>
+                    <option value="2 Days">2 Days</option>
+                    <option value="3 Days">3 Days</option>
+                  </select>
+                </div>
               </div>
 
               {/* Pricing Matrix Inputs */}

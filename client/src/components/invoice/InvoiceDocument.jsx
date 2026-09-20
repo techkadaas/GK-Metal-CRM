@@ -250,8 +250,13 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
               {items.map((item, idx) => (
                 <div key={idx} className="space-y-0.5">
                   <div className="font-bold text-[11.5px] text-black uppercase">{item.description}</div>
-                  {item.testedDate && <div className="text-[11px] text-black">Tested on {formatInvoiceDate(item.testedDate)}</div>}
-                  {item.visitType && <div className="text-[11px] text-black">({item.visitType})</div>}
+                  {(item.testedDate || item.testedOn || item.dayType || item.visitType) && (
+                    <div className="text-[11px] text-black">
+                      {item.testedDate || item.testedOn ? `Tested on : ${formatInvoiceDate(item.testedDate || item.testedOn)}` : ''}
+                      {(item.testedDate || item.testedOn) && (item.dayType || item.visitType) ? ' ' : ''}
+                      {item.dayType || item.visitType ? `(${item.dayType || item.visitType})` : ''}
+                    </div>
+                  )}
                   {item.testingSite && <div className="text-[11px] text-black">Site of Testing : {item.testingSite}</div>}
                   {item.sampleDetails && <div className="text-[11px] text-black">{item.sampleDetails}</div>}
                   {item.notes && <div className="text-[11px] text-black">{item.notes}</div>}
