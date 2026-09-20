@@ -6,8 +6,12 @@ import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 import dns from 'dns';
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1']);
+} catch (e) {
+  // Ignore if setting DNS is not permitted
+}
 import { fileURLToPath } from 'url';
-
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
@@ -60,7 +64,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-
 // Body parsers
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
@@ -75,16 +78,27 @@ if (NODE_ENV === 'production') {
 // MongoDB connection with automatic cloud persistence sync
 if (MONGODB_URI) {
   mongoose.connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 8000,
-    connectTimeoutMS: 8000
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    retryWrites: true,
+    w: 'majority'
   })
-    .then(() => {
-      console.log('✓ Connected to MongoDB database successfully.');
-      store.syncWithMongo();
+    .then(async () => {
+      console.log('✓ Connected to MongoDB Atlas database successfully.');
+      await store.syncWithMongo();
     })
     .catch(err => {
-      console.warn('! MongoDB connection skipped (using JSON file store fallback):', err.message);
+      console.warn('! MongoDB connection note (running with resilient data persistence):', err.message);
     });
+
+  mongoose.connection.on('disconnected', () => {
+    console.warn('! MongoDB disconnected. Running with cached resilient store...');
+  });
+
+  mongoose.connection.on('reconnected', async () => {
+    console.log('✓ MongoDB reconnected. Synchronizing state with MongoDB Atlas...');
+    await store.syncWithMongo();
+  });
 } else {
   console.log('ℹ Running with local JSON data persistence engine.');
 }

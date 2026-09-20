@@ -58,22 +58,22 @@ export const getCustomerById = (req, res) => {
   }
 };
 
-export const createCustomer = (req, res) => {
+export const createCustomer = async (req, res) => {
   try {
     const payload = req.body;
     if (!payload.companyName) {
       return res.status(400).json({ success: false, message: 'Company Name is required' });
     }
-    const newCustomer = store.createCustomer(payload);
+    const newCustomer = await store.createCustomer(payload);
     res.status(201).json({ success: true, data: newCustomer });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const updateCustomer = (req, res) => {
+export const updateCustomer = async (req, res) => {
   try {
-    const updated = store.updateCustomer(req.params.id, req.body);
+    const updated = await store.updateCustomer(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
@@ -83,9 +83,9 @@ export const updateCustomer = (req, res) => {
   }
 };
 
-export const deleteCustomer = (req, res) => {
+export const deleteCustomer = async (req, res) => {
   try {
-    const success = store.deleteCustomer(req.params.id);
+    const success = await store.deleteCustomer(req.params.id);
     if (!success) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }

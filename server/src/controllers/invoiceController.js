@@ -42,7 +42,7 @@ export const getNextInvoiceNumber = (req, res) => {
     const settings = store.getSettings();
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
-    const currentSeq = settings?.invoiceConfig?.currentSequence || 66;
+    const currentSeq = settings?.invoiceConfig?.currentSequence || 4;
     const nextSeq = currentSeq + 1;
     const formattedSeq = String(nextSeq).padStart(3, '0');
     const nextInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
@@ -134,7 +134,7 @@ export const getInvoiceById = (req, res) => {
 };
 
 // Create Invoice
-export const createInvoice = (req, res) => {
+export const createInvoice = async (req, res) => {
   try {
     const payload = req.body;
     const settings = store.getSettings();
@@ -204,7 +204,7 @@ export const createInvoice = (req, res) => {
       signatoryTitle: settings.invoiceConfig?.signatoryTitle
     };
 
-    const newInvoice = store.createInvoice({
+    const newInvoice = await store.createInvoice({
       ...payload,
       items,
       subtotal,
@@ -238,7 +238,7 @@ export const createInvoice = (req, res) => {
         customer.stats.totalBilled = (customer.stats.totalBilled || 0) + grandTotal;
         customer.stats.outstandingBalance = (customer.stats.outstandingBalance || 0) + (grandTotal - (payload.paidAmount || 0));
         customer.stats.lastInvoiceDate = newInvoice.invoiceDate;
-        store.updateCustomer(customer._id, customer);
+        await store.updateCustomer(customer._id, customer);
       }
     }
 
@@ -249,7 +249,7 @@ export const createInvoice = (req, res) => {
 };
 
 // Update Invoice
-export const updateInvoice = (req, res) => {
+export const updateInvoice = async (req, res) => {
   try {
     const id = req.params.id;
     const existing = store.getInvoiceById(id);
@@ -261,7 +261,7 @@ export const updateInvoice = (req, res) => {
     let grandTotal = payload.grandTotal !== undefined ? payload.grandTotal : existing.grandTotal;
     let amountInWords = payload.amountInWords || convertNumberToIndianWords(grandTotal);
 
-    const updated = store.updateInvoice(id, {
+    const updated = await store.updateInvoice(id, {
       ...payload,
       grandTotal,
       amountInWords,
@@ -275,7 +275,7 @@ export const updateInvoice = (req, res) => {
 };
 
 // Duplicate Invoice
-export const duplicateInvoice = (req, res) => {
+export const duplicateInvoice = async (req, res) => {
   try {
     const sourceInvoice = store.getInvoiceById(req.params.id);
     if (!sourceInvoice) {
@@ -285,7 +285,7 @@ export const duplicateInvoice = (req, res) => {
     const settings = store.getSettings();
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
-    const nextSeq = (settings?.invoiceConfig?.currentSequence || 66) + 1;
+    const nextSeq = (settings?.invoiceConfig?.currentSequence || 4) + 1;
     const nextInvoiceNumber = `${prefix}${fy}/${String(nextSeq).padStart(3, '0')}`;
 
     const duplicatedPayload = {
@@ -305,7 +305,7 @@ export const duplicateInvoice = (req, res) => {
       createdBy: req.body?.createdBy || 'Billing Desk'
     };
 
-    const newInvoice = store.createInvoice(duplicatedPayload);
+    const newInvoice = await store.createInvoice(duplicatedPayload);
     res.status(201).json({ success: true, data: newInvoice });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -313,7 +313,7 @@ export const duplicateInvoice = (req, res) => {
 };
 
 // Record Payment
-export const recordPayment = (req, res) => {
+export const recordPayment = async (req, res) => {
   try {
     const id = req.params.id;
     const invoice = store.getInvoiceById(id);
@@ -344,7 +344,7 @@ export const recordPayment = (req, res) => {
     const paymentStatus = balanceDue === 0 ? 'Paid' : (paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
     const invoiceStatus = balanceDue === 0 ? 'Paid' : (invoice.status === 'Draft' ? 'Draft' : 'Partially Paid');
 
-    const updated = store.updateInvoice(id, {
+    const updated = await store.updateInvoice(id, {
       payments,
       paidAmount,
       balanceDue,
@@ -359,7 +359,7 @@ export const recordPayment = (req, res) => {
 };
 
 // Delete / Cancel Invoice
-export const deleteInvoice = (req, res) => {
+export const deleteInvoice = async (req, res) => {
   try {
     const id = req.params.id;
     const invoice = store.getInvoiceById(id);
@@ -369,11 +369,11 @@ export const deleteInvoice = (req, res) => {
 
     // Soft cancel or hard delete based on query
     if (req.query.permanent === 'true') {
-      store.deleteInvoice(id);
+      await store.deleteInvoice(id);
       return res.json({ success: true, message: 'Invoice permanently deleted' });
     }
 
-    const updated = store.updateInvoice(id, { status: 'Cancelled' });
+    const updated = await store.updateInvoice(id, { status: 'Cancelled' });
     res.json({ success: true, data: updated, message: 'Invoice marked as Cancelled' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

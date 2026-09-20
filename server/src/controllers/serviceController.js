@@ -25,7 +25,7 @@ export const getAllServices = (req, res) => {
   }
 };
 
-export const createService = (req, res) => {
+export const createService = async (req, res) => {
   try {
     const items = Array.isArray(req.body) ? req.body : req.body.services;
     if (Array.isArray(items)) {
@@ -36,24 +36,24 @@ export const createService = (req, res) => {
       if (validItems.length === 0) {
         return res.status(400).json({ success: false, message: 'At least one service with a valid name is required' });
       }
-      const createdServices = store.createServices(validItems);
+      const createdServices = await store.createServices(validItems);
       return res.status(201).json({ success: true, count: createdServices.length, data: createdServices });
     }
 
-    const { name, defaultRate, hsnSac = '998346', unit = 'No.' } = req.body;
+    const { name, defaultRate } = req.body;
     if (!name || defaultRate === undefined) {
       return res.status(400).json({ success: false, message: 'Service name and default rate are required' });
     }
-    const newService = store.createService(req.body);
+    const newService = await store.createService(req.body);
     res.status(201).json({ success: true, data: newService });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const updateService = (req, res) => {
+export const updateService = async (req, res) => {
   try {
-    const updated = store.updateService(req.params.id, req.body);
+    const updated = await store.updateService(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
@@ -63,9 +63,9 @@ export const updateService = (req, res) => {
   }
 };
 
-export const deleteService = (req, res) => {
+export const deleteService = async (req, res) => {
   try {
-    const success = store.deleteService(req.params.id);
+    const success = await store.deleteService(req.params.id);
     if (!success) {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
