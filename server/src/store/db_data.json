@@ -44,22 +44,27 @@
       "defaultIgstRate": 18,
       "hsnSacDefault": "998346",
       "enableRoundOff": true
-    }
+    },
+    "_id": "settings_default",
+    "__v": 0,
+    "createdAt": "2026-09-20T14:45:19.549Z",
+    "updatedAt": "2026-09-20T14:45:19.549Z"
   },
   "services": [
     {
       "_id": "srv_1788961789580",
       "serviceCode": "TEST-9580",
       "isActive": true,
-      "createdAt": "2026-09-09T13:49:49.579Z",
-      "updatedAt": "2026-09-09T13:49:49.579Z",
+      "createdAt": "2026-09-20T14:45:19.822Z",
+      "updatedAt": "2026-09-20T14:53:57.259Z",
       "name": "PMI TESTING CHARGES",
       "category": "NDT",
       "hsnSac": "998346",
       "defaultRate": 2500,
       "unit": "No.",
       "taxRate": 18,
-      "description": ""
+      "description": "",
+      "__v": 0
     }
   ],
   "customers": [
@@ -93,9 +98,11 @@
         "totalBilled": 5900,
         "totalPaid": 0,
         "outstandingBalance": 5900,
-        "lastInvoiceDate": "2026-09-09"
+        "lastInvoiceDate": "2026-09-09T00:00:00.000Z"
       },
-      "updatedAt": "2026-09-09T13:51:16.226Z"
+      "updatedAt": "2026-09-20T14:53:57.031Z",
+      "__v": 0,
+      "createdAt": "2026-09-20T14:45:19.595Z"
     },
     {
       "_id": "cust_1788962096688",
@@ -105,10 +112,10 @@
         "totalBilled": 5900,
         "totalPaid": 0,
         "outstandingBalance": 5900,
-        "lastInvoiceDate": "2026-09-15"
+        "lastInvoiceDate": "2026-09-15T00:00:00.000Z"
       },
-      "createdAt": "2026-09-09T13:54:56.688Z",
-      "updatedAt": "2026-09-15T06:10:36.973Z",
+      "createdAt": "2026-09-20T14:45:19.628Z",
+      "updatedAt": "2026-09-20T14:53:57.091Z",
       "companyName": "Kadaas",
       "contactPerson": "R.Ahamed Haden",
       "email": "ahamedhaden.r@gmail.com",
@@ -128,7 +135,10 @@
         "state": "Tamil Nadu",
         "stateCode": "33",
         "pincode": ""
-      }
+      },
+      "__v": 0,
+      "paymentTerms": "30 Days Net",
+      "status": "Active"
     }
   ],
   "employees": [
@@ -144,347 +154,6 @@
     }
   ],
   "invoices": [
-    {
-      "_id": "inv_1789452636969",
-      "invoiceNumber": "GK/INV/26-27/004",
-      "financialYear": "26-27",
-      "sequenceNumber": 4,
-      "status": "Generated",
-      "paymentStatus": "Unpaid",
-      "paidAmount": 0,
-      "balanceDue": 2950,
-      "payments": [],
-      "createdAt": "2026-09-15T06:10:36.969Z",
-      "updatedAt": "2026-09-15T06:10:36.969Z",
-      "invoiceDate": "2026-09-15",
-      "dueDate": "",
-      "metadata": {
-        "deliveryNote": "",
-        "modeOfPayment": "30 Days",
-        "supplierRef": "1233",
-        "otherRef": "",
-        "buyerOrderNo": "12",
-        "orderDate": "",
-        "despatchedThrough": "Hand Delivery / Courier",
-        "destination": "Chennai",
-        "termsOfDelivery": "Door Delivery / Lab Premises",
-        "sampleBatchRef": "",
-        "testReportRef": ""
-      },
-      "customer": "cust_1788962096688",
-      "buyerSnapshot": {
-        "companyName": "Kadaas",
-        "contactPerson": "R.Ahamed Haden",
-        "email": "ahamedhaden.r@gmail.com",
-        "phone": "8270223203",
-        "gstin": "33A1233232",
-        "pan": "",
-        "billingAddress": {
-          "street": "Inamkulathur",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        },
-        "shippingAddress": {
-          "street": "Inamkulathur",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        }
-      },
-      "items": [
-        {
-          "slNo": 1,
-          "serviceId": "srv_1788961789580",
-          "description": "PMI TESTING CHARGES",
-          "hsnSac": "998346",
-          "quantity": 1,
-          "rate": 2500,
-          "per": "No.",
-          "discountPercent": 0,
-          "taxableAmount": 2500
-        }
-      ],
-      "isInterstate": false,
-      "cgstRate": 9,
-      "sgstRate": 9,
-      "igstRate": 0,
-      "manualRoundOff": null,
-      "notes": "",
-      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
-      "subtotal": 2500,
-      "discountTotal": 0,
-      "taxableTotal": 2500,
-      "cgstAmount": 225,
-      "sgstAmount": 225,
-      "igstAmount": 0,
-      "totalTax": 450,
-      "roundOff": 0,
-      "grandTotal": 2950,
-      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
-      "companySnapshot": {
-        "companyName": "GK Metal Testing Lab",
-        "tagline": "",
-        "address": {
-          "street": "No.1, Parayadi Street, Sankaran Pillai Road",
-          "city": "Trichy",
-          "state": "Tamilnadu",
-          "stateCode": "33",
-          "pincode": "620 002"
-        },
-        "phone": "",
-        "email": "gkmetaltestinglab@gmail.com",
-        "website": "",
-        "gstin": "33CRZPV0007J1ZD",
-        "pan": "CRZPV0007J",
-        "cin": "",
-        "bankDetails": {
-          "bankName": "Karur Vysya Bank",
-          "accountName": "GK Metal Testing Lab",
-          "accountNumber": "1195135000016609",
-          "branch": "TRICHY MAIN BRANCH",
-          "ifscCode": "KVBL0001195",
-          "accountType": "Current Account",
-          "upiId": ""
-        },
-        "nablAccreditationNo": "",
-        "invoicePrefix": "GK/INV/",
-        "invoiceConfig": {
-          "prefix": "GK/INV/",
-          "financialYear": "26-27",
-          "startingNumber": 1,
-          "currentSequence": 4,
-          "defaultPaymentTerms": "30 Days",
-          "defaultNotes": "",
-          "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
-          "authorizedSignatoryName": "",
-          "signatoryTitle": "Authorised Signatory",
-          "signatureImageUrl": "/signature.png"
-        },
-        "authorizedSignatoryName": "",
-        "signatoryTitle": "Authorised Signatory"
-      }
-    },
-    {
-      "_id": "inv_1788963433559",
-      "sequenceNumber": 3,
-      "createdAt": "2026-09-09T14:17:13.559Z",
-      "updatedAt": "2026-09-11T04:43:08.225Z",
-      "invoiceNumber": "2121212s",
-      "financialYear": "26-27",
-      "invoiceDate": "2026-09-09",
-      "dueDate": "",
-      "status": "Sent",
-      "paymentStatus": "Unpaid",
-      "metadata": {
-        "deliveryNote": "",
-        "modeOfPayment": "",
-        "supplierRef": "",
-        "otherRef": "",
-        "buyerOrderNo": "",
-        "orderDate": "",
-        "despatchedThrough": "Hand Delivery / Courier",
-        "destination": "Chennai",
-        "termsOfDelivery": "Door Delivery / Lab Premises",
-        "sampleBatchRef": "",
-        "testReportRef": ""
-      },
-      "customer": "cust_1788962096688",
-      "buyerSnapshot": {
-        "companyName": "Kadaas",
-        "contactPerson": "R.Ahamed Haden",
-        "email": "ahamedhaden.r@gmail.com",
-        "phone": "8270223203",
-        "gstin": "33A1233232",
-        "pan": "",
-        "billingAddress": {
-          "street": "2/399 middle street,\ninam kulathur, \ntrichy",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        },
-        "shippingAddress": {
-          "street": "2/399 middle street,\ninam kulathur, \ntrichy",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        }
-      },
-      "items": [
-        {
-          "slNo": 1,
-          "serviceId": "srv_1788961789580",
-          "description": "PMI TESTING CHARGES",
-          "hsnSac": "998346",
-          "quantity": 1,
-          "rate": 2500,
-          "per": "No.",
-          "discountPercent": 0,
-          "taxableAmount": 2500
-        }
-      ],
-      "isInterstate": false,
-      "cgstRate": 9,
-      "sgstRate": 9,
-      "igstRate": 0,
-      "manualRoundOff": null,
-      "notes": "",
-      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
-      "subtotal": 2500,
-      "discountTotal": 0,
-      "taxableTotal": 2500,
-      "cgstAmount": 225,
-      "sgstAmount": 225,
-      "igstAmount": 0,
-      "totalTax": 450,
-      "roundOff": 0,
-      "grandTotal": 2950,
-      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
-      "paidAmount": 0,
-      "balanceDue": 2950,
-      "companySnapshot": {
-        "companyName": "",
-        "tagline": "",
-        "address": {
-          "street": "",
-          "city": "",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        },
-        "phone": "",
-        "email": "",
-        "website": "",
-        "gstin": "",
-        "pan": "",
-        "cin": "",
-        "bankDetails": {
-          "bankName": "",
-          "accountName": "",
-          "accountNumber": "",
-          "branch": "",
-          "ifscCode": "",
-          "accountType": "Current Account",
-          "upiId": ""
-        },
-        "nablAccreditationNo": "",
-        "authorizedSignatoryName": "",
-        "signatoryTitle": "Authorized Signatory"
-      }
-    },
-    {
-      "_id": "inv_1788961876224",
-      "sequenceNumber": 2,
-      "createdAt": "2026-09-09T13:51:16.224Z",
-      "updatedAt": "2026-09-09T13:51:16.225Z",
-      "invoiceNumber": "123123",
-      "financialYear": "26-27",
-      "invoiceDate": "2026-09-09",
-      "dueDate": "",
-      "status": "Generated",
-      "paymentStatus": "Unpaid",
-      "metadata": {
-        "deliveryNote": "",
-        "modeOfPayment": "",
-        "supplierRef": "",
-        "otherRef": "",
-        "buyerOrderNo": "",
-        "orderDate": "",
-        "despatchedThrough": "Hand Delivery / Courier",
-        "destination": "Chennai",
-        "termsOfDelivery": "Door Delivery / Lab Premises",
-        "sampleBatchRef": "",
-        "testReportRef": ""
-      },
-      "customer": "cust_1",
-      "buyerSnapshot": {
-        "companyName": "L&T Heavy Engineering Limited",
-        "contactPerson": "Mr. R. Raghavan (Senior QC Manager)",
-        "email": "raghavan.r@lnthe.com",
-        "phone": "+91 98401 23456",
-        "gstin": "33AABCL1234F1Z2",
-        "pan": "AABCL1234F",
-        "billingAddress": {
-          "street": "Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": "600089"
-        },
-        "shippingAddress": {
-          "street": "Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam",
-          "city": "Chennai",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": "600089"
-        }
-      },
-      "items": [
-        {
-          "slNo": 1,
-          "serviceId": "srv_1788961789580",
-          "description": "PMI TESTING CHARGES",
-          "hsnSac": "998346",
-          "quantity": 1,
-          "rate": 2500,
-          "per": "No.",
-          "discountPercent": 0,
-          "taxableAmount": 2500
-        }
-      ],
-      "isInterstate": false,
-      "cgstRate": 9,
-      "sgstRate": 9,
-      "igstRate": 0,
-      "manualRoundOff": null,
-      "notes": "1. Test reports and certificates are released subject to full payment settlement.",
-      "declaration": "We declare that this invoice shows the actual price of the metal testing services described and that all particulars are true and correct.",
-      "subtotal": 2500,
-      "discountTotal": 0,
-      "taxableTotal": 2500,
-      "cgstAmount": 225,
-      "sgstAmount": 225,
-      "igstAmount": 0,
-      "totalTax": 450,
-      "roundOff": 0,
-      "grandTotal": 2950,
-      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
-      "paidAmount": 0,
-      "balanceDue": 2950,
-      "companySnapshot": {
-        "companyName": "",
-        "tagline": "",
-        "address": {
-          "street": "",
-          "city": "",
-          "state": "Tamil Nadu",
-          "stateCode": "33",
-          "pincode": ""
-        },
-        "phone": "",
-        "email": "",
-        "website": "",
-        "gstin": "",
-        "pan": "",
-        "cin": "",
-        "bankDetails": {
-          "bankName": "",
-          "accountName": "",
-          "accountNumber": "",
-          "branch": "",
-          "ifscCode": "",
-          "accountType": "Current Account",
-          "upiId": ""
-        },
-        "nablAccreditationNo": "",
-        "authorizedSignatoryName": "",
-        "signatoryTitle": "Authorized Signatory"
-      }
-    },
     {
       "_id": "inv_1",
       "invoiceNumber": "GK/INV/26-27/001",
@@ -532,7 +201,6 @@
       },
       "companySnapshot": {
         "companyName": "",
-        "tagline": "",
         "address": {
           "street": "",
           "city": "",
@@ -558,6 +226,12 @@
           "slNo": 1,
           "serviceId": "",
           "description": "PMI TESTING CHARGES (Positive Material Identification on SS316L Forged Flanges)",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
           "hsnSac": "998346",
           "quantity": 1,
           "rate": 2500,
@@ -587,8 +261,351 @@
       "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
       "createdBy": "G. Karthikeyan",
       "updatedBy": "G. Karthikeyan",
-      "createdAt": "2026-09-02T10:30:00.000Z",
-      "updatedAt": "2026-09-02T10:30:00.000Z"
+      "createdAt": "2026-09-20T14:45:19.786Z",
+      "updatedAt": "2026-09-20T14:53:57.124Z",
+      "__v": 0
+    },
+    {
+      "_id": "inv_1788961876224",
+      "sequenceNumber": 2,
+      "createdAt": "2026-09-20T14:45:19.749Z",
+      "updatedAt": "2026-09-20T14:53:57.158Z",
+      "invoiceNumber": "123123",
+      "financialYear": "26-27",
+      "invoiceDate": "2026-09-09T00:00:00.000Z",
+      "dueDate": null,
+      "status": "Generated",
+      "paymentStatus": "Unpaid",
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "",
+        "supplierRef": "",
+        "otherRef": "",
+        "buyerOrderNo": "",
+        "orderDate": "",
+        "despatchedThrough": "Hand Delivery / Courier",
+        "destination": "Chennai",
+        "termsOfDelivery": "Door Delivery / Lab Premises",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1",
+      "buyerSnapshot": {
+        "companyName": "L&T Heavy Engineering Limited",
+        "contactPerson": "Mr. R. Raghavan (Senior QC Manager)",
+        "email": "raghavan.r@lnthe.com",
+        "phone": "+91 98401 23456",
+        "gstin": "33AABCL1234F1Z2",
+        "pan": "AABCL1234F",
+        "billingAddress": {
+          "street": "Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": "600089"
+        },
+        "shippingAddress": {
+          "street": "Gate 4, Heavy Industrial Complex, Mount Poonamallee Road, Manapakkam",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": "600089"
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": false,
+      "cgstRate": 9,
+      "sgstRate": 9,
+      "igstRate": 0,
+      "manualRoundOff": null,
+      "notes": "1. Test reports and certificates are released subject to full payment settlement.",
+      "declaration": "We declare that this invoice shows the actual price of the metal testing services described and that all particulars are true and correct.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 225,
+      "sgstAmount": 225,
+      "igstAmount": 0,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "companySnapshot": {
+        "companyName": "",
+        "address": {
+          "street": "",
+          "city": "",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "phone": "",
+        "email": "",
+        "gstin": "",
+        "pan": "",
+        "bankDetails": {
+          "bankName": "",
+          "accountName": "",
+          "accountNumber": "",
+          "branch": "",
+          "ifscCode": "",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": ""
+      },
+      "__v": 0,
+      "createdBy": "Admin User",
+      "payments": [],
+      "updatedBy": "Admin User"
+    },
+    {
+      "_id": "inv_1788963433559",
+      "sequenceNumber": 3,
+      "createdAt": "2026-09-20T14:45:19.710Z",
+      "updatedAt": "2026-09-20T14:53:57.191Z",
+      "invoiceNumber": "2121212s",
+      "financialYear": "26-27",
+      "invoiceDate": "2026-09-09T00:00:00.000Z",
+      "dueDate": null,
+      "status": "Sent",
+      "paymentStatus": "Unpaid",
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "",
+        "supplierRef": "",
+        "otherRef": "",
+        "buyerOrderNo": "",
+        "orderDate": "",
+        "despatchedThrough": "Hand Delivery / Courier",
+        "destination": "Chennai",
+        "termsOfDelivery": "Door Delivery / Lab Premises",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1788962096688",
+      "buyerSnapshot": {
+        "companyName": "Kadaas",
+        "contactPerson": "R.Ahamed Haden",
+        "email": "ahamedhaden.r@gmail.com",
+        "phone": "8270223203",
+        "gstin": "33A1233232",
+        "pan": "",
+        "billingAddress": {
+          "street": "2/399 middle street,\ninam kulathur, \ntrichy",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "shippingAddress": {
+          "street": "2/399 middle street,\ninam kulathur, \ntrichy",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": false,
+      "cgstRate": 9,
+      "sgstRate": 9,
+      "igstRate": 0,
+      "manualRoundOff": null,
+      "notes": "",
+      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 225,
+      "sgstAmount": 225,
+      "igstAmount": 0,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "companySnapshot": {
+        "companyName": "",
+        "address": {
+          "street": "",
+          "city": "",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "phone": "",
+        "email": "",
+        "gstin": "",
+        "pan": "",
+        "bankDetails": {
+          "bankName": "",
+          "accountName": "",
+          "accountNumber": "",
+          "branch": "",
+          "ifscCode": "",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": ""
+      },
+      "__v": 0,
+      "createdBy": "Admin User",
+      "payments": [],
+      "updatedBy": "Admin User"
+    },
+    {
+      "_id": "inv_1789452636969",
+      "invoiceNumber": "GK/INV/26-27/004",
+      "financialYear": "26-27",
+      "sequenceNumber": 4,
+      "status": "Generated",
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "payments": [],
+      "createdAt": "2026-09-20T14:45:19.661Z",
+      "updatedAt": "2026-09-20T14:53:57.224Z",
+      "invoiceDate": "2026-09-15T00:00:00.000Z",
+      "dueDate": null,
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "30 Days",
+        "supplierRef": "1233",
+        "otherRef": "",
+        "buyerOrderNo": "12",
+        "orderDate": "",
+        "despatchedThrough": "Hand Delivery / Courier",
+        "destination": "Chennai",
+        "termsOfDelivery": "Door Delivery / Lab Premises",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1788962096688",
+      "buyerSnapshot": {
+        "companyName": "Kadaas",
+        "contactPerson": "R.Ahamed Haden",
+        "email": "ahamedhaden.r@gmail.com",
+        "phone": "8270223203",
+        "gstin": "33A1233232",
+        "pan": "",
+        "billingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "shippingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": false,
+      "cgstRate": 9,
+      "sgstRate": 9,
+      "igstRate": 0,
+      "manualRoundOff": null,
+      "notes": "",
+      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 225,
+      "sgstAmount": 225,
+      "igstAmount": 0,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "companySnapshot": {
+        "companyName": "GK Metal Testing Lab",
+        "address": {
+          "street": "No.1, Parayadi Street, Sankaran Pillai Road",
+          "city": "Trichy",
+          "state": "Tamilnadu",
+          "stateCode": "33",
+          "pincode": "620 002"
+        },
+        "phone": "",
+        "email": "gkmetaltestinglab@gmail.com",
+        "gstin": "33CRZPV0007J1ZD",
+        "pan": "CRZPV0007J",
+        "bankDetails": {
+          "bankName": "Karur Vysya Bank",
+          "accountName": "GK Metal Testing Lab",
+          "accountNumber": "1195135000016609",
+          "branch": "TRICHY MAIN BRANCH",
+          "ifscCode": "KVBL0001195",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": ""
+      },
+      "__v": 0,
+      "createdBy": "Admin User",
+      "updatedBy": "Admin User"
     }
   ]
 }
