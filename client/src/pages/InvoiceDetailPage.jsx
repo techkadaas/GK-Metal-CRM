@@ -57,7 +57,7 @@ export default function InvoiceDetailPage() {
     window.print();
   };
 
-  // High-Resolution A4 PDF Generation (Exact Match to Preview)
+  // High-Resolution PDF Generation (Exact Match to 19.679cm x 27.033cm)
   const handleDownloadPDF = async () => {
     const docElement = document.getElementById('tax-invoice-printable');
     if (!docElement) {
@@ -67,7 +67,7 @@ export default function InvoiceDetailPage() {
 
     try {
       setDownloading(true);
-      toast.info('Generating high-resolution A4 PDF...');
+      toast.info('Generating high-resolution PDF...');
 
       // Clone element into an isolated offscreen container with exact fixed preview width (760px)
       const clone = docElement.cloneNode(true);
@@ -112,31 +112,14 @@ export default function InvoiceDetailPage() {
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4',
+        format: [196.79, 270.33],
         compress: true
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
-      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 196.79mm (19.679cm)
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 270.33mm (27.033cm)
 
-      // Balanced standard margin (6mm matching print stylesheet)
-      const margin = 6;
-      const availWidth = pageWidth - margin * 2;
-      const availHeight = pageHeight - margin * 2;
-
-      const imgRatio = canvas.width / canvas.height;
-      let finalWidth = availWidth;
-      let finalHeight = finalWidth / imgRatio;
-
-      if (finalHeight > availHeight) {
-        finalHeight = availHeight;
-        finalWidth = finalHeight * imgRatio;
-      }
-
-      const posX = (pageWidth - finalWidth) / 2;
-      const posY = (pageHeight - finalHeight) / 2;
-
-      pdf.addImage(imgData, 'PNG', posX, posY, finalWidth, finalHeight, undefined, 'SLOW');
+      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'SLOW');
       const safeFilename = `${(invoice.invoiceNumber || 'Invoice').replace(/[\/\\]/g, '_')}_Tax_Invoice.pdf`;
       pdf.save(safeFilename);
 
@@ -274,7 +257,43 @@ export default function InvoiceDetailPage() {
 
       {/* Printable Tax Invoice Document Container */}
       <div className="bg-slate-200/90 p-4 sm:p-6 rounded-xl border border-slate-300 shadow-inner overflow-x-auto print-container flex justify-center">
-        <InvoiceDocument invoice={invoice} id="tax-invoice-printable" />
+        {/* On-screen Preview & Target for Download PDF (Single original copy with brand header & signature) */}
+        <div className="print:hidden w-full flex justify-center">
+          <InvoiceDocument invoice={invoice} id="tax-invoice-printable" />
+        </div>
+
+        {/* Dedicated 3-Page Layout for Print (Print to PDF / Printer) */}
+        <div className="hidden print:block w-full">
+          {/* Copy 1: Original for Recipient */}
+          <div className="invoice-print-page">
+            <InvoiceDocument
+              invoice={invoice}
+              id="tax-invoice-print-1"
+              copyTitle="(Original for Recipient)"
+              isPrintMode={true}
+            />
+          </div>
+
+          {/* Copy 2: Duplicate for Supplier */}
+          <div className="invoice-print-page">
+            <InvoiceDocument
+              invoice={invoice}
+              id="tax-invoice-print-2"
+              copyTitle="(Duplicate for Supplier)"
+              isPrintMode={true}
+            />
+          </div>
+
+          {/* Copy 3: Duplicate for Transporter */}
+          <div className="invoice-print-page">
+            <InvoiceDocument
+              invoice={invoice}
+              id="tax-invoice-print-3"
+              copyTitle="(Duplicate for Transporter)"
+              isPrintMode={true}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Modals */}

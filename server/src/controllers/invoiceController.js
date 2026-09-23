@@ -104,10 +104,15 @@ export const getAllInvoices = (req, res) => {
           ? a.invoiceNumber.localeCompare(b.invoiceNumber)
           : b.invoiceNumber.localeCompare(a.invoiceNumber);
       }
-      // Default: date / newest first
-      const dateA = new Date(a.invoiceDate || a.createdAt);
-      const dateB = new Date(b.invoiceDate || b.createdAt);
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      // Default: date / newest first (last created first)
+      const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
+      const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
+      if (timeA !== timeB) {
+        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      }
+      const seqA = a.sequenceNumber || 0;
+      const seqB = b.sequenceNumber || 0;
+      return sortOrder === 'asc' ? seqA - seqB : seqB - seqA;
     });
 
     res.json({

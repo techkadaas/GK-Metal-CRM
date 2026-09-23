@@ -1,14 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import logoIcon from '../../assets/logo-icon-white.png';
 import {
   LayoutDashboard,
   FileText,
   Building2,
   UserCheck,
-  Settings,
-  Layers,
-  Sparkles
+  Settings
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, setIsOpen }) {
@@ -26,21 +23,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       }`}
     >
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-4 border-b border-blue-900/40 bg-[#07132a]/70 backdrop-blur-xs justify-between">
-        <NavLink to="/dashboard" className="flex items-center gap-2.5 overflow-hidden group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 border border-blue-400/40 p-1 flex items-center justify-center shrink-0 shadow-sm shadow-blue-900/50 group-hover:scale-105 transition">
-            <img src={logoIcon} alt="GK" className="h-5 w-auto object-contain" />
-          </div>
-          {isOpen && (
-            <div className="min-w-0">
-              <span className="font-extrabold text-sm tracking-wide text-white uppercase whitespace-nowrap block leading-tight">
-                GK METAL LAB
-              </span>
-              <span className="text-[10px] text-blue-300 font-medium tracking-wider uppercase block">
-                Testing CRM
-              </span>
-            </div>
-          )}
+      <div className="h-16 flex items-center px-6 border-b border-blue-900/40 bg-[#07132a]/70 backdrop-blur-xs">
+        <NavLink to="/dashboard" className="flex items-center overflow-hidden group">
+          <span className="font-black text-lg tracking-wider text-white uppercase whitespace-nowrap group-hover:text-blue-300 transition">
+            {isOpen ? 'GK METAL' : 'GK'}
+          </span>
         </NavLink>
       </div>
 
@@ -90,19 +77,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           {isOpen && <span>Settings</span>}
         </NavLink>
       </div>
-
-      {/* Sidebar Footer Badge */}
-      {isOpen && (
-        <div className="p-3 border-t border-blue-900/30 bg-[#061024]/50">
-          <div className="p-2.5 rounded-lg bg-blue-950/40 border border-blue-800/40 flex items-center justify-between text-[11px] text-blue-200">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold text-white">System Online</span>
-            </div>
-            <span className="font-mono text-[10px] text-blue-300 font-bold">v1.0.0</span>
-          </div>
-        </div>
-      )}
     </aside>
   );
 }

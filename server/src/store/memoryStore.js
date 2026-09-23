@@ -156,6 +156,12 @@ class MemoryStore {
           }
         });
         this.data.customers = Array.from(customerMap.values());
+        this.data.customers.sort((a, b) => {
+          const timeA = new Date(a.createdAt || 0).getTime();
+          const timeB = new Date(b.createdAt || 0).getTime();
+          if (timeA !== timeB) return timeB - timeA;
+          return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
+        });
 
         // Push any local customers to MongoDB
         for (const cust of this.data.customers) {
@@ -181,7 +187,12 @@ class MemoryStore {
           }
         });
         this.data.invoices = Array.from(invoiceMap.values());
-        this.data.invoices.sort((a, b) => new Date(b.createdAt || b.invoiceDate || 0) - new Date(a.createdAt || a.invoiceDate || 0));
+        this.data.invoices.sort((a, b) => {
+          const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
+          const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
+          if (timeA !== timeB) return timeB - timeA;
+          return (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+        });
 
         // Push all invoices to MongoDB
         for (const inv of this.data.invoices) {
@@ -416,7 +427,7 @@ class MemoryStore {
       updatedAt: new Date().toISOString(),
       ...payload
     };
-    this.data.customers.push(newCust);
+    this.data.customers.unshift(newCust);
     this.save();
 
     // Persist to MongoDB

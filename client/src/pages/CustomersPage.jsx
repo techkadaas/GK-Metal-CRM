@@ -81,7 +81,7 @@ export default function CustomersPage() {
   const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, Active, Inactive
   const [balanceFilter, setBalanceFilter] = useState('ALL'); // ALL, DUE, SETTLED
   const [stateFilter, setStateFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState('NAME_ASC'); // NAME_ASC, NAME_DESC, OUTSTANDING_DESC, BILLED_DESC, RECENT_INVOICE, CREATED_DESC
+  const [sortBy, setSortBy] = useState('CREATED_DESC'); // CREATED_DESC, NAME_ASC, NAME_DESC, OUTSTANDING_DESC, BILLED_DESC, RECENT_INVOICE
   const [viewMode, setViewMode] = useState('table'); // table, grid
 
   // Pagination States
@@ -233,6 +233,12 @@ export default function CustomersPage() {
       return true;
     }).sort((a, b) => {
       switch (sortBy) {
+        case 'CREATED_DESC': {
+          const timeA = new Date(a.createdAt || 0).getTime();
+          const timeB = new Date(b.createdAt || 0).getTime();
+          if (timeA !== timeB) return timeB - timeA;
+          return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
+        }
         case 'NAME_ASC':
           return (a.companyName || '').localeCompare(b.companyName || '');
         case 'NAME_DESC':
@@ -245,8 +251,6 @@ export default function CustomersPage() {
           const dateA = a.stats?.lastInvoiceDate ? new Date(a.stats.lastInvoiceDate).getTime() : 0;
           const dateB = b.stats?.lastInvoiceDate ? new Date(b.stats.lastInvoiceDate).getTime() : 0;
           return dateB - dateA;
-        case 'CREATED_DESC':
-          return (b.customerId || '').localeCompare(a.customerId || '');
         default:
           return 0;
       }
@@ -523,7 +527,7 @@ export default function CustomersPage() {
     setStatusFilter('ALL');
     setBalanceFilter('ALL');
     setStateFilter('ALL');
-    setSortBy('NAME_ASC');
+    setSortBy('CREATED_DESC');
   };
 
   return (
@@ -702,12 +706,12 @@ export default function CustomersPage() {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition"
             >
+              <option value="CREATED_DESC">Last Created (Newest First)</option>
               <option value="NAME_ASC">Name (A → Z)</option>
               <option value="NAME_DESC">Name (Z → A)</option>
               <option value="OUTSTANDING_DESC">Highest Due</option>
               <option value="BILLED_DESC">Highest Billed</option>
               <option value="RECENT_INVOICE">Recent Invoice</option>
-              <option value="CREATED_DESC">Customer ID</option>
             </select>
 
             {/* View Mode Switcher */}
@@ -1468,12 +1472,7 @@ export default function CustomersPage() {
 
       {/* 6. Add / Edit Customer Modal */}
       {showModal && typeof document !== 'undefined' && createPortal(
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !submitting) setShowModal(false);
-          }}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in">
           <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-xs relative flex flex-col max-h-[92vh]">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/90 shrink-0">

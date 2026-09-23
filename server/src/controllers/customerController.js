@@ -27,6 +27,13 @@ export const getAllCustomers = (req, res) => {
       };
     });
 
+    result.sort((a, b) => {
+      const timeA = new Date(a.createdAt || 0).getTime();
+      const timeB = new Date(b.createdAt || 0).getTime();
+      if (timeA !== timeB) return timeB - timeA;
+      return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
+    });
+
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(c =>

@@ -6,6 +6,12 @@
   body {
     @apply bg-slate-100 text-slate-900 font-sans antialiased text-sm;
   }
+
+  /* Automatically capitalize first letter in all text inputs and textareas across CRM */
+  input:not([type="email"]):not([type="password"]):not([type="number"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="date"]):not([type="time"]):not([type="datetime-local"]):not([type="month"]):not([type="range"]):not([type="color"]):not([type="url"]),
+  textarea {
+    text-transform: capitalize;
+  }
 }
 
 /* Custom scrollbars for desktop CRM */
@@ -27,14 +33,35 @@
   background: #94a3b8;
 }
 
-/* Professional Print Stylesheet for A4 GST Tax Invoice */
+/* Professional Print Stylesheet for GST Tax Invoice */
 @media print {
-  body {
+  @page {
+    size: 19.679cm 27.033cm;
+    margin: 0;
+  }
+
+  html, body {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
     color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
     font-size: 11pt;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Reset layout wrapper margins, paddings, and flex for printing */
+  .min-h-screen,
+  .flex-1,
+  div[class*="ml-"],
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
   }
 
   /* Hide all CRM application UI elements during print */
@@ -54,25 +81,49 @@
   .print-container {
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     box-shadow: none !important;
     border: none !important;
+    background: #ffffff !important;
+    display: block !important;
+  }
+
+  .invoice-print-page {
+    width: 19.679cm !important;
+    max-width: 19.679cm !important;
+    min-width: 19.679cm !important;
+    height: 27.033cm !important;
+    max-height: 27.033cm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .invoice-print-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
   .invoice-document {
     border: none !important;
     box-shadow: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 19.679cm !important;
+    max-width: 19.679cm !important;
+    min-width: 19.679cm !important;
     margin: 0 auto !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
     font-family: 'Times New Roman', Times, serif !important;
-    page-break-inside: avoid;
-  }
-
-  @page {
-    size: A4 portrait;
-    margin: 6mm 6mm 6mm 6mm;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background: #ffffff !important;
   }
 }
 

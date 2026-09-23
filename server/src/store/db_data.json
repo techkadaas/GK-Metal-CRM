@@ -30,7 +30,7 @@
       "prefix": "GK/INV/",
       "financialYear": "26-27",
       "startingNumber": 1,
-      "currentSequence": 5,
+      "currentSequence": 7,
       "defaultPaymentTerms": "30 Days",
       "defaultNotes": "",
       "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
@@ -48,7 +48,7 @@
     "_id": "settings_default",
     "__v": 0,
     "createdAt": "2026-09-20T14:45:19.549Z",
-    "updatedAt": "2026-09-20T14:45:19.549Z"
+    "updatedAt": "2026-09-23T14:24:10.006Z"
   },
   "services": [
     {
@@ -56,7 +56,7 @@
       "serviceCode": "TEST-9580",
       "isActive": true,
       "createdAt": "2026-09-20T14:45:19.822Z",
-      "updatedAt": "2026-09-20T14:53:57.259Z",
+      "updatedAt": "2026-09-23T14:16:47.091Z",
       "name": "PMI TESTING CHARGES",
       "category": "NDT",
       "hsnSac": "998346",
@@ -68,6 +68,78 @@
     }
   ],
   "customers": [
+    {
+      "_id": "cust_1790172530184",
+      "customerId": "CUST-1003",
+      "stats": {
+        "totalInvoices": 1,
+        "totalBilled": 2950,
+        "totalPaid": 0,
+        "outstandingBalance": 2950,
+        "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
+      },
+      "createdAt": "2026-09-23T14:08:50.187Z",
+      "updatedAt": "2026-09-23T14:16:46.797Z",
+      "companyName": "Test customer",
+      "contactPerson": "123456765432",
+      "email": "ahamedhaden.r@gmail.com",
+      "phone": "2345678654",
+      "gstin": "1234567898765",
+      "pan": "3456789876",
+      "paymentTerms": "30 Days Net",
+      "status": "Active",
+      "billingAddress": {
+        "street": "Inamkulathur",
+        "city": "Trichy",
+        "state": "Tamil Nadu",
+        "stateCode": "12",
+        "pincode": "620009"
+      },
+      "shippingAddress": {
+        "street": "Inamkulathur",
+        "city": "Trichy",
+        "state": "Tamil Nadu",
+        "stateCode": "12",
+        "pincode": "620009"
+      },
+      "__v": 0
+    },
+    {
+      "_id": "cust_1788962096688",
+      "customerId": "",
+      "stats": {
+        "totalInvoices": 3,
+        "totalBilled": 8850,
+        "totalPaid": 0,
+        "outstandingBalance": 8850,
+        "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
+      },
+      "createdAt": "2026-09-20T14:45:19.628Z",
+      "updatedAt": "2026-09-23T14:24:10.620Z",
+      "companyName": "Kadaas",
+      "contactPerson": "R.Ahamed Haden",
+      "email": "ahamedhaden.r@gmail.com",
+      "phone": "8270223203",
+      "gstin": "33A1233232",
+      "pan": "",
+      "billingAddress": {
+        "street": "Inamkulathur",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "stateCode": "33",
+        "pincode": ""
+      },
+      "shippingAddress": {
+        "street": "Inamkulathur",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "stateCode": "33",
+        "pincode": ""
+      },
+      "__v": 0,
+      "paymentTerms": "30 Days Net",
+      "status": "Active"
+    },
     {
       "_id": "cust_1",
       "customerId": "CUST-1001",
@@ -100,45 +172,9 @@
         "outstandingBalance": 5900,
         "lastInvoiceDate": "2026-09-09T00:00:00.000Z"
       },
-      "updatedAt": "2026-09-20T14:53:57.031Z",
+      "updatedAt": "2026-09-23T14:16:46.865Z",
       "__v": 0,
       "createdAt": "2026-09-20T14:45:19.595Z"
-    },
-    {
-      "_id": "cust_1788962096688",
-      "customerId": "",
-      "stats": {
-        "totalInvoices": 2,
-        "totalBilled": 5900,
-        "totalPaid": 0,
-        "outstandingBalance": 5900,
-        "lastInvoiceDate": "2026-09-15T00:00:00.000Z"
-      },
-      "createdAt": "2026-09-20T14:45:19.628Z",
-      "updatedAt": "2026-09-20T14:53:57.091Z",
-      "companyName": "Kadaas",
-      "contactPerson": "R.Ahamed Haden",
-      "email": "ahamedhaden.r@gmail.com",
-      "phone": "8270223203",
-      "gstin": "33A1233232",
-      "pan": "",
-      "billingAddress": {
-        "street": "Inamkulathur",
-        "city": "Chennai",
-        "state": "Tamil Nadu",
-        "stateCode": "33",
-        "pincode": ""
-      },
-      "shippingAddress": {
-        "street": "Inamkulathur",
-        "city": "Chennai",
-        "state": "Tamil Nadu",
-        "stateCode": "33",
-        "pincode": ""
-      },
-      "__v": 0,
-      "paymentTerms": "30 Days Net",
-      "status": "Active"
     }
   ],
   "employees": [
@@ -154,6 +190,234 @@
     }
   ],
   "invoices": [
+    {
+      "_id": "inv_1790173449997",
+      "invoiceNumber": "GK/INV/26-27/007",
+      "financialYear": "26-27",
+      "sequenceNumber": 7,
+      "status": "Generated",
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "payments": [],
+      "createdAt": "2026-09-23T14:24:10.328Z",
+      "updatedAt": "2026-09-23T14:24:10.328Z",
+      "invoiceDate": "2026-09-23T00:00:00.000Z",
+      "dueDate": null,
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "30 Days",
+        "supplierRef": "",
+        "otherRef": "",
+        "buyerOrderNo": "",
+        "orderDate": "",
+        "despatchedThrough": "",
+        "destination": "",
+        "termsOfDelivery": "",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1788962096688",
+      "buyerSnapshot": {
+        "companyName": "Kadaas",
+        "contactPerson": "R.Ahamed Haden",
+        "email": "ahamedhaden.r@gmail.com",
+        "phone": "8270223203",
+        "gstin": "33A1233232",
+        "pan": "",
+        "billingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        },
+        "shippingAddress": {
+          "street": "Inamkulathur",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "stateCode": "33",
+          "pincode": ""
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": false,
+      "cgstRate": 9,
+      "sgstRate": 9,
+      "igstRate": 0,
+      "manualRoundOff": null,
+      "notes": "",
+      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 225,
+      "sgstAmount": 225,
+      "igstAmount": 0,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "companySnapshot": {
+        "companyName": "GK Metal Testing Lab",
+        "address": {
+          "street": "No.1, Parayadi Street, Sankaran Pillai Road",
+          "city": "Trichy",
+          "state": "Tamilnadu",
+          "stateCode": "33",
+          "pincode": "620 002"
+        },
+        "phone": "",
+        "email": "gkmetaltestinglab@gmail.com",
+        "gstin": "33CRZPV0007J1ZD",
+        "pan": "CRZPV0007J",
+        "bankDetails": {
+          "bankName": "Karur Vysya Bank",
+          "accountName": "GK Metal Testing Lab",
+          "accountNumber": "1195135000016609",
+          "branch": "TRICHY MAIN BRANCH",
+          "ifscCode": "KVBL0001195",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": ""
+      },
+      "__v": 0,
+      "createdBy": "Admin User",
+      "updatedBy": "Admin User"
+    },
+    {
+      "_id": "inv_1790172555876",
+      "invoiceNumber": "GK/INV/26-27/006",
+      "financialYear": "26-27",
+      "sequenceNumber": 6,
+      "status": "Generated",
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0,
+      "balanceDue": 2950,
+      "payments": [],
+      "createdAt": "2026-09-23T14:09:15.910Z",
+      "updatedAt": "2026-09-23T14:16:46.900Z",
+      "invoiceDate": "2026-09-23T00:00:00.000Z",
+      "dueDate": null,
+      "metadata": {
+        "deliveryNote": "",
+        "modeOfPayment": "30 Days",
+        "supplierRef": "",
+        "otherRef": "",
+        "buyerOrderNo": "",
+        "orderDate": "",
+        "despatchedThrough": "",
+        "destination": "",
+        "termsOfDelivery": "",
+        "sampleBatchRef": "",
+        "testReportRef": ""
+      },
+      "customer": "cust_1790172530184",
+      "buyerSnapshot": {
+        "companyName": "Test customer",
+        "contactPerson": "123456765432",
+        "email": "ahamedhaden.r@gmail.com",
+        "phone": "2345678654",
+        "gstin": "1234567898765",
+        "pan": "3456789876",
+        "billingAddress": {
+          "street": "Inamkulathur",
+          "city": "Trichy",
+          "state": "Tamil Nadu",
+          "stateCode": "12",
+          "pincode": "620009"
+        },
+        "shippingAddress": {
+          "street": "Inamkulathur",
+          "city": "Trichy",
+          "state": "Tamil Nadu",
+          "stateCode": "12",
+          "pincode": "620009"
+        }
+      },
+      "items": [
+        {
+          "slNo": 1,
+          "serviceId": "srv_1788961789580",
+          "description": "PMI TESTING CHARGES",
+          "testedDate": "",
+          "dayType": "",
+          "visitType": "",
+          "testingSite": "",
+          "sampleDetails": "",
+          "notes": "",
+          "hsnSac": "998346",
+          "quantity": 1,
+          "rate": 2500,
+          "per": "No.",
+          "discountPercent": 0,
+          "taxableAmount": 2500
+        }
+      ],
+      "isInterstate": true,
+      "cgstRate": 0,
+      "sgstRate": 0,
+      "igstRate": 18,
+      "manualRoundOff": null,
+      "notes": "",
+      "declaration": "1) Cheque, DD / RTGS in favour of GK Metal Testing Lab Payable at Trichy.\n2) GST category: (998346) technical testing and analysis service.\n3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. \"This is purely a service contract.\"\n4) All disputes Subject to Chennai Jurisdiction.",
+      "subtotal": 2500,
+      "discountTotal": 0,
+      "taxableTotal": 2500,
+      "cgstAmount": 0,
+      "sgstAmount": 0,
+      "igstAmount": 450,
+      "totalTax": 450,
+      "roundOff": 0,
+      "grandTotal": 2950,
+      "amountInWords": "INR Two Thousand Nine Hundred and Fifty Rupees Only",
+      "companySnapshot": {
+        "companyName": "GK Metal Testing Lab",
+        "address": {
+          "street": "No.1, Parayadi Street, Sankaran Pillai Road",
+          "city": "Trichy",
+          "state": "Tamilnadu",
+          "stateCode": "33",
+          "pincode": "620 002"
+        },
+        "phone": "",
+        "email": "gkmetaltestinglab@gmail.com",
+        "gstin": "33CRZPV0007J1ZD",
+        "pan": "CRZPV0007J",
+        "bankDetails": {
+          "bankName": "Karur Vysya Bank",
+          "accountName": "GK Metal Testing Lab",
+          "accountNumber": "1195135000016609",
+          "branch": "TRICHY MAIN BRANCH",
+          "ifscCode": "KVBL0001195",
+          "accountType": "Current Account",
+          "upiId": ""
+        },
+        "nablAccreditationNo": ""
+      },
+      "__v": 0,
+      "createdBy": "Admin User",
+      "updatedBy": "Admin User"
+    },
     {
       "_id": "inv_1",
       "invoiceNumber": "GK/INV/26-27/001",
@@ -262,14 +526,14 @@
       "createdBy": "G. Karthikeyan",
       "updatedBy": "G. Karthikeyan",
       "createdAt": "2026-09-20T14:45:19.786Z",
-      "updatedAt": "2026-09-20T14:53:57.124Z",
+      "updatedAt": "2026-09-23T14:16:46.945Z",
       "__v": 0
     },
     {
       "_id": "inv_1788961876224",
       "sequenceNumber": 2,
       "createdAt": "2026-09-20T14:45:19.749Z",
-      "updatedAt": "2026-09-20T14:53:57.158Z",
+      "updatedAt": "2026-09-23T14:16:46.985Z",
       "invoiceNumber": "123123",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -383,7 +647,7 @@
       "_id": "inv_1788963433559",
       "sequenceNumber": 3,
       "createdAt": "2026-09-20T14:45:19.710Z",
-      "updatedAt": "2026-09-20T14:53:57.191Z",
+      "updatedAt": "2026-09-23T14:16:47.022Z",
       "invoiceNumber": "2121212s",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -504,7 +768,7 @@
       "balanceDue": 2950,
       "payments": [],
       "createdAt": "2026-09-20T14:45:19.661Z",
-      "updatedAt": "2026-09-20T14:53:57.224Z",
+      "updatedAt": "2026-09-23T14:16:47.058Z",
       "invoiceDate": "2026-09-15T00:00:00.000Z",
       "dueDate": null,
       "metadata": {

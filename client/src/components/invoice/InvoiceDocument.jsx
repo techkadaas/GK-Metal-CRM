@@ -20,7 +20,13 @@ function formatInvoiceDate(dateString) {
   }
 }
 
-export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' }) {
+export default function InvoiceDocument({
+  invoice,
+  id = 'tax-invoice-printable',
+  copyTitle = '(Original for Recipient)',
+  isPrintMode = false,
+  className = ''
+}) {
   if (!invoice) return null;
 
   const company = invoice.companySnapshot || {
@@ -70,7 +76,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
   return (
     <div
       id={id}
-      className="invoice-document bg-white text-black leading-tight max-w-[760px] w-full mx-auto select-text p-3 print:p-0"
+      className={`invoice-document bg-white text-black leading-tight max-w-[760px] w-full mx-auto select-text p-3 ${className}`}
       style={{
         fontFamily: "'Times New Roman', Times, serif",
         color: '#000000'
@@ -82,7 +88,7 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           TAX INVOICE
         </h1>
         <span className="absolute right-0 top-0.5 text-[11px] text-black">
-          (Original for Recipient)
+          {copyTitle}
         </span>
       </div>
 
@@ -94,10 +100,10 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
           <div className="flex flex-col justify-between border-r border-black">
             {/* Company Info Box */}
             <div className="p-2 border-b border-black flex items-center gap-3">
-              <div className="w-[78px] h-[78px] min-w-[78px] flex items-center justify-center shrink-0">
+              <div className={`w-[78px] h-[78px] min-w-[78px] flex items-center justify-center shrink-0 ${isPrintMode ? 'invisible' : ''}`}>
                 <img src={logoIcon} alt="GK" className="w-full h-full object-contain" />
               </div>
-              <div className="text-[11px] leading-[1.32] text-black">
+              <div className={`text-[11px] leading-[1.32] text-black ${isPrintMode ? 'invisible' : ''}`}>
                 <div className="font-bold text-[13px] text-black mb-0.5">
                   {company.companyName || 'GK Metal Testing Lab'}
                 </div>
@@ -417,13 +423,15 @@ export default function InvoiceDocument({ invoice, id = 'tax-invoice-printable' 
               <div className="font-bold text-[11px] text-black relative z-10">
                 For {company.companyName || 'GK Metal Testing Lab'}
               </div>
-              <div className="absolute inset-0 flex items-center justify-start pl-6 pointer-events-none">
-                <img
-                  src={company.signatureUrl || signatureImg}
-                  alt="Authorised Signatory"
-                  className="h-[70px] w-auto max-w-[175px] object-contain"
-                />
-              </div>
+              {!isPrintMode && (
+                <div className="absolute inset-0 flex items-center justify-start pl-6 pointer-events-none">
+                  <img
+                    src={company.signatureUrl || signatureImg}
+                    alt="Authorised Signatory"
+                    className="h-[70px] w-auto max-w-[175px] object-contain"
+                  />
+                </div>
+              )}
               <div className="font-bold text-[11px] text-black relative z-10">
                 Authorised Signatory
               </div>
