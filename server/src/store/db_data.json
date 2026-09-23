@@ -56,7 +56,7 @@
       "serviceCode": "TEST-9580",
       "isActive": true,
       "createdAt": "2026-09-20T14:45:19.822Z",
-      "updatedAt": "2026-09-23T14:16:47.091Z",
+      "updatedAt": "2026-09-23T15:21:40.149Z",
       "name": "PMI TESTING CHARGES",
       "category": "NDT",
       "hsnSac": "998346",
@@ -79,7 +79,7 @@
         "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
       },
       "createdAt": "2026-09-23T14:08:50.187Z",
-      "updatedAt": "2026-09-23T14:16:46.797Z",
+      "updatedAt": "2026-09-23T15:21:39.836Z",
       "companyName": "Test customer",
       "contactPerson": "123456765432",
       "email": "ahamedhaden.r@gmail.com",
@@ -115,7 +115,7 @@
         "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
       },
       "createdAt": "2026-09-20T14:45:19.628Z",
-      "updatedAt": "2026-09-23T14:24:10.620Z",
+      "updatedAt": "2026-09-23T15:21:39.884Z",
       "companyName": "Kadaas",
       "contactPerson": "R.Ahamed Haden",
       "email": "ahamedhaden.r@gmail.com",
@@ -172,7 +172,7 @@
         "outstandingBalance": 5900,
         "lastInvoiceDate": "2026-09-09T00:00:00.000Z"
       },
-      "updatedAt": "2026-09-23T14:16:46.865Z",
+      "updatedAt": "2026-09-23T15:21:39.915Z",
       "__v": 0,
       "createdAt": "2026-09-20T14:45:19.595Z"
     }
@@ -195,13 +195,24 @@
       "invoiceNumber": "GK/INV/26-27/007",
       "financialYear": "26-27",
       "sequenceNumber": 7,
-      "status": "Generated",
-      "paymentStatus": "Unpaid",
-      "paidAmount": 0,
-      "balanceDue": 2950,
-      "payments": [],
+      "status": "Partially Paid",
+      "paymentStatus": "Partially Paid",
+      "paidAmount": 950,
+      "balanceDue": 2000,
+      "payments": [
+        {
+          "_id": "pay_1790175214209",
+          "paymentDate": "2026-09-23T00:00:00.000Z",
+          "amount": 950,
+          "mode": "Cash",
+          "referenceNo": "",
+          "bankName": "HDFC Bank",
+          "notes": "",
+          "recordedBy": "Accounts"
+        }
+      ],
       "createdAt": "2026-09-23T14:24:10.328Z",
-      "updatedAt": "2026-09-23T14:24:10.328Z",
+      "updatedAt": "2026-09-23T14:53:34.210Z",
       "invoiceDate": "2026-09-23T00:00:00.000Z",
       "dueDate": null,
       "metadata": {
@@ -315,7 +326,7 @@
       "balanceDue": 2950,
       "payments": [],
       "createdAt": "2026-09-23T14:09:15.910Z",
-      "updatedAt": "2026-09-23T14:16:46.900Z",
+      "updatedAt": "2026-09-23T15:21:39.961Z",
       "invoiceDate": "2026-09-23T00:00:00.000Z",
       "dueDate": null,
       "metadata": {
@@ -526,14 +537,14 @@
       "createdBy": "G. Karthikeyan",
       "updatedBy": "G. Karthikeyan",
       "createdAt": "2026-09-20T14:45:19.786Z",
-      "updatedAt": "2026-09-23T14:16:46.945Z",
+      "updatedAt": "2026-09-23T15:21:40.000Z",
       "__v": 0
     },
     {
       "_id": "inv_1788961876224",
       "sequenceNumber": 2,
       "createdAt": "2026-09-20T14:45:19.749Z",
-      "updatedAt": "2026-09-23T14:16:46.985Z",
+      "updatedAt": "2026-09-23T15:21:40.042Z",
       "invoiceNumber": "123123",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -647,7 +658,7 @@
       "_id": "inv_1788963433559",
       "sequenceNumber": 3,
       "createdAt": "2026-09-20T14:45:19.710Z",
-      "updatedAt": "2026-09-23T14:16:47.022Z",
+      "updatedAt": "2026-09-23T15:21:40.081Z",
       "invoiceNumber": "2121212s",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -768,7 +779,7 @@
       "balanceDue": 2950,
       "payments": [],
       "createdAt": "2026-09-20T14:45:19.661Z",
-      "updatedAt": "2026-09-23T14:16:47.058Z",
+      "updatedAt": "2026-09-23T15:21:40.115Z",
       "invoiceDate": "2026-09-15T00:00:00.000Z",
       "dueDate": null,
       "metadata": {

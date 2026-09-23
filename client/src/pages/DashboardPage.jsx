@@ -9,18 +9,20 @@ import {
   XCircle,
   TrendingUp,
   Eye,
-  ArrowRight
+  ArrowRight,
+  IndianRupee
 } from 'lucide-react';
 import { api } from '../services/api';
 import { formatINR, formatDate } from '../utils/formatters';
-import InvoiceStatusBadge from '../components/invoice/InvoiceStatusBadge';
 import { useToast } from '../context/ToastContext';
+import PaymentRecordModal from '../components/invoice/PaymentRecordModal';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState(null);
 
   const fetchMetrics = async () => {
     try {
@@ -34,6 +36,20 @@ export default function DashboardPage() {
       toast.error('Failed to load dashboard metrics');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePaymentRecorded = async (paymentData) => {
+    if (!selectedInvoiceForPayment) return;
+    try {
+      const res = await api.recordPayment(selectedInvoiceForPayment._id, paymentData);
+      if (res.success) {
+        toast.success(`Payment of ${formatINR(paymentData.amount)} recorded!`);
+        setSelectedInvoiceForPayment(null);
+        fetchMetrics();
+      }
+    } catch (e) {
+      toast.error(e.message || 'Failed to record payment');
     }
   };
 
@@ -201,7 +217,7 @@ export default function DashboardPage() {
                 <th className="py-3 px-3">Date</th>
                 <th className="py-3 px-3 text-right">Amount (₹)</th>
                 <th className="py-3 px-3 text-right">GST (₹)</th>
-                <th className="py-3 px-3 text-center">Status</th>
+                <th className="py-3 px-3 text-center">Pending / Pay</th>
                 <th className="py-3 px-3">Created By</th>
                 <th className="py-3 px-4 text-center">Actions</th>
               </tr>
@@ -240,9 +256,25 @@ export default function DashboardPage() {
                     <td className="py-3 px-3 text-right font-mono text-slate-600 whitespace-nowrap">
                       {formatINR(inv.totalTax || (inv.cgstAmount + inv.sgstAmount + inv.igstAmount))}
                     </td>
+
+                    {/* Pay Pending Payment Action */}
                     <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <InvoiceStatusBadge status={inv.status} />
+                      {inv.paymentStatus === 'Paid' || (inv.balanceDue !== undefined && inv.balanceDue <= 0) ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Paid (₹0 Due)
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setSelectedInvoiceForPayment(inv)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-xs active:scale-95 transition"
+                          title="Click to pay full or split payment"
+                        >
+                          <IndianRupee className="w-3.5 h-3.5" />
+                          <span>Pay {formatINR(inv.balanceDue !== undefined ? inv.balanceDue : inv.grandTotal)}</span>
+                        </button>
+                      )}
                     </td>
+
                     <td className="py-3 px-3 text-slate-600">
                       {inv.createdBy || 'Staff'}
                     </td>
@@ -270,6 +302,16 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Payment Modal from Dashboard */}
+      {selectedInvoiceForPayment && (
+        <PaymentRecordModal
+          isOpen={Boolean(selectedInvoiceForPayment)}
+          onClose={() => setSelectedInvoiceForPayment(null)}
+          invoice={selectedInvoiceForPayment}
+          onPaymentRecorded={handlePaymentRecorded}
+        />
+      )}
     </div>
   );
 }
