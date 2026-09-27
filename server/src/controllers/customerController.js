@@ -1,19 +1,23 @@
 import { store } from '../store/memoryStore.js';
 
-export const getAllCustomers = (req, res) => {
+export const getAllCustomers = async (req, res) => {
   try {
-    const customers = store.getCustomers();
-    const invoices = store.getInvoices();
+    const customers = await store.getCustomers();
+    const invoices = await store.getInvoices();
     const { search } = req.query;
 
-    let result = customers.map(cust => {
+    let result = (customers || []).map(cust => {
       // Recalculate real-time customer invoice aggregates
-      const custInvoices = invoices.filter(inv => inv.customer === cust._id || inv.buyerSnapshot?.companyName?.toLowerCase() === cust.companyName?.toLowerCase());
+      const custInvoices = (invoices || []).filter(inv =>
+        (cust._id && inv.customer === cust._id) ||
+        (cust.customerId && inv.customer === cust.customerId) ||
+        (cust.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === cust.companyName?.trim().toLowerCase())
+      );
       const totalInvoices = custInvoices.length;
       const totalBilled = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.grandTotal || 0) : 0), 0);
       const totalPaid = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.paidAmount || 0) : 0), 0);
       const outstandingBalance = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.balanceDue || 0) : 0), 0);
-      const latestInvoice = custInvoices.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))[0];
+      const latestInvoice = custInvoices.sort((a, b) => new Date(b.invoiceDate || b.createdAt || 0) - new Date(a.invoiceDate || a.createdAt || 0))[0];
 
       return {
         ...cust,
@@ -52,13 +56,17 @@ export const getAllCustomers = (req, res) => {
   }
 };
 
-export const getCustomerById = (req, res) => {
+export const getCustomerById = async (req, res) => {
   try {
-    const customer = store.getCustomerById(req.params.id);
+    const customer = await store.getCustomerById(req.params.id);
     if (!customer) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
-    const invoices = store.getInvoices().filter(inv => inv.customer === customer._id || inv.buyerSnapshot?.companyName?.toLowerCase() === customer.companyName?.toLowerCase());
+    const invoices = (await store.getInvoices()).filter(inv =>
+      (customer._id && inv.customer === customer._id) ||
+      (customer.customerId && inv.customer === customer.customerId) ||
+      (customer.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === customer.companyName?.trim().toLowerCase())
+    );
     res.json({ success: true, data: { ...customer, invoices } });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

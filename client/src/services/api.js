@@ -37,27 +37,6 @@ function setLocalData(key, value) {
   }
 }
 
-// Merge remote items with local cache (non-destructive)
-function mergeCollections(remoteList = [], localList = [], idKey = '_id', altKey = 'customerId') {
-  const map = new Map();
-  // Add local items first
-  (localList || []).forEach(item => {
-    const key = item[altKey] || item[idKey];
-    if (key) map.set(key, item);
-  });
-  // Overlay remote items (or keep newer local items)
-  (remoteList || []).forEach(remoteItem => {
-    const key = remoteItem[altKey] || remoteItem[idKey];
-    if (key) {
-      const local = map.get(key);
-      if (!local || new Date(remoteItem.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
-        map.set(key, { ...local, ...remoteItem });
-      }
-    }
-  });
-  return Array.from(map.values());
-}
-
 export const api = {
   // Health
   getHealth: async () => {
@@ -109,31 +88,16 @@ export const api = {
 
   // Invoices
   getInvoices: async (params = {}) => {
+    const hasFilters = Object.keys(params).length > 0;
     const query = new URLSearchParams(params).toString();
     try {
       const res = await fetch(`${API_BASE}/invoices?${query}`);
       const data = await handleResponse(res);
       if (data.success && Array.isArray(data.data)) {
-        const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
-        const merged = mergeCollections(data.data, cached, '_id', 'invoiceNumber');
-        merged.sort((a, b) => new Date(b.createdAt || b.invoiceDate || 0) - new Date(a.createdAt || a.invoiceDate || 0));
-        setLocalData(STORAGE_KEYS.INVOICES, merged);
-
-        // Background push any locally created invoices missing on server
-        if (merged.length > data.data.length) {
-          const remoteMap = new Set(data.data.map(i => i.invoiceNumber || i._id));
-          merged.forEach(inv => {
-            if (!remoteMap.has(inv.invoiceNumber) && !remoteMap.has(inv._id)) {
-              fetch(`${API_BASE}/invoices`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(inv)
-              }).catch(() => {});
-            }
-          });
+        if (!hasFilters) {
+          setLocalData(STORAGE_KEYS.INVOICES, data.data);
         }
-
-        return { ...data, data: merged, count: merged.length };
+        return data;
       }
       return data;
     } catch (e) {
@@ -289,30 +253,16 @@ export const api = {
 
   // Customers
   getCustomers: async (params = {}) => {
+    const hasFilters = Object.keys(params).length > 0;
     const query = new URLSearchParams(params).toString();
     try {
       const res = await fetch(`${API_BASE}/customers?${query}`);
       const data = await handleResponse(res);
       if (data.success && Array.isArray(data.data)) {
-        const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-        const merged = mergeCollections(data.data, cached, '_id', 'customerId');
-        setLocalData(STORAGE_KEYS.CUSTOMERS, merged);
-
-        // Push locally created customers missing on server
-        if (merged.length > data.data.length) {
-          const remoteMap = new Set(data.data.map(c => c.customerId || c._id));
-          merged.forEach(cust => {
-            if (!remoteMap.has(cust.customerId) && !remoteMap.has(cust._id)) {
-              fetch(`${API_BASE}/customers`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(cust)
-              }).catch(() => {});
-            }
-          });
+        if (!hasFilters) {
+          setLocalData(STORAGE_KEYS.CUSTOMERS, data.data);
         }
-
-        return { ...data, data: merged, count: merged.length };
+        return data;
       }
       return data;
     } catch (e) {
@@ -343,7 +293,7 @@ export const api = {
       const result = await handleResponse(res);
       if (result.success && result.data) {
         const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-        setLocalData(STORAGE_KEYS.CUSTOMERS, [...cached.filter(c => c._id !== result.data._id && c.customerId !== result.data.customerId), result.data]);
+        setLocalData(STORAGE_KEYS.CUSTOMERS, [result.data, ...cached.filter(c => c._id !== result.data._id && c.customerId !== result.data.customerId)]);
       }
       return result;
     } catch (e) {
@@ -356,7 +306,7 @@ export const api = {
         ...data
       };
       const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-      setLocalData(STORAGE_KEYS.CUSTOMERS, [...cached, newCust]);
+      setLocalData(STORAGE_KEYS.CUSTOMERS, [newCust, ...cached]);
       return { success: true, data: newCust };
     }
   },
@@ -373,7 +323,7 @@ export const api = {
         const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
         const index = cached.findIndex(c => c._id === id || c.customerId === id);
         if (index !== -1) cached[index] = result.data;
-        else cached.push(result.data);
+        else cached.unshift(result.data);
         setLocalData(STORAGE_KEYS.CUSTOMERS, cached);
       }
       return result;
@@ -407,15 +357,16 @@ export const api = {
 
   // Services Catalog
   getServices: async (params = {}) => {
+    const hasFilters = Object.keys(params).length > 0;
     const query = new URLSearchParams(params).toString();
     try {
       const res = await fetch(`${API_BASE}/services?${query}`);
       const data = await handleResponse(res);
       if (data.success && Array.isArray(data.data)) {
-        const cached = getLocalData(STORAGE_KEYS.SERVICES) || [];
-        const merged = mergeCollections(data.data, cached, '_id', 'serviceCode');
-        setLocalData(STORAGE_KEYS.SERVICES, merged);
-        return { ...data, data: merged, count: merged.length };
+        if (!hasFilters) {
+          setLocalData(STORAGE_KEYS.SERVICES, data.data);
+        }
+        return data;
       }
       return data;
     } catch (e) {

@@ -1,8 +1,8 @@
 import { store } from '../store/memoryStore.js';
 
-export const getAllEmployees = (req, res) => {
+export const getAllEmployees = async (req, res) => {
   try {
-    const employees = store.getEmployees();
+    const employees = await store.getEmployees();
     res.json({ success: true, data: employees });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -37,9 +37,9 @@ export function convertNumberToIndianWords(num) {
 }
 
 // Get Next Invoice Number
-export const getNextInvoiceNumber = (req, res) => {
+export const getNextInvoiceNumber = async (req, res) => {
   try {
-    const settings = store.getSettings();
+    const settings = await store.getSettings();
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
     const currentSeq = settings?.invoiceConfig?.currentSequence || 4;
@@ -63,13 +63,14 @@ export const getNextInvoiceNumber = (req, res) => {
 };
 
 // Get All Invoices with Filtering & Sorting
-export const getAllInvoices = (req, res) => {
+export const getAllInvoices = async (req, res) => {
   try {
-    let invoices = [...store.getInvoices()];
+    const rawInvoices = await store.getInvoices();
+    let invoices = [...(rawInvoices || [])];
     const { status, search, buyer, sortBy, sortOrder = 'desc', startDate, endDate } = req.query;
 
     if (status && status !== 'All') {
-      invoices = invoices.filter(inv => inv.status.toLowerCase() === status.toLowerCase());
+      invoices = invoices.filter(inv => inv.status?.toLowerCase() === status.toLowerCase());
     }
 
     if (search) {
@@ -88,21 +89,21 @@ export const getAllInvoices = (req, res) => {
     }
 
     if (startDate) {
-      invoices = invoices.filter(inv => new Date(inv.invoiceDate) >= new Date(startDate));
+      invoices = invoices.filter(inv => new Date(inv.invoiceDate || inv.createdAt) >= new Date(startDate));
     }
     if (endDate) {
-      invoices = invoices.filter(inv => new Date(inv.invoiceDate) <= new Date(endDate));
+      invoices = invoices.filter(inv => new Date(inv.invoiceDate || inv.createdAt) <= new Date(endDate));
     }
 
     // Sorting
     invoices.sort((a, b) => {
       if (sortBy === 'amount') {
-        return sortOrder === 'asc' ? a.grandTotal - b.grandTotal : b.grandTotal - a.grandTotal;
+        return sortOrder === 'asc' ? (a.grandTotal || 0) - (b.grandTotal || 0) : (b.grandTotal || 0) - (a.grandTotal || 0);
       }
       if (sortBy === 'invoiceNumber') {
         return sortOrder === 'asc'
-          ? a.invoiceNumber.localeCompare(b.invoiceNumber)
-          : b.invoiceNumber.localeCompare(a.invoiceNumber);
+          ? (a.invoiceNumber || '').localeCompare(b.invoiceNumber || '')
+          : (b.invoiceNumber || '').localeCompare(a.invoiceNumber || '');
       }
       // Default: date / newest first (last created first)
       const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
@@ -126,9 +127,9 @@ export const getAllInvoices = (req, res) => {
 };
 
 // Get Single Invoice by ID
-export const getInvoiceById = (req, res) => {
+export const getInvoiceById = async (req, res) => {
   try {
-    const invoice = store.getInvoiceById(req.params.id);
+    const invoice = await store.getInvoiceById(req.params.id);
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
@@ -142,7 +143,7 @@ export const getInvoiceById = (req, res) => {
 export const createInvoice = async (req, res) => {
   try {
     const payload = req.body;
-    const settings = store.getSettings();
+    const settings = await store.getSettings();
 
     // Auto calculate if missing or recalculate for guaranteed integrity
     const items = (payload.items || []).map((item, idx) => ({
@@ -242,14 +243,14 @@ export const createInvoice = async (req, res) => {
 
     // Update customer stats if customer ID provided
     if (payload.customer) {
-      const customer = store.getCustomerById(payload.customer);
+      const customer = await store.getCustomerById(payload.customer);
       if (customer) {
         customer.stats = customer.stats || {};
         customer.stats.totalInvoices = (customer.stats.totalInvoices || 0) + 1;
         customer.stats.totalBilled = (customer.stats.totalBilled || 0) + grandTotal;
         customer.stats.outstandingBalance = (customer.stats.outstandingBalance || 0) + (grandTotal - (payload.paidAmount || 0));
         customer.stats.lastInvoiceDate = newInvoice.invoiceDate;
-        await store.updateCustomer(customer._id, customer);
+        await store.updateCustomer(customer._id || customer.customerId, customer);
       }
     }
 
@@ -263,7 +264,7 @@ export const createInvoice = async (req, res) => {
 export const updateInvoice = async (req, res) => {
   try {
     const id = req.params.id;
-    const existing = store.getInvoiceById(id);
+    const existing = await store.getInvoiceById(id);
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
@@ -288,12 +289,12 @@ export const updateInvoice = async (req, res) => {
 // Duplicate Invoice
 export const duplicateInvoice = async (req, res) => {
   try {
-    const sourceInvoice = store.getInvoiceById(req.params.id);
+    const sourceInvoice = await store.getInvoiceById(req.params.id);
     if (!sourceInvoice) {
       return res.status(404).json({ success: false, message: 'Source invoice not found' });
     }
 
-    const settings = store.getSettings();
+    const settings = await store.getSettings();
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
     const nextSeq = (settings?.invoiceConfig?.currentSequence || 4) + 1;
@@ -327,7 +328,7 @@ export const duplicateInvoice = async (req, res) => {
 export const recordPayment = async (req, res) => {
   try {
     const id = req.params.id;
-    const invoice = store.getInvoiceById(id);
+    const invoice = await store.getInvoiceById(id);
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
@@ -373,7 +374,7 @@ export const recordPayment = async (req, res) => {
 export const deleteInvoice = async (req, res) => {
   try {
     const id = req.params.id;
-    const invoice = store.getInvoiceById(id);
+    const invoice = await store.getInvoiceById(id);
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }

@@ -1,8 +1,8 @@
 import { store } from '../store/memoryStore.js';
 
-export const getAllServices = (req, res) => {
+export const getAllServices = async (req, res) => {
   try {
-    const services = store.getServices();
+    const services = (await store.getServices()) || [];
     const { category, search } = req.query;
 
     let result = [...services];

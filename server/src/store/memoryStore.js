@@ -267,7 +267,21 @@ class MemoryStore {
   }
 
   // Company Settings
-  getSettings() {
+  async getSettings() {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoSettings = await CompanySettings.findOne().lean();
+        if (mongoSettings) {
+          this.data.companySettings = {
+            ...this.data.companySettings,
+            ...mongoSettings
+          };
+          this.save();
+        }
+      } catch (err) {
+        console.warn('Mongo getSettings fallback:', err.message);
+      }
+    }
     return this.data.companySettings;
   }
 
@@ -285,11 +299,15 @@ class MemoryStore {
     if (mongoose.connection.readyState === 1) {
       try {
         const { _id, ...settingsData } = this.data.companySettings;
-        await CompanySettings.findOneAndUpdate(
+        const saved = await CompanySettings.findOneAndUpdate(
           {},
           { $set: settingsData, $setOnInsert: { _id: _id || 'settings_default' } },
-          { upsert: true }
-        );
+          { upsert: true, new: true }
+        ).lean();
+        if (saved) {
+          this.data.companySettings = { ...this.data.companySettings, ...saved };
+          this.save();
+        }
       } catch (err) {
         console.error('Mongo sync error (settings):', err.message);
       }
@@ -299,16 +317,38 @@ class MemoryStore {
   }
 
   // Invoices
-  getInvoices() {
+  async getInvoices() {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoInvoices = await Invoice.find().sort({ createdAt: -1, invoiceDate: -1 }).lean();
+        if (mongoInvoices && Array.isArray(mongoInvoices)) {
+          this.data.invoices = mongoInvoices;
+          this.save();
+          return this.data.invoices;
+        }
+      } catch (err) {
+        console.warn('Mongo getInvoices fallback to cached data:', err.message);
+      }
+    }
     return this.data.invoices;
   }
 
-  getInvoiceById(id) {
+  async getInvoiceById(id) {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoInvoice = await Invoice.findOne({
+          $or: [{ _id: id }, { invoiceNumber: id }]
+        }).lean();
+        if (mongoInvoice) return mongoInvoice;
+      } catch (err) {
+        console.warn('Mongo getInvoiceById fallback:', err.message);
+      }
+    }
     return this.data.invoices.find(inv => inv._id === id || inv.invoiceNumber === id);
   }
 
   async createInvoice(payload) {
-    const settings = this.getSettings();
+    const settings = await this.getSettings();
     const currentSeq = settings?.invoiceConfig?.currentSequence || 1;
     const nextSeq = currentSeq + 1;
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
@@ -316,7 +356,7 @@ class MemoryStore {
     const formattedSeq = String(nextSeq).padStart(3, '0');
     const autoInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
 
-    const newInvoice = {
+    let newInvoice = {
       _id: 'inv_' + Date.now(),
       invoiceNumber: payload.invoiceNumber || autoInvoiceNumber,
       financialYear: payload.financialYear || fy,
@@ -337,61 +377,71 @@ class MemoryStore {
       await this.updateSettings(settings);
     }
 
-    this.data.invoices.unshift(newInvoice);
-    this.save();
-
-    // Persist to MongoDB
+    // Persist to MongoDB with await for guaranteed consistency
     if (mongoose.connection.readyState === 1) {
       try {
         const { _id, ...invData } = newInvoice;
-        await Invoice.findOneAndUpdate(
+        const saved = await Invoice.findOneAndUpdate(
           { invoiceNumber: newInvoice.invoiceNumber },
           { $set: invData, $setOnInsert: { _id: newInvoice._id } },
-          { upsert: true, new: true }
-        );
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) {
+          newInvoice = { ...newInvoice, ...saved };
+        }
       } catch (err) {
         console.error('Mongo sync error (create invoice):', err.message);
       }
     }
 
+    // Update memory and local disk store
+    const existingIdx = this.data.invoices.findIndex(i => i.invoiceNumber === newInvoice.invoiceNumber || i._id === newInvoice._id);
+    if (existingIdx !== -1) {
+      this.data.invoices[existingIdx] = newInvoice;
+    } else {
+      this.data.invoices.unshift(newInvoice);
+    }
+    this.save();
+
     return newInvoice;
   }
 
   async updateInvoice(id, updatePayload) {
-    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
-    if (index === -1) return null;
+    let updatedInvoice = null;
 
-    this.data.invoices[index] = {
-      ...this.data.invoices[index],
-      ...updatePayload,
-      updatedAt: new Date().toISOString()
-    };
-    this.save();
-
-    // Persist to MongoDB
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = this.data.invoices[index];
-        await Invoice.findOneAndUpdate(
+        const { _id, ...updateData } = updatePayload;
+        updatedInvoice = await Invoice.findOneAndUpdate(
           { $or: [{ _id: id }, { invoiceNumber: id }] },
-          { $set: updateData },
+          { $set: updateData, $currentDate: { updatedAt: true } },
           { new: true }
-        );
+        ).lean();
       } catch (err) {
         console.error('Mongo sync error (update invoice):', err.message);
       }
     }
 
-    return this.data.invoices[index];
+    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
+    if (index !== -1) {
+      this.data.invoices[index] = {
+        ...this.data.invoices[index],
+        ...updatePayload,
+        ...(updatedInvoice || {}),
+        updatedAt: new Date().toISOString()
+      };
+      this.save();
+      return this.data.invoices[index];
+    } else if (updatedInvoice) {
+      this.data.invoices.unshift(updatedInvoice);
+      this.save();
+      return updatedInvoice;
+    }
+
+    return null;
   }
 
   async deleteInvoice(id) {
-    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
-    if (index === -1) return false;
-    this.data.invoices.splice(index, 1);
-    this.save();
-
-    // Persist to MongoDB
     if (mongoose.connection.readyState === 1) {
       try {
         await Invoice.findOneAndDelete({ $or: [{ _id: id }, { invoiceNumber: id }] });
@@ -400,21 +450,50 @@ class MemoryStore {
       }
     }
 
+    const index = this.data.invoices.findIndex(inv => inv._id === id || inv.invoiceNumber === id);
+    if (index !== -1) {
+      this.data.invoices.splice(index, 1);
+      this.save();
+      return true;
+    }
+
     return true;
   }
 
   // Customers
-  getCustomers() {
+  async getCustomers() {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoCustomers = await Customer.find().sort({ createdAt: -1 }).lean();
+        if (mongoCustomers && Array.isArray(mongoCustomers)) {
+          this.data.customers = mongoCustomers;
+          this.save();
+          return this.data.customers;
+        }
+      } catch (err) {
+        console.warn('Mongo getCustomers fallback to cached data:', err.message);
+      }
+    }
     return this.data.customers;
   }
 
-  getCustomerById(id) {
+  async getCustomerById(id) {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoCustomer = await Customer.findOne({
+          $or: [{ _id: id }, { customerId: id }]
+        }).lean();
+        if (mongoCustomer) return mongoCustomer;
+      } catch (err) {
+        console.warn('Mongo getCustomerById fallback:', err.message);
+      }
+    }
     return this.data.customers.find(c => c._id === id || c.customerId === id);
   }
 
   async createCustomer(payload) {
     const custCount = this.data.customers.length + 1001;
-    const newCust = {
+    let newCust = {
       _id: 'cust_' + Date.now(),
       customerId: payload.customerId || `CUST-${custCount}`,
       stats: {
@@ -427,60 +506,71 @@ class MemoryStore {
       updatedAt: new Date().toISOString(),
       ...payload
     };
-    this.data.customers.unshift(newCust);
-    this.save();
 
-    // Persist to MongoDB
+    // Persist to MongoDB with await for guaranteed consistency
     if (mongoose.connection.readyState === 1) {
       try {
         const { _id, ...custData } = newCust;
-        await Customer.findOneAndUpdate(
+        const saved = await Customer.findOneAndUpdate(
           { customerId: newCust.customerId },
           { $set: custData, $setOnInsert: { _id: newCust._id } },
-          { upsert: true, new: true }
-        );
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) {
+          newCust = { ...newCust, ...saved };
+        }
       } catch (err) {
         console.error('Mongo sync error (create customer):', err.message);
       }
     }
 
+    const existingIdx = this.data.customers.findIndex(c => c.customerId === newCust.customerId || c._id === newCust._id);
+    if (existingIdx !== -1) {
+      this.data.customers[existingIdx] = newCust;
+    } else {
+      this.data.customers.unshift(newCust);
+    }
+    this.save();
+
     return newCust;
   }
 
   async updateCustomer(id, payload) {
-    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
-    if (index === -1) return null;
-    this.data.customers[index] = {
-      ...this.data.customers[index],
-      ...payload,
-      updatedAt: new Date().toISOString()
-    };
-    this.save();
+    let updatedCustomer = null;
 
-    // Persist to MongoDB
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = this.data.customers[index];
-        await Customer.findOneAndUpdate(
+        const { _id, ...updateData } = payload;
+        updatedCustomer = await Customer.findOneAndUpdate(
           { $or: [{ _id: id }, { customerId: id }] },
-          { $set: updateData },
+          { $set: updateData, $currentDate: { updatedAt: true } },
           { new: true }
-        );
+        ).lean();
       } catch (err) {
         console.error('Mongo sync error (update customer):', err.message);
       }
     }
 
-    return this.data.customers[index];
+    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
+    if (index !== -1) {
+      this.data.customers[index] = {
+        ...this.data.customers[index],
+        ...payload,
+        ...(updatedCustomer || {}),
+        updatedAt: new Date().toISOString()
+      };
+      this.save();
+      return this.data.customers[index];
+    } else if (updatedCustomer) {
+      this.data.customers.unshift(updatedCustomer);
+      this.save();
+      return updatedCustomer;
+    }
+
+    return null;
   }
 
   async deleteCustomer(id) {
-    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
-    if (index === -1) return false;
-    this.data.customers.splice(index, 1);
-    this.save();
-
-    // Persist to MongoDB
     if (mongoose.connection.readyState === 1) {
       try {
         await Customer.findOneAndDelete({ $or: [{ _id: id }, { customerId: id }] });
@@ -489,20 +579,49 @@ class MemoryStore {
       }
     }
 
+    const index = this.data.customers.findIndex(c => c._id === id || c.customerId === id);
+    if (index !== -1) {
+      this.data.customers.splice(index, 1);
+      this.save();
+      return true;
+    }
+
     return true;
   }
 
   // Services
-  getServices() {
+  async getServices() {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoServices = await Service.find().lean();
+        if (mongoServices && Array.isArray(mongoServices)) {
+          this.data.services = mongoServices;
+          this.save();
+          return this.data.services;
+        }
+      } catch (err) {
+        console.warn('Mongo getServices fallback:', err.message);
+      }
+    }
     return this.data.services;
   }
 
-  getServiceById(id) {
+  async getServiceById(id) {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoService = await Service.findOne({
+          $or: [{ _id: id }, { serviceCode: id }]
+        }).lean();
+        if (mongoService) return mongoService;
+      } catch (err) {
+        console.warn('Mongo getServiceById fallback:', err.message);
+      }
+    }
     return this.data.services.find(s => s._id === id || s.serviceCode === id);
   }
 
   async createService(payload) {
-    const newService = {
+    let newService = {
       _id: 'srv_' + Date.now(),
       serviceCode: payload.serviceCode || `TEST-${Date.now().toString().slice(-4)}`,
       isActive: true,
@@ -510,22 +629,23 @@ class MemoryStore {
       updatedAt: new Date().toISOString(),
       ...payload
     };
-    this.data.services.push(newService);
-    this.save();
 
     if (mongoose.connection.readyState === 1) {
       try {
         const { _id, ...srvData } = newService;
-        await Service.findOneAndUpdate(
+        const saved = await Service.findOneAndUpdate(
           { serviceCode: newService.serviceCode },
           { $set: srvData, $setOnInsert: { _id: newService._id } },
-          { upsert: true, new: true }
-        );
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) newService = { ...newService, ...saved };
       } catch (err) {
         console.error('Mongo sync error (create service):', err.message);
       }
     }
 
+    this.data.services.push(newService);
+    this.save();
     return newService;
   }
 
@@ -534,7 +654,7 @@ class MemoryStore {
     let counter = Date.now();
     for (const payload of payloadArray) {
       counter++;
-      const newService = {
+      let newService = {
         _id: 'srv_' + counter,
         serviceCode: payload.serviceCode || `TEST-${counter.toString().slice(-4)}`,
         isActive: true,
@@ -542,58 +662,64 @@ class MemoryStore {
         updatedAt: new Date().toISOString(),
         ...payload
       };
-      this.data.services.push(newService);
-      createdList.push(newService);
 
       if (mongoose.connection.readyState === 1) {
         try {
           const { _id, ...srvData } = newService;
-          await Service.findOneAndUpdate(
+          const saved = await Service.findOneAndUpdate(
             { serviceCode: newService.serviceCode },
             { $set: srvData, $setOnInsert: { _id: newService._id } },
-            { upsert: true, new: true }
-          );
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          ).lean();
+          if (saved) newService = { ...newService, ...saved };
         } catch (err) {
           console.error('Mongo sync error (create services):', err.message);
         }
       }
+
+      this.data.services.push(newService);
+      createdList.push(newService);
     }
     this.save();
     return createdList;
   }
 
   async updateService(id, payload) {
-    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
-    if (index === -1) return null;
-    this.data.services[index] = {
-      ...this.data.services[index],
-      ...payload,
-      updatedAt: new Date().toISOString()
-    };
-    this.save();
+    let updatedService = null;
 
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = this.data.services[index];
-        await Service.findOneAndUpdate(
+        const { _id, ...updateData } = payload;
+        updatedService = await Service.findOneAndUpdate(
           { $or: [{ _id: id }, { serviceCode: id }] },
-          { $set: updateData },
+          { $set: updateData, $currentDate: { updatedAt: true } },
           { new: true }
-        );
+        ).lean();
       } catch (err) {
         console.error('Mongo sync error (update service):', err.message);
       }
     }
 
-    return this.data.services[index];
+    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
+    if (index !== -1) {
+      this.data.services[index] = {
+        ...this.data.services[index],
+        ...payload,
+        ...(updatedService || {}),
+        updatedAt: new Date().toISOString()
+      };
+      this.save();
+      return this.data.services[index];
+    } else if (updatedService) {
+      this.data.services.push(updatedService);
+      this.save();
+      return updatedService;
+    }
+
+    return null;
   }
 
   async deleteService(id) {
-    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
-    if (index === -1) return false;
-    this.data.services.splice(index, 1);
-    this.save();
-
     if (mongoose.connection.readyState === 1) {
       try {
         await Service.findOneAndDelete({ $or: [{ _id: id }, { serviceCode: id }] });
@@ -602,74 +728,108 @@ class MemoryStore {
       }
     }
 
+    const index = this.data.services.findIndex(s => s._id === id || s.serviceCode === id);
+    if (index !== -1) {
+      this.data.services.splice(index, 1);
+      this.save();
+      return true;
+    }
+
     return true;
   }
 
   // Employees
-  getEmployees() {
+  async getEmployees() {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const mongoUsers = await User.find().lean();
+        if (mongoUsers && Array.isArray(mongoUsers) && mongoUsers.length > 0) {
+          this.data.employees = mongoUsers;
+          this.save();
+          return this.data.employees;
+        }
+      } catch (err) {
+        console.warn('Mongo getEmployees fallback:', err.message);
+      }
+    }
     return this.data.employees;
   }
 
   async createEmployee(payload) {
-    const newEmp = {
+    let newEmp = {
       _id: 'emp_' + Date.now(),
       employeeId: payload.employeeId || `EMP-0${this.data.employees.length + 1}`,
       status: 'Active',
       ...payload
     };
-    this.data.employees.push(newEmp);
-    this.save();
 
     if (mongoose.connection.readyState === 1) {
       try {
         const { _id, ...empData } = newEmp;
-        await User.findOneAndUpdate(
+        const saved = await User.findOneAndUpdate(
           { email: newEmp.email },
           { $set: empData, $setOnInsert: { _id: newEmp._id } },
-          { upsert: true, new: true }
-        );
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) newEmp = { ...newEmp, ...saved };
       } catch (err) {
         console.error('Mongo sync error (create employee):', err.message);
       }
     }
 
+    this.data.employees.push(newEmp);
+    this.save();
     return newEmp;
   }
 
   async updateEmployee(id, payload) {
-    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
-    if (index === -1) return null;
-    this.data.employees[index] = { ...this.data.employees[index], ...payload };
-    this.save();
+    let updatedEmp = null;
 
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = this.data.employees[index];
-        await User.findOneAndUpdate(
+        const { _id, ...updateData } = payload;
+        updatedEmp = await User.findOneAndUpdate(
           { $or: [{ _id: id }, { employeeId: id }] },
-          { $set: updateData },
+          { $set: updateData, $currentDate: { updatedAt: true } },
           { new: true }
-        );
+        ).lean();
       } catch (err) {
         console.error('Mongo sync error (update employee):', err.message);
       }
     }
 
-    return this.data.employees[index];
+    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
+    if (index !== -1) {
+      this.data.employees[index] = {
+        ...this.data.employees[index],
+        ...payload,
+        ...(updatedEmp || {})
+      };
+      this.save();
+      return this.data.employees[index];
+    } else if (updatedEmp) {
+      this.data.employees.push(updatedEmp);
+      this.save();
+      return updatedEmp;
+    }
+
+    return null;
   }
 
   async deleteEmployee(id) {
-    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
-    if (index === -1) return false;
-    this.data.employees.splice(index, 1);
-    this.save();
-
     if (mongoose.connection.readyState === 1) {
       try {
         await User.findOneAndDelete({ $or: [{ _id: id }, { employeeId: id }] });
       } catch (err) {
         console.error('Mongo sync error (delete employee):', err.message);
       }
+    }
+
+    const index = this.data.employees.findIndex(e => e._id === id || e.employeeId === id);
+    if (index !== -1) {
+      this.data.employees.splice(index, 1);
+      this.save();
+      return true;
     }
 
     return true;

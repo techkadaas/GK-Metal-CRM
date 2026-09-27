@@ -2,8 +2,8 @@ import { store } from '../store/memoryStore.js';
 
 export const getDashboardMetrics = async (req, res) => {
   try {
-    const invoices = store.getInvoices();
-    const customers = store.getCustomers();
+    const invoices = (await store.getInvoices()) || [];
+    const customers = (await store.getCustomers()) || [];
 
     const now = new Date();
     const currentMonth = now.getMonth();
