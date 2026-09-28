@@ -322,7 +322,26 @@ class MemoryStore {
       try {
         const mongoInvoices = await Invoice.find().sort({ createdAt: -1, invoiceDate: -1 }).lean();
         if (mongoInvoices && Array.isArray(mongoInvoices)) {
-          this.data.invoices = mongoInvoices;
+          // Non-destructive merge: preserve local records that may not be in MongoDB yet
+          const invoiceMap = new Map();
+          (this.data.invoices || []).forEach(inv => {
+            const key = inv.invoiceNumber || inv._id;
+            if (key) invoiceMap.set(key, inv);
+          });
+          (mongoInvoices || []).forEach(minv => {
+            const key = minv.invoiceNumber || minv._id;
+            const local = invoiceMap.get(key);
+            if (!local || new Date(minv.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
+              invoiceMap.set(key, { ...local, ...minv });
+            }
+          });
+          this.data.invoices = Array.from(invoiceMap.values());
+          this.data.invoices.sort((a, b) => {
+            const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
+            const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
+            if (timeA !== timeB) return timeB - timeA;
+            return (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+          });
           this.save();
           return this.data.invoices;
         }
@@ -466,7 +485,26 @@ class MemoryStore {
       try {
         const mongoCustomers = await Customer.find().sort({ createdAt: -1 }).lean();
         if (mongoCustomers && Array.isArray(mongoCustomers)) {
-          this.data.customers = mongoCustomers;
+          // Non-destructive merge: preserve local records that may not be in MongoDB yet
+          const customerMap = new Map();
+          (this.data.customers || []).forEach(c => {
+            const key = c.customerId || c._id;
+            if (key) customerMap.set(key, c);
+          });
+          (mongoCustomers || []).forEach(mc => {
+            const key = mc.customerId || mc._id;
+            const local = customerMap.get(key);
+            if (!local || new Date(mc.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
+              customerMap.set(key, { ...local, ...mc });
+            }
+          });
+          this.data.customers = Array.from(customerMap.values());
+          this.data.customers.sort((a, b) => {
+            const timeA = new Date(a.createdAt || 0).getTime();
+            const timeB = new Date(b.createdAt || 0).getTime();
+            if (timeA !== timeB) return timeB - timeA;
+            return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
+          });
           this.save();
           return this.data.customers;
         }
@@ -595,7 +633,20 @@ class MemoryStore {
       try {
         const mongoServices = await Service.find().lean();
         if (mongoServices && Array.isArray(mongoServices)) {
-          this.data.services = mongoServices;
+          // Non-destructive merge: preserve local records that may not be in MongoDB yet
+          const serviceMap = new Map();
+          (this.data.services || []).forEach(s => {
+            const key = s.serviceCode || s._id;
+            if (key) serviceMap.set(key, s);
+          });
+          (mongoServices || []).forEach(ms => {
+            const key = ms.serviceCode || ms._id;
+            const local = serviceMap.get(key);
+            if (!local || new Date(ms.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
+              serviceMap.set(key, { ...local, ...ms });
+            }
+          });
+          this.data.services = Array.from(serviceMap.values());
           this.save();
           return this.data.services;
         }
@@ -743,8 +794,21 @@ class MemoryStore {
     if (mongoose.connection.readyState === 1) {
       try {
         const mongoUsers = await User.find().lean();
-        if (mongoUsers && Array.isArray(mongoUsers) && mongoUsers.length > 0) {
-          this.data.employees = mongoUsers;
+        if (mongoUsers && Array.isArray(mongoUsers)) {
+          // Non-destructive merge: preserve local records that may not be in MongoDB yet
+          const empMap = new Map();
+          (this.data.employees || []).forEach(e => {
+            const key = e.email || e.employeeId || e._id;
+            if (key) empMap.set(key, e);
+          });
+          (mongoUsers || []).forEach(mu => {
+            const key = mu.email || mu.employeeId || mu._id;
+            const local = empMap.get(key);
+            if (!local || new Date(mu.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
+              empMap.set(key, { ...local, ...mu });
+            }
+          });
+          this.data.employees = Array.from(empMap.values());
           this.save();
           return this.data.employees;
         }
