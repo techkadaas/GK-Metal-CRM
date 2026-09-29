@@ -6,12 +6,17 @@ import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 import dns from 'dns';
+import dnsPromises from 'dns/promises';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
 try {
+  dns.setDefaultResultOrder('ipv4first');
   dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1']);
 } catch (e) {
   // Ignore if setting DNS is not permitted
 }
-import { fileURLToPath } from 'url';
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
@@ -21,8 +26,6 @@ import settingsRoutes from './routes/settingsRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { store } from './store/memoryStore.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,12 +42,8 @@ app.disable('x-powered-by');
 // CORS configuration (supports dynamic Vercel subdomains, localhost, and custom domains)
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow server-to-server / curl / Postman requests with no origin
     if (!origin) return callback(null, true);
-
-    if (CORS_ORIGIN === '*') {
-      return callback(null, true);
-    }
+    if (CORS_ORIGIN === '*') return callback(null, true);
 
     const allowed = CORS_ORIGIN.split(',').map(s => s.trim());
     if (
@@ -55,7 +54,6 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Default allow for seamless CRM operations
     return callback(null, true);
   },
   credentials: true,
@@ -75,33 +73,75 @@ if (NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
-// MongoDB connection with automatic cloud persistence sync
-if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 10000,
-    connectTimeoutMS: 10000,
-    retryWrites: true,
-    w: 'majority'
-  })
-    .then(async () => {
-      console.log('✓ Connected to MongoDB Atlas database successfully.');
-      await store.syncWithMongo();
-    })
-    .catch(err => {
-      console.warn('! MongoDB connection note (running with resilient data persistence):', err.message);
+// Resilient DB Connection function with automatic SRV DNS fallback
+async function initializeDatabaseConnection() {
+  if (!MONGODB_URI) {
+    console.log('ℹ Running with local JSON data persistence engine.');
+    return;
+  }
+
+  console.log('🔄 Connecting to MongoDB Atlas cloud database...');
+  let connected = false;
+
+  // 1. Primary SRV connection attempt
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+      retryWrites: true,
+      w: 'majority'
     });
+    connected = true;
+    console.log('✓ Connected to MongoDB Atlas database successfully (Primary SRV).');
+  } catch (err) {
+    console.warn(`! Primary SRV connection attempt failed (${err.message}). Attempting public DNS fallback resolution...`);
+  }
 
-  mongoose.connection.on('disconnected', () => {
-    console.warn('! MongoDB disconnected. Running with cached resilient store...');
-  });
+  // 2. Fallback: Resolve SRV target host directly via public DNS (Google/Cloudflare)
+  if (!connected) {
+    try {
+      const srvMatch = MONGODB_URI.match(/^mongodb\+srv:\/\/([^:]+):([^@]+)@([^\/]+)\/(.*)$/);
+      if (srvMatch) {
+        const [, user, pass, host, rest] = srvMatch;
+        const resolver = new dnsPromises.Resolver();
+        resolver.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+        const srvs = await resolver.resolveSrv('_mongodb._tcp.' + host);
+        if (srvs && srvs.length > 0) {
+          const targetHost = srvs[0].name;
+          const dbName = rest.split('?')[0] || 'gkmetal_crm';
+          const directUri = `mongodb://${user}:${pass}@${targetHost}:27017/${dbName}?ssl=true&authSource=admin&retryWrites=true&w=majority`;
 
-  mongoose.connection.on('reconnected', async () => {
-    console.log('✓ MongoDB reconnected. Synchronizing state with MongoDB Atlas...');
+          await mongoose.connect(directUri, {
+            serverSelectionTimeoutMS: 10000,
+            connectTimeoutMS: 10000
+          });
+          connected = true;
+          console.log('✓ Connected to MongoDB Atlas database successfully (Direct Shard Fallback).');
+        }
+      }
+    } catch (fallbackErr) {
+      console.error('! MongoDB fallback connection failed:', fallbackErr.message);
+    }
+  }
+
+  if (connected) {
     await store.syncWithMongo();
-  });
-} else {
-  console.log('ℹ Running with local JSON data persistence engine.');
+  } else {
+    console.warn('! Running with local resilient cache store. Will retry MongoDB sync on background events...');
+  }
 }
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('! MongoDB disconnected. Running with cached resilient store...');
+});
+
+mongoose.connection.on('reconnected', async () => {
+  console.log('✓ MongoDB reconnected. Synchronizing state with MongoDB Atlas...');
+  await store.syncWithMongo();
+});
+
+// Kick off DB Connection
+initializeDatabaseConnection();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -159,4 +199,3 @@ app.listen(PORT, () => {
   console.log(` Listening on: http://localhost:${PORT}`);
   console.log(`====================================================`);
 });
-

@@ -19,6 +19,7 @@ const invoiceItemSchema = new mongoose.Schema({
 }, { _id: false });
 
 const paymentRecordSchema = new mongoose.Schema({
+  _id: { type: String },
   paymentDate: { type: Date, default: Date.now },
   amount: { type: Number, required: true },
   mode: { type: String, enum: ['NEFT', 'RTGS', 'IMPS', 'Cheque', 'UPI', 'Cash'], default: 'NEFT' },

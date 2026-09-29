@@ -165,12 +165,13 @@ class MemoryStore {
 
         // Push any local customers to MongoDB
         for (const cust of this.data.customers) {
-          const { _id, ...custFields } = cust;
+          const custId = cust.customerId || cust._id;
+          if (!custId) continue;
           await Customer.findOneAndUpdate(
-            { customerId: cust.customerId },
-            { $set: custFields, $setOnInsert: { _id: cust._id || ('cust_' + Date.now()) } },
+            { $or: [{ _id: cust._id }, { customerId: cust.customerId }] },
+            { $set: cust },
             { upsert: true }
-          ).catch(err => console.error('Customer cloud sync note:', cust.customerId, err.message));
+          ).catch(err => console.error('Customer cloud sync note:', custId, err.message));
         }
 
         // 3. Non-destructive merge of Invoices (Union by invoiceNumber or _id)
@@ -196,12 +197,13 @@ class MemoryStore {
 
         // Push all invoices to MongoDB
         for (const inv of this.data.invoices) {
-          const { _id, ...invFields } = inv;
+          const invNo = inv.invoiceNumber || inv._id;
+          if (!invNo) continue;
           await Invoice.findOneAndUpdate(
-            { invoiceNumber: inv.invoiceNumber },
-            { $set: invFields, $setOnInsert: { _id: inv._id || ('inv_' + Date.now()) } },
+            { $or: [{ _id: inv._id }, { invoiceNumber: inv.invoiceNumber }] },
+            { $set: inv },
             { upsert: true }
-          ).catch(err => console.error('Invoice cloud sync note:', inv.invoiceNumber, err.message));
+          ).catch(err => console.error('Invoice cloud sync note:', invNo, err.message));
         }
 
         // 4. Non-destructive merge of Services (Union by serviceCode or _id)
@@ -374,10 +376,12 @@ class MemoryStore {
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
     const formattedSeq = String(nextSeq).padStart(3, '0');
     const autoInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
+    const invoiceNumber = (payload.invoiceNumber && payload.invoiceNumber.trim()) ? payload.invoiceNumber.trim() : autoInvoiceNumber;
+    const customId = payload._id || ('inv_' + Date.now());
 
     let newInvoice = {
-      _id: 'inv_' + Date.now(),
-      invoiceNumber: payload.invoiceNumber || autoInvoiceNumber,
+      _id: customId,
+      invoiceNumber: invoiceNumber,
       financialYear: payload.financialYear || fy,
       sequenceNumber: payload.sequenceNumber || nextSeq,
       status: payload.status || 'Generated',
@@ -387,7 +391,9 @@ class MemoryStore {
       payments: payload.payments || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ...payload
+      ...payload,
+      _id: customId,
+      invoiceNumber: invoiceNumber
     };
 
     // Update sequence in settings
@@ -396,31 +402,33 @@ class MemoryStore {
       await this.updateSettings(settings);
     }
 
-    // Persist to MongoDB with await for guaranteed consistency
-    if (mongoose.connection.readyState === 1) {
-      try {
-        const { _id, ...invData } = newInvoice;
-        const saved = await Invoice.findOneAndUpdate(
-          { invoiceNumber: newInvoice.invoiceNumber },
-          { $set: invData, $setOnInsert: { _id: newInvoice._id } },
-          { upsert: true, new: true, setDefaultsOnInsert: true }
-        ).lean();
-        if (saved) {
-          newInvoice = { ...newInvoice, ...saved };
-        }
-      } catch (err) {
-        console.error('Mongo sync error (create invoice):', err.message);
-      }
-    }
-
     // Update memory and local disk store
-    const existingIdx = this.data.invoices.findIndex(i => i.invoiceNumber === newInvoice.invoiceNumber || i._id === newInvoice._id);
+    const existingIdx = this.data.invoices.findIndex(i => (i._id && i._id === newInvoice._id) || (i.invoiceNumber && i.invoiceNumber === newInvoice.invoiceNumber));
     if (existingIdx !== -1) {
       this.data.invoices[existingIdx] = newInvoice;
     } else {
       this.data.invoices.unshift(newInvoice);
     }
     this.save();
+
+    // Persist to MongoDB with await for guaranteed consistency
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const saved = await Invoice.findOneAndUpdate(
+          { $or: [{ _id: newInvoice._id }, { invoiceNumber: newInvoice.invoiceNumber }] },
+          { $set: newInvoice },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) {
+          newInvoice = { ...newInvoice, ...saved };
+          const idx = this.data.invoices.findIndex(i => i._id === newInvoice._id || i.invoiceNumber === newInvoice.invoiceNumber);
+          if (idx !== -1) this.data.invoices[idx] = newInvoice;
+          this.save();
+        }
+      } catch (err) {
+        console.error('Mongo sync error (create invoice):', err.message);
+      }
+    }
 
     return newInvoice;
   }
@@ -530,10 +538,14 @@ class MemoryStore {
   }
 
   async createCustomer(payload) {
-    const custCount = this.data.customers.length + 1001;
+    const custCount = (this.data.customers || []).length + 1001;
+    const autoCustId = `CUST-${custCount}`;
+    const customerId = (payload.customerId && payload.customerId.trim()) ? payload.customerId.trim() : autoCustId;
+    const customId = payload._id || ('cust_' + Date.now());
+
     let newCust = {
-      _id: 'cust_' + Date.now(),
-      customerId: payload.customerId || `CUST-${custCount}`,
+      _id: customId,
+      customerId: customerId,
       stats: {
         totalInvoices: 0,
         totalBilled: 0,
@@ -542,33 +554,37 @@ class MemoryStore {
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      ...payload
+      ...payload,
+      _id: customId,
+      customerId: customerId
     };
 
-    // Persist to MongoDB with await for guaranteed consistency
-    if (mongoose.connection.readyState === 1) {
-      try {
-        const { _id, ...custData } = newCust;
-        const saved = await Customer.findOneAndUpdate(
-          { customerId: newCust.customerId },
-          { $set: custData, $setOnInsert: { _id: newCust._id } },
-          { upsert: true, new: true, setDefaultsOnInsert: true }
-        ).lean();
-        if (saved) {
-          newCust = { ...newCust, ...saved };
-        }
-      } catch (err) {
-        console.error('Mongo sync error (create customer):', err.message);
-      }
-    }
-
-    const existingIdx = this.data.customers.findIndex(c => c.customerId === newCust.customerId || c._id === newCust._id);
+    const existingIdx = this.data.customers.findIndex(c => (c._id && c._id === newCust._id) || (c.customerId && c.customerId === newCust.customerId));
     if (existingIdx !== -1) {
       this.data.customers[existingIdx] = newCust;
     } else {
       this.data.customers.unshift(newCust);
     }
     this.save();
+
+    // Persist to MongoDB with await for guaranteed consistency
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const saved = await Customer.findOneAndUpdate(
+          { $or: [{ _id: newCust._id }, { customerId: newCust.customerId }] },
+          { $set: newCust },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+        if (saved) {
+          newCust = { ...newCust, ...saved };
+          const idx = this.data.customers.findIndex(c => c._id === newCust._id || c.customerId === newCust.customerId);
+          if (idx !== -1) this.data.customers[idx] = newCust;
+          this.save();
+        }
+      } catch (err) {
+        console.error('Mongo sync error (create customer):', err.message);
+      }
+    }
 
     return newCust;
   }
