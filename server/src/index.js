@@ -5,18 +5,9 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import dns from 'dns';
-import dnsPromises from 'dns/promises';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
-
-try {
-  dns.setDefaultResultOrder('ipv4first');
-  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1']);
-} catch (e) {
-  // Ignore if setting DNS is not permitted
-}
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
@@ -73,66 +64,74 @@ if (NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
-// Resilient DB Connection function with automatic SRV DNS fallback
-async function initializeDatabaseConnection() {
+// Connection management state
+let isConnecting = false;
+let reconnectTimer = null;
+let reconnectAttempt = 0;
+
+async function connectToMongoDB() {
   if (!MONGODB_URI) {
     console.log('ℹ Running with local JSON data persistence engine.');
-    return;
+    return false;
   }
 
-  console.log('🔄 Connecting to MongoDB Atlas cloud database...');
-  let connected = false;
+  if (mongoose.connection.readyState === 1) {
+    return true;
+  }
 
-  // 1. Primary SRV connection attempt
+  if (isConnecting) {
+    return false;
+  }
+
+  isConnecting = true;
+  console.log('🔄 Connecting to MongoDB Atlas cloud database...');
+
   try {
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
       retryWrites: true,
       w: 'majority'
     });
-    connected = true;
-    console.log('✓ Connected to MongoDB Atlas database successfully (Primary SRV).');
-  } catch (err) {
-    console.warn(`! Primary SRV connection attempt failed (${err.message}). Attempting public DNS fallback resolution...`);
-  }
-
-  // 2. Fallback: Resolve SRV target host directly via public DNS (Google/Cloudflare)
-  if (!connected) {
-    try {
-      const srvMatch = MONGODB_URI.match(/^mongodb\+srv:\/\/([^:]+):([^@]+)@([^\/]+)\/(.*)$/);
-      if (srvMatch) {
-        const [, user, pass, host, rest] = srvMatch;
-        const resolver = new dnsPromises.Resolver();
-        resolver.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
-        const srvs = await resolver.resolveSrv('_mongodb._tcp.' + host);
-        if (srvs && srvs.length > 0) {
-          const targetHost = srvs[0].name;
-          const dbName = rest.split('?')[0] || 'gkmetal_crm';
-          const directUri = `mongodb://${user}:${pass}@${targetHost}:27017/${dbName}?ssl=true&authSource=admin&retryWrites=true&w=majority`;
-
-          await mongoose.connect(directUri, {
-            serverSelectionTimeoutMS: 10000,
-            connectTimeoutMS: 10000
-          });
-          connected = true;
-          console.log('✓ Connected to MongoDB Atlas database successfully (Direct Shard Fallback).');
-        }
-      }
-    } catch (fallbackErr) {
-      console.error('! MongoDB fallback connection failed:', fallbackErr.message);
+    console.log('✓ Connected to MongoDB Atlas database successfully.');
+    reconnectAttempt = 0;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
     }
-  }
-
-  if (connected) {
     await store.syncWithMongo();
-  } else {
-    console.warn('! Running with local resilient cache store. Will retry MongoDB sync on background events...');
+    return true;
+  } catch (err) {
+    console.error('! MongoDB connection attempt failed:', err.message);
+    scheduleReconnect();
+    return false;
+  } finally {
+    isConnecting = false;
   }
 }
 
+function scheduleReconnect() {
+  if (!MONGODB_URI || reconnectTimer || mongoose.connection.readyState === 1) return;
+
+  reconnectAttempt++;
+  const delayMs = Math.min(5000 * Math.pow(2, reconnectAttempt - 1), 30000);
+  console.log(`⏱ Scheduling MongoDB reconnection attempt #${reconnectAttempt} in ${delayMs / 1000}s...`);
+
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    if (mongoose.connection.readyState !== 1) {
+      await connectToMongoDB();
+    }
+  }, delayMs);
+}
+
 mongoose.connection.on('disconnected', () => {
-  console.warn('! MongoDB disconnected. Running with cached resilient store...');
+  console.warn('! MongoDB connection lost. Triggering background reconnection...');
+  scheduleReconnect();
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('! Mongoose connection error event:', err.message);
 });
 
 mongoose.connection.on('reconnected', async () => {
@@ -140,13 +139,20 @@ mongoose.connection.on('reconnected', async () => {
   await store.syncWithMongo();
 });
 
-// Kick off DB Connection
-initializeDatabaseConnection();
+// Start initial DB connection attempt
+connectToMongoDB();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'healthy',
+  const dbState = mongoose.connection.readyState;
+  const dbStatusMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  const dbStatus = MONGODB_URI ? (dbStatusMap[dbState] || 'unknown') : 'not_configured';
+
+  const isHealthy = !MONGODB_URI || dbState === 1;
+
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'healthy' : 'degraded',
+    database: dbStatus,
     environment: NODE_ENV,
     system: 'GK Metal Testing Lab CRM Server',
     time: new Date().toISOString()

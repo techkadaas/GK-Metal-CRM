@@ -30,7 +30,7 @@
       "prefix": "GK/INV/",
       "financialYear": "26-27",
       "startingNumber": 1,
-      "currentSequence": 8,
+      "currentSequence": 9,
       "defaultPaymentTerms": "30 Days",
       "defaultNotes": "",
       "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
@@ -48,7 +48,7 @@
     "_id": "settings_default",
     "__v": 0,
     "createdAt": "2026-09-20T14:45:19.549Z",
-    "updatedAt": "2026-09-29T15:09:10.841Z"
+    "updatedAt": "2026-10-01T05:15:39.792Z"
   },
   "services": [
     {
@@ -56,7 +56,7 @@
       "serviceCode": "TEST-9580",
       "isActive": true,
       "createdAt": "2026-09-20T14:45:19.822Z",
-      "updatedAt": "2026-09-29T15:09:09.823Z",
+      "updatedAt": "2026-09-30T13:06:16.414Z",
       "name": "PMI TESTING CHARGES",
       "category": "NDT",
       "hsnSac": "998346",
@@ -69,6 +69,41 @@
   ],
   "customers": [
     {
+      "_id": "cust_1790694550492",
+      "__v": 0,
+      "billingAddress": {
+        "city": "",
+        "pincode": "",
+        "state": "Tamil Nadu",
+        "stateCode": "33",
+        "street": ""
+      },
+      "companyName": "Verification Test Lab Updated",
+      "contactPerson": "QA Tester",
+      "createdAt": "2026-09-29T15:09:32.099Z",
+      "customerId": "CUST-TEST-1790694550491",
+      "email": "qa@verificationtest.com",
+      "gstin": "",
+      "pan": "",
+      "paymentTerms": "30 Days Net",
+      "phone": "9998887770",
+      "shippingAddress": {
+        "city": "",
+        "pincode": "",
+        "state": "",
+        "stateCode": "",
+        "street": ""
+      },
+      "stats": {
+        "totalInvoices": 0,
+        "totalBilled": 0,
+        "totalPaid": 0,
+        "outstandingBalance": 0
+      },
+      "status": "Active",
+      "updatedAt": "2026-09-30T13:06:03.560Z"
+    },
+    {
       "_id": "cust_1790694517836",
       "customerId": "CUST-TEST-1790694517835",
       "stats": {
@@ -78,7 +113,7 @@
         "outstandingBalance": 0
       },
       "createdAt": "2026-09-29T15:09:08.342Z",
-      "updatedAt": "2026-09-29T15:09:15.426Z",
+      "updatedAt": "2026-09-30T13:06:03.674Z",
       "companyName": "Verification Test Lab Pvt Ltd",
       "contactPerson": "QA Tester",
       "email": "qa@verificationtest.com",
@@ -114,7 +149,7 @@
         "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
       },
       "createdAt": "2026-09-23T14:08:50.187Z",
-      "updatedAt": "2026-09-29T15:09:15.525Z",
+      "updatedAt": "2026-09-30T13:06:03.797Z",
       "companyName": "Test customer",
       "contactPerson": "123456765432",
       "email": "ahamedhaden.r@gmail.com",
@@ -150,7 +185,7 @@
         "lastInvoiceDate": "2026-09-23T00:00:00.000Z"
       },
       "createdAt": "2026-09-20T14:45:19.628Z",
-      "updatedAt": "2026-09-29T15:09:15.812Z",
+      "updatedAt": "2026-09-30T13:06:03.912Z",
       "companyName": "Kadaas",
       "contactPerson": "R.Ahamed Haden",
       "email": "ahamedhaden.r@gmail.com",
@@ -207,7 +242,7 @@
         "outstandingBalance": 5900,
         "lastInvoiceDate": "2026-09-09T00:00:00.000Z"
       },
-      "updatedAt": "2026-09-29T15:09:16.020Z",
+      "updatedAt": "2026-09-30T13:06:04.185Z",
       "__v": 0,
       "createdAt": "2026-09-20T14:45:19.595Z"
     }
@@ -225,7 +260,7 @@
       "__v": 0,
       "avatar": "",
       "createdAt": "2026-09-29T12:03:12.781Z",
-      "updatedAt": "2026-09-29T15:09:10.341Z"
+      "updatedAt": "2026-09-30T13:06:16.531Z"
     }
   ],
   "invoices": [
@@ -251,7 +286,7 @@
         }
       ],
       "createdAt": "2026-09-23T14:24:10.328Z",
-      "updatedAt": "2026-09-29T15:09:09.262Z",
+      "updatedAt": "2026-09-30T13:06:06.891Z",
       "invoiceDate": "2026-09-23T00:00:00.000Z",
       "dueDate": null,
       "metadata": {
@@ -365,7 +400,7 @@
       "balanceDue": 2950,
       "payments": [],
       "createdAt": "2026-09-23T14:09:15.910Z",
-      "updatedAt": "2026-09-29T15:09:09.386Z",
+      "updatedAt": "2026-09-30T13:06:11.018Z",
       "invoiceDate": "2026-09-23T00:00:00.000Z",
       "dueDate": null,
       "metadata": {
@@ -576,14 +611,14 @@
       "createdBy": "G. Karthikeyan",
       "updatedBy": "G. Karthikeyan",
       "createdAt": "2026-09-20T14:45:19.786Z",
-      "updatedAt": "2026-09-29T15:09:09.437Z",
+      "updatedAt": "2026-09-30T13:06:14.758Z",
       "__v": 0
     },
     {
       "_id": "inv_1788961876224",
       "sequenceNumber": 2,
       "createdAt": "2026-09-20T14:45:19.749Z",
-      "updatedAt": "2026-09-29T15:09:09.507Z",
+      "updatedAt": "2026-09-30T13:06:15.853Z",
       "invoiceNumber": "123123",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -697,7 +732,7 @@
       "_id": "inv_1788963433559",
       "sequenceNumber": 3,
       "createdAt": "2026-09-20T14:45:19.710Z",
-      "updatedAt": "2026-09-29T15:09:09.595Z",
+      "updatedAt": "2026-09-30T13:06:16.030Z",
       "invoiceNumber": "2121212s",
       "financialYear": "26-27",
       "invoiceDate": "2026-09-09T00:00:00.000Z",
@@ -818,7 +853,7 @@
       "balanceDue": 2950,
       "payments": [],
       "createdAt": "2026-09-20T14:45:19.661Z",
-      "updatedAt": "2026-09-29T15:09:09.658Z",
+      "updatedAt": "2026-09-30T13:06:16.251Z",
       "invoiceDate": "2026-09-15T00:00:00.000Z",
       "dueDate": null,
       "metadata": {

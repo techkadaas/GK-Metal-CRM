@@ -110,6 +110,18 @@ class MemoryStore {
     }
   }
 
+  async ensureMongoConnection(timeoutMs = 5000) {
+    if (!process.env.MONGODB_URI) return true;
+    if (mongoose.connection.readyState === 1) return true;
+
+    const startTime = Date.now();
+    while (Date.now() - startTime < timeoutMs) {
+      if (mongoose.connection.readyState === 1) return true;
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    return mongoose.connection.readyState === 1;
+  }
+
   // Non-destructive bidirectional sync: merges MongoDB data with local cache without deleting any newly created records
   async syncWithMongo() {
     if (mongoose.connection.readyState !== 1) return;
@@ -167,9 +179,10 @@ class MemoryStore {
         for (const cust of this.data.customers) {
           const custId = cust.customerId || cust._id;
           if (!custId) continue;
+          const { _id: custDocId, ...custFields } = cust;
           await Customer.findOneAndUpdate(
             { $or: [{ _id: cust._id }, { customerId: cust.customerId }] },
-            { $set: cust },
+            { $set: custFields, $setOnInsert: { _id: custDocId || ('cust_' + Date.now()) } },
             { upsert: true }
           ).catch(err => console.error('Customer cloud sync note:', custId, err.message));
         }
@@ -199,9 +212,10 @@ class MemoryStore {
         for (const inv of this.data.invoices) {
           const invNo = inv.invoiceNumber || inv._id;
           if (!invNo) continue;
+          const { _id: invDocId, ...invFields } = inv;
           await Invoice.findOneAndUpdate(
             { $or: [{ _id: inv._id }, { invoiceNumber: inv.invoiceNumber }] },
-            { $set: inv },
+            { $set: invFields, $setOnInsert: { _id: invDocId || ('inv_' + Date.now()) } },
             { upsert: true }
           ).catch(err => console.error('Invoice cloud sync note:', invNo, err.message));
         }
@@ -404,13 +418,15 @@ class MemoryStore {
 
     // Persist to MongoDB Atlas with guaranteed write check
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Invoice creation failed.');
       }
       try {
+        const { _id, ...invoiceDataWithoutId } = newInvoice;
         const saved = await Invoice.findOneAndUpdate(
           { $or: [{ _id: newInvoice._id }, { invoiceNumber: newInvoice.invoiceNumber }] },
-          { $set: newInvoice },
+          { $set: invoiceDataWithoutId, $setOnInsert: { _id: newInvoice._id } },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         ).lean();
         if (saved) {
@@ -438,7 +454,8 @@ class MemoryStore {
     let updatedInvoice = null;
 
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Invoice update failed.');
       }
       try {
@@ -478,7 +495,8 @@ class MemoryStore {
 
   async deleteInvoice(id) {
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Invoice deletion failed.');
       }
       try {
@@ -573,13 +591,15 @@ class MemoryStore {
 
     // Persist to MongoDB Atlas with guaranteed write check
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Customer creation failed.');
       }
       try {
+        const { _id, ...custDataWithoutId } = newCust;
         const saved = await Customer.findOneAndUpdate(
           { $or: [{ _id: newCust._id }, { customerId: newCust.customerId }] },
-          { $set: newCust },
+          { $set: custDataWithoutId, $setOnInsert: { _id: newCust._id } },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         ).lean();
         if (saved) {
@@ -606,7 +626,8 @@ class MemoryStore {
     let updatedCustomer = null;
 
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Customer update failed.');
       }
       try {
@@ -646,7 +667,8 @@ class MemoryStore {
 
   async deleteCustomer(id) {
     if (process.env.MONGODB_URI) {
-      if (mongoose.connection.readyState !== 1) {
+      const isConnected = await this.ensureMongoConnection();
+      if (!isConnected) {
         throw new Error('Database is disconnected. Customer deletion failed.');
       }
       try {
