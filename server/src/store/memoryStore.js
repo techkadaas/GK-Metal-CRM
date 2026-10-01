@@ -459,7 +459,7 @@ class MemoryStore {
         throw new Error('Database is disconnected. Invoice update failed.');
       }
       try {
-        const { _id, ...updateData } = updatePayload;
+        const { _id, updatedAt, ...updateData } = updatePayload;
         updatedInvoice = await Invoice.findOneAndUpdate(
           { $or: [{ _id: id }, { invoiceNumber: id }] },
           { $set: updateData, $currentDate: { updatedAt: true } },
@@ -631,7 +631,7 @@ class MemoryStore {
         throw new Error('Database is disconnected. Customer update failed.');
       }
       try {
-        const { _id, ...updateData } = payload;
+        const { _id, updatedAt, ...updateData } = payload;
         updatedCustomer = await Customer.findOneAndUpdate(
           { $or: [{ _id: id }, { customerId: id }] },
           { $set: updateData, $currentDate: { updatedAt: true } },
@@ -802,7 +802,7 @@ class MemoryStore {
 
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = payload;
+        const { _id, updatedAt, ...updateData } = payload;
         updatedService = await Service.findOneAndUpdate(
           { $or: [{ _id: id }, { serviceCode: id }] },
           { $set: updateData, $currentDate: { updatedAt: true } },
@@ -913,7 +913,7 @@ class MemoryStore {
 
     if (mongoose.connection.readyState === 1) {
       try {
-        const { _id, ...updateData } = payload;
+        const { _id, updatedAt, ...updateData } = payload;
         updatedEmp = await User.findOneAndUpdate(
           { $or: [{ _id: id }, { employeeId: id }] },
           { $set: updateData, $currentDate: { updatedAt: true } },
