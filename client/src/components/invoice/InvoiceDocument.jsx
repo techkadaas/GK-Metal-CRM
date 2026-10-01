@@ -83,7 +83,7 @@ export default function InvoiceDocument({
       }}
     >
       {/* 1. Document Title Header */}
-      <div className="relative text-center mb-1">
+      <div className="relative text-center mb-1.5">
         <h1 className="text-[17px] font-bold tracking-wide uppercase text-black inline-block">
           TAX INVOICE
         </h1>
@@ -99,12 +99,12 @@ export default function InvoiceDocument({
           {/* Left Column: Company Details & Buyer Details */}
           <div className="flex flex-col justify-between border-r border-black">
             {/* Company Info Box */}
-            <div className="p-2 border-b border-black flex items-center gap-3">
-              <div className={`w-[78px] h-[78px] min-w-[78px] flex items-center justify-center shrink-0 ${isPrintMode ? 'invisible' : ''}`}>
-                <img src={logoIcon} alt="GK" className="w-full h-full object-contain" />
+            <div className="p-3 border-b border-black flex items-center gap-4">
+              <div className={`w-[80px] h-[80px] min-w-[80px] p-1.5 flex items-center justify-center shrink-0 ${isPrintMode ? 'invisible' : ''}`}>
+                <img src={logoIcon} alt="GK" className="max-w-full max-h-full object-contain" />
               </div>
-              <div className={`text-[11px] leading-[1.32] text-black ${isPrintMode ? 'invisible' : ''}`}>
-                <div className="font-bold text-[13px] text-black mb-0.5">
+              <div className={`text-[11px] leading-[1.36] text-black ${isPrintMode ? 'invisible' : ''}`}>
+                <div className="font-bold text-[13px] text-black mb-1">
                   {company.companyName || 'GK Metal Testing Lab'}
                 </div>
                 <div>{company.address?.street || 'No.1, Parayadi Street, Sankaran Pillai Road,'}</div>
@@ -124,9 +124,9 @@ export default function InvoiceDocument({
             </div>
 
             {/* Buyer Box */}
-            <div className="p-2 text-[11px] leading-[1.32] text-black">
+            <div className="p-3 text-[11px] leading-[1.36] text-black">
               <div className="text-[11px] text-black mb-0.5">Buyer</div>
-              <div className="font-bold text-[12.5px] text-black">
+              <div className="font-bold text-[12.5px] text-black mb-0.5">
                 {buyer.companyName || '—'}
               </div>
               {billingAddr.street && <div className="whitespace-pre-line">{billingAddr.street}</div>}
@@ -155,7 +155,7 @@ export default function InvoiceDocument({
                 GST: <strong className="font-bold">{buyer.gstin || '—'}</strong>
               </div>
               <div>
-                State Name : {billingAddr.state || 'Tamilnadu'}, Code :{billingAddr.stateCode || '33'}.
+                State Name : {billingAddr.state || 'Tamilnadu'}, Code : {billingAddr.stateCode || '33'}.
               </div>
             </div>
           </div>
@@ -164,11 +164,11 @@ export default function InvoiceDocument({
           <div className="flex flex-col text-[10.5px]">
             {/* Row 1: Invoice No & Date */}
             <div className="grid grid-cols-2 border-b border-black">
-              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+              <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Invoice No.</span>
                 <span className="font-bold text-[12px] text-black block mt-0.5 leading-tight">{displayInvoiceNumber}</span>
               </div>
-              <div className="px-2 py-1.5 flex flex-col justify-center">
+              <div className="px-3 py-2 flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Date</span>
                 <span className="font-bold text-[12px] text-black block mt-0.5 leading-tight">{formatInvoiceDate(invoice.invoiceDate)}</span>
               </div>
@@ -176,11 +176,11 @@ export default function InvoiceDocument({
 
             {/* Row 2: Delivery Note & Mode/Terms of Payment */}
             <div className="grid grid-cols-2 border-b border-black">
-              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+              <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Delivery Note</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.deliveryNote || ''}</span>
               </div>
-              <div className="px-2 py-1.5 flex flex-col justify-center">
+              <div className="px-3 py-2 flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Mode/Terms of Payment</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.modeOfPayment || ''}</span>
               </div>
@@ -188,11 +188,11 @@ export default function InvoiceDocument({
 
             {/* Row 3: Supplier's Ref & Other Ref */}
             <div className="grid grid-cols-2 border-b border-black">
-              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+              <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Supplier&apos;s Ref.</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.supplierRef || meta.testReportRef || ''}</span>
               </div>
-              <div className="px-2 py-1.5 flex flex-col justify-center">
+              <div className="px-3 py-2 flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Other Reference(s)</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.otherRef || ''}</span>
               </div>
@@ -200,11 +200,11 @@ export default function InvoiceDocument({
 
             {/* Row 4: Buyer's Order No & Dated */}
             <div className="grid grid-cols-2 border-b border-black">
-              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+              <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Buyer&apos;s Order No.:</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.buyerOrderNo || ''}</span>
               </div>
-              <div className="px-2 py-1.5 flex flex-col justify-center">
+              <div className="px-3 py-2 flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Dated.</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.orderDate ? formatInvoiceDate(meta.orderDate) : ''}</span>
               </div>
@@ -212,46 +212,46 @@ export default function InvoiceDocument({
 
             {/* Row 5: Despatched through & Destination */}
             <div className="grid grid-cols-2 border-b border-black">
-              <div className="px-2 py-1.5 border-r border-black flex flex-col justify-center">
+              <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Despatched through</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.despatchedThrough || ''}</span>
               </div>
-              <div className="px-2 py-1.5 flex flex-col justify-center">
+              <div className="px-3 py-2 flex flex-col justify-center">
                 <span className="text-black block text-[10px] leading-tight">Destination.</span>
                 <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.destination || ''}</span>
               </div>
             </div>
 
             {/* Row 6: Terms of Delivery */}
-            <div className="px-2 py-1.5 flex-1 flex flex-col justify-center">
-              <span className="text-black block text-[10px] leading-tight">Terms of Delivery</span>
+            <div className="p-3 flex-1 flex flex-col items-center justify-center text-center">
+              <span className="text-black block text-[10.5px] leading-tight">Terms of Delivery</span>
               <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.termsOfDelivery || ''}</span>
             </div>
           </div>
         </div>
 
         {/* 3. Items Table Header */}
-        <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] border-t border-b border-black text-center font-bold text-[11px] bg-white">
-          <div className="py-2 border-r border-black flex items-center justify-center">Sl.<br/>No</div>
-          <div className="py-2 px-2 border-r border-black flex items-center justify-center">Description of Services</div>
-          <div className="py-2 border-r border-black flex items-center justify-center">HSN/SAC</div>
-          <div className="py-2 border-r border-black flex items-center justify-center">Quantity</div>
-          <div className="py-2 border-r border-black flex items-center justify-center">Rate</div>
-          <div className="py-2 border-r border-black flex items-center justify-center">Per</div>
-          <div className="py-2 px-2 flex items-center justify-center">Amount</div>
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] border-t border-b border-black text-center font-bold text-[11px] bg-white">
+          <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">Sl.<br/>No</div>
+          <div className="py-2.5 px-3 border-r border-black flex items-center justify-center">Description of Services</div>
+          <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">HSN/SAC</div>
+          <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">Quantity</div>
+          <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">Rate</div>
+          <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">Per</div>
+          <div className="py-2.5 px-3 flex items-center justify-center">Amount</div>
         </div>
 
         {/* 4. Items Table Body (continuous vertical divider lines) */}
-        <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] min-h-[300px] text-[11px] text-black">
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] min-h-[300px] text-[11px] text-black">
           {/* Sl No Col */}
-          <div className="border-r border-black p-2 text-center font-normal">
+          <div className="border-r border-black py-2.5 px-1 text-center font-normal">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.slNo || `${idx + 1}.`}</div>
             ))}
           </div>
 
           {/* Description Col */}
-          <div className="border-r border-black p-2 flex flex-col justify-between">
+          <div className="border-r border-black py-2.5 px-3 flex flex-col justify-between">
             <div className="space-y-1">
               {items.map((item, idx) => (
                 <div key={idx} className="space-y-0.5">
@@ -277,8 +277,8 @@ export default function InvoiceDocument({
             </div>
 
             {/* Bottom within Description Column: Tax lines right aligned */}
-            <div className="pt-4 pb-1.5 flex justify-end">
-              <div className="text-right text-[11px] font-normal space-y-1 pr-2">
+            <div className="pt-4 pb-2 flex justify-end">
+              <div className="text-right text-[11px] font-normal space-y-1 pr-3">
                 {!invoice.isInterstate ? (
                   <>
                     <div>Output CGST {invoice.cgstRate || 9}%</div>
@@ -292,45 +292,45 @@ export default function InvoiceDocument({
           </div>
 
           {/* HSN/SAC Col */}
-          <div className="border-r border-black p-2 text-center">
+          <div className="border-r border-black py-2.5 px-1 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.hsnSac || '998346'}</div>
             ))}
           </div>
 
           {/* Quantity Col */}
-          <div className="border-r border-black p-2 text-center">
+          <div className="border-r border-black py-2.5 px-1 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.quantity}</div>
             ))}
           </div>
 
           {/* Rate Col */}
-          <div className="border-r border-black p-2 text-center">
+          <div className="border-r border-black py-2.5 px-1 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{Number(item.rate).toFixed(0)}</div>
             ))}
           </div>
 
           {/* Per Col */}
-          <div className="border-r border-black p-2 text-center">
+          <div className="border-r border-black py-2.5 px-1 text-center">
             {items.map((item, idx) => (
               <div key={idx} className="py-0.5">{item.per || 'No.'}</div>
             ))}
           </div>
 
           {/* Amount Col */}
-          <div className="p-2 text-right flex flex-col justify-between">
+          <div className="py-2.5 px-3 text-right flex flex-col justify-between">
             <div className="space-y-0.5">
               {items.map((item, idx) => (
-                <div key={idx}>
+                <div key={idx} className="py-0.5">
                   {Number(item.taxableAmount || item.quantity * item.rate).toFixed(2)}
                 </div>
               ))}
             </div>
 
             {/* Tax values aligned with CGST / SGST */}
-            <div className="space-y-1 pb-1.5">
+            <div className="space-y-1 pb-2">
               {!invoice.isInterstate ? (
                 <>
                   <div>{Number(invoice.cgstAmount || (totalTaxAmount / 2)).toFixed(2)}</div>
@@ -344,38 +344,38 @@ export default function InvoiceDocument({
         </div>
 
         {/* 5. Total Row */}
-        <div className="grid grid-cols-[38px_1fr_65px_60px_60px_45px_90px] border-t border-b border-black text-[11px]">
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] border-t border-b border-black text-[11px]">
           <div className="border-r border-black"></div>
-          <div className="border-r border-black py-1.5 text-center font-bold">Total</div>
-          <div className="border-r border-black"></div>
-          <div className="border-r border-black"></div>
+          <div className="border-r border-black py-2 px-3 text-center font-bold">Total</div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
-          <div className="py-1.5 px-2 text-right font-bold text-[11.5px]">
+          <div className="border-r border-black"></div>
+          <div className="border-r border-black"></div>
+          <div className="py-2 px-3 text-right font-bold text-[11.5px]">
             {Number(invoice.grandTotal || 0).toFixed(2)}
           </div>
         </div>
 
         {/* 6. Amount Chargeable In Words */}
-        <div className="border-b border-black px-2.5 py-1.5 text-[11px]">
+        <div className="border-b border-black px-3.5 py-2 text-[11px]">
           <div className="flex justify-between items-center text-black mb-1">
             <span className="text-[10.5px]">Amount Chargeable (in words)</span>
             <span className="text-black text-[10.5px]">E. & O.E</span>
           </div>
-          <div className="text-[11.5px] text-black pb-1 leading-snug">
+          <div className="text-[11.5px] text-black pb-0.5 leading-snug">
             INR <strong className="font-bold">{cleanAmountWords}</strong>
           </div>
         </div>
 
         {/* 7. Tax Amount In Words */}
-        <div className="border-b border-black px-2.5 py-1.5 text-[11px] text-black">
-          Tax Amount (in Words) <strong className="font-bold">{convertTaxToWords(totalTaxAmount)}</strong>
+        <div className="border-b border-black px-3.5 py-2 text-[11px] text-black">
+          Tax Amount (in words) : <strong className="font-bold">{convertTaxToWords(totalTaxAmount)}</strong>
         </div>
 
         {/* 8. Bottom Section: PAN, Declaration, Bank Details & Signatory */}
         <div className="grid grid-cols-[1fr_320px]">
           {/* Left Sub-Section: PAN (top) + Declaration (bottom) */}
-          <div className="p-2.5 flex flex-col justify-between border-r border-black">
+          <div className="p-3 flex flex-col justify-between border-r border-black">
             <div>
               <div className="font-bold text-[11.5px] text-black">
                 Company&apos;s PAN : {company.pan || 'CRZPV0007J'}
@@ -387,11 +387,11 @@ export default function InvoiceDocument({
                 Declaration:
               </div>
               {invoice.declaration ? (
-                <div className="text-[9.5px] text-black leading-[1.35] space-y-0.5 whitespace-pre-line">
+                <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5 whitespace-pre-line">
                   {invoice.declaration}
                 </div>
               ) : (
-                <div className="text-[9.5px] text-black leading-[1.35] space-y-0.5">
+                <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5">
                   <p>1) Cheque, DD / RTGS in favour of <strong>GK Metal Testing Lab</strong> Payable at Trichy.</p>
                   <p>2) GST category: (998346) technical testing and analysis service.</p>
                   <p>3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. <strong>“This is purely a service contract.”</strong></p>
@@ -404,9 +404,9 @@ export default function InvoiceDocument({
           {/* Right Sub-Section: Bank Details + Signatory */}
           <div className="flex flex-col justify-between">
             {/* Bank Details */}
-            <div className="p-2.5 text-[10.5px]">
-              <div className="font-bold text-[11px] text-black mb-1">Company&apos;s Bank Details :</div>
-              <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.35] text-black gap-y-0.5">
+            <div className="p-3 text-[10.5px]">
+              <div className="font-bold text-[11px] text-black mb-1.5">Company&apos;s Bank Details :</div>
+              <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.38] text-black gap-y-0.5">
                 <span>Name of the Bank</span>
                 <span>: <strong>{company.bankDetails?.bankName || 'Karur Vysya Bank'}</strong></span>
                 <span>Account No.</span>
@@ -419,7 +419,7 @@ export default function InvoiceDocument({
             </div>
 
             {/* Authorised Signatory Box */}
-            <div className="border-t border-black px-2.5 py-1.5 flex flex-col justify-between h-[90px] text-right bg-white relative overflow-hidden">
+            <div className="border-t border-black px-3 py-2 flex flex-col justify-between h-[92px] text-right bg-white relative overflow-hidden">
               <div className="font-bold text-[11px] text-black relative z-10">
                 For {company.companyName || 'GK Metal Testing Lab'}
               </div>
@@ -428,7 +428,7 @@ export default function InvoiceDocument({
                   <img
                     src={company.signatureUrl || signatureImg}
                     alt="Authorised Signatory"
-                    className="h-[70px] w-auto max-w-[175px] object-contain"
+                    className="h-[68px] w-auto max-w-[175px] object-contain"
                   />
                 </div>
               )}
@@ -441,7 +441,7 @@ export default function InvoiceDocument({
       </div>
 
       {/* 8. Footer Bar */}
-      <div className="text-center py-1 text-[11px] font-bold text-black mt-1">
+      <div className="text-center py-1.5 text-[11px] font-bold text-black mt-1">
         This is a Computer Generated Invoice
       </div>
     </div>
