@@ -144,59 +144,34 @@ export const api = {
   },
 
   createInvoice: async (data) => {
-    try {
-      const res = await fetch(`${API_BASE}/invoices`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const result = await handleResponse(res);
-      if (result.success && result.data) {
-        const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
-        setLocalData(STORAGE_KEYS.INVOICES, [result.data, ...cached.filter(i => i._id !== result.data._id && i.invoiceNumber !== result.data.invoiceNumber)]);
-      }
-      return result;
-    } catch (e) {
-      // Offline fallback
-      const newInvoice = {
-        _id: 'inv_' + Date.now(),
-        invoiceNumber: data.invoiceNumber || `GK/INV/26-27/${Date.now().toString().slice(-3)}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        ...data
-      };
+    const res = await fetch(`${API_BASE}/invoices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await handleResponse(res);
+    if (result.success && result.data) {
       const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
-      setLocalData(STORAGE_KEYS.INVOICES, [newInvoice, ...cached]);
-      return { success: true, data: newInvoice };
+      setLocalData(STORAGE_KEYS.INVOICES, [result.data, ...cached.filter(i => i._id !== result.data._id && i.invoiceNumber !== result.data.invoiceNumber)]);
     }
+    return result;
   },
 
   updateInvoice: async (id, data) => {
-    try {
-      const res = await fetch(`${API_BASE}/invoices/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const result = await handleResponse(res);
-      if (result.success && result.data) {
-        const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
-        const index = cached.findIndex(i => i._id === id || i.invoiceNumber === id);
-        if (index !== -1) cached[index] = result.data;
-        else cached.unshift(result.data);
-        setLocalData(STORAGE_KEYS.INVOICES, cached);
-      }
-      return result;
-    } catch (e) {
+    const res = await fetch(`${API_BASE}/invoices/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await handleResponse(res);
+    if (result.success && result.data) {
       const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
       const index = cached.findIndex(i => i._id === id || i.invoiceNumber === id);
-      if (index !== -1) {
-        cached[index] = { ...cached[index], ...data, updatedAt: new Date().toISOString() };
-        setLocalData(STORAGE_KEYS.INVOICES, cached);
-        return { success: true, data: cached[index] };
-      }
-      throw e;
+      if (index !== -1) cached[index] = result.data;
+      else cached.unshift(result.data);
+      setLocalData(STORAGE_KEYS.INVOICES, cached);
     }
+    return result;
   },
 
   duplicateInvoice: async (id, customData = {}) => {
@@ -230,25 +205,19 @@ export const api = {
   },
 
   deleteInvoice: async (id, permanent = false) => {
-    try {
-      const res = await fetch(`${API_BASE}/invoices/${id}?permanent=${permanent}`, {
-        method: 'DELETE'
-      });
-      const result = await handleResponse(res);
-      const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
-      if (permanent) {
-        setLocalData(STORAGE_KEYS.INVOICES, cached.filter(i => i._id !== id && i.invoiceNumber !== id));
-      } else {
-        const index = cached.findIndex(i => i._id === id || i.invoiceNumber === id);
-        if (index !== -1) cached[index].status = 'Cancelled';
-        setLocalData(STORAGE_KEYS.INVOICES, cached);
-      }
-      return result;
-    } catch (e) {
-      const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
+    const res = await fetch(`${API_BASE}/invoices/${id}?permanent=${permanent}`, {
+      method: 'DELETE'
+    });
+    const result = await handleResponse(res);
+    const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
+    if (permanent) {
       setLocalData(STORAGE_KEYS.INVOICES, cached.filter(i => i._id !== id && i.invoiceNumber !== id));
-      return { success: true, message: 'Deleted locally' };
+    } else {
+      const index = cached.findIndex(i => i._id === id || i.invoiceNumber === id);
+      if (index !== -1) cached[index].status = 'Cancelled';
+      setLocalData(STORAGE_KEYS.INVOICES, cached);
     }
+    return result;
   },
 
   // Customers
@@ -284,75 +253,44 @@ export const api = {
   },
 
   createCustomer: async (data) => {
-    try {
-      const res = await fetch(`${API_BASE}/customers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const result = await handleResponse(res);
-      if (result.success && result.data) {
-        const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-        setLocalData(STORAGE_KEYS.CUSTOMERS, [result.data, ...cached.filter(c => c._id !== result.data._id && c.customerId !== result.data.customerId)]);
-      }
-      return result;
-    } catch (e) {
-      const newCust = {
-        _id: 'cust_' + Date.now(),
-        customerId: data.customerId || `CUST-${Date.now().toString().slice(-4)}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        stats: { totalInvoices: 0, totalBilled: 0, totalPaid: 0, outstandingBalance: 0 },
-        ...data
-      };
+    const res = await fetch(`${API_BASE}/customers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await handleResponse(res);
+    if (result.success && result.data) {
       const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-      setLocalData(STORAGE_KEYS.CUSTOMERS, [newCust, ...cached]);
-      return { success: true, data: newCust };
+      setLocalData(STORAGE_KEYS.CUSTOMERS, [result.data, ...cached.filter(c => c._id !== result.data._id && c.customerId !== result.data.customerId)]);
     }
+    return result;
   },
 
   updateCustomer: async (id, data) => {
-    try {
-      const res = await fetch(`${API_BASE}/customers/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const result = await handleResponse(res);
-      if (result.success && result.data) {
-        const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-        const index = cached.findIndex(c => c._id === id || c.customerId === id);
-        if (index !== -1) cached[index] = result.data;
-        else cached.unshift(result.data);
-        setLocalData(STORAGE_KEYS.CUSTOMERS, cached);
-      }
-      return result;
-    } catch (e) {
+    const res = await fetch(`${API_BASE}/customers/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await handleResponse(res);
+    if (result.success && result.data) {
       const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
       const index = cached.findIndex(c => c._id === id || c.customerId === id);
-      if (index !== -1) {
-        cached[index] = { ...cached[index], ...data, updatedAt: new Date().toISOString() };
-        setLocalData(STORAGE_KEYS.CUSTOMERS, cached);
-        return { success: true, data: cached[index] };
-      }
-      throw e;
+      if (index !== -1) cached[index] = result.data;
+      else cached.unshift(result.data);
+      setLocalData(STORAGE_KEYS.CUSTOMERS, cached);
     }
+    return result;
   },
 
   deleteCustomer: async (id) => {
-    try {
-      const res = await fetch(`${API_BASE}/customers/${id}`, {
-        method: 'DELETE'
-      });
-      const result = await handleResponse(res);
-      const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-      setLocalData(STORAGE_KEYS.CUSTOMERS, cached.filter(c => c._id !== id && c.customerId !== id));
-      return result;
-    } catch (e) {
-      const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
-      setLocalData(STORAGE_KEYS.CUSTOMERS, cached.filter(c => c._id !== id && c.customerId !== id));
-      return { success: true, message: 'Deleted locally' };
-    }
+    const res = await fetch(`${API_BASE}/customers/${id}`, {
+      method: 'DELETE'
+    });
+    const result = await handleResponse(res);
+    const cached = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
+    setLocalData(STORAGE_KEYS.CUSTOMERS, cached.filter(c => c._id !== id && c.customerId !== id));
+    return result;
   },
 
   // Services Catalog
