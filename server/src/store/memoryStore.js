@@ -462,7 +462,7 @@ class MemoryStore {
         const { _id, updatedAt, ...updateData } = updatePayload;
         updatedInvoice = await Invoice.findOneAndUpdate(
           { $or: [{ _id: id }, { invoiceNumber: id }] },
-          { $set: updateData, $currentDate: { updatedAt: true } },
+          { $set: { ...updateData, updatedAt: new Date() } },
           { new: true }
         ).lean();
         if (!updatedInvoice) {
@@ -634,7 +634,7 @@ class MemoryStore {
         const { _id, updatedAt, ...updateData } = payload;
         updatedCustomer = await Customer.findOneAndUpdate(
           { $or: [{ _id: id }, { customerId: id }] },
-          { $set: updateData, $currentDate: { updatedAt: true } },
+          { $set: { ...updateData, updatedAt: new Date() } },
           { new: true }
         ).lean();
         if (!updatedCustomer) {
@@ -805,7 +805,7 @@ class MemoryStore {
         const { _id, updatedAt, ...updateData } = payload;
         updatedService = await Service.findOneAndUpdate(
           { $or: [{ _id: id }, { serviceCode: id }] },
-          { $set: updateData, $currentDate: { updatedAt: true } },
+          { $set: { ...updateData, updatedAt: new Date() } },
           { new: true }
         ).lean();
       } catch (err) {
@@ -916,7 +916,7 @@ class MemoryStore {
         const { _id, updatedAt, ...updateData } = payload;
         updatedEmp = await User.findOneAndUpdate(
           { $or: [{ _id: id }, { employeeId: id }] },
-          { $set: updateData, $currentDate: { updatedAt: true } },
+          { $set: { ...updateData, updatedAt: new Date() } },
           { new: true }
         ).lean();
       } catch (err) {
