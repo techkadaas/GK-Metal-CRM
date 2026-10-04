@@ -95,9 +95,9 @@ export default function InvoiceDocument({
       {/* 2. Main Bordered Invoice Container */}
       <div className="border border-black">
         {/* Top Split Section: Left Company & Buyer, Right Metadata Table */}
-        <div className="grid grid-cols-[1fr_320px]">
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px]">
           {/* Left Column: Company Details & Buyer Details */}
-          <div className="flex flex-col justify-between border-r border-black">
+          <div className="col-span-2 flex flex-col justify-between">
             {/* Company Info Box */}
             <div className="p-3 border-b border-black flex items-center gap-4">
               <div className={`w-[80px] h-[80px] min-w-[80px] p-1.5 flex items-center justify-center shrink-0 ${isPrintMode ? 'invisible' : ''}`}>
@@ -124,8 +124,8 @@ export default function InvoiceDocument({
             </div>
 
             {/* Buyer Box */}
-            <div className="p-3 text-[11px] leading-[1.36] text-black">
-              <div className="text-[11px] text-black mb-0.5">Buyer</div>
+            <div className="px-3 pb-3 text-[11px] leading-[1.36] text-black" style={{ paddingTop: '2mm' }}>
+              <div className="text-[11px] text-black" style={{ marginBottom: '1.5mm' }}>Buyer</div>
               <div className="font-bold text-[12.5px] text-black mb-0.5">
                 {buyer.companyName || '—'}
               </div>
@@ -161,7 +161,7 @@ export default function InvoiceDocument({
           </div>
 
           {/* Right Column: Metadata Grid */}
-          <div className="flex flex-col text-[10.5px]">
+          <div className="col-span-5 flex flex-col text-[10.5px] border-l border-black">
             {/* Row 1: Invoice No & Date */}
             <div className="grid grid-cols-2 border-b border-black">
               <div className="px-3 py-2 border-r border-black flex flex-col justify-center">
@@ -223,15 +223,17 @@ export default function InvoiceDocument({
             </div>
 
             {/* Row 6: Terms of Delivery */}
-            <div className="p-3 flex-1 flex flex-col items-center justify-center text-center">
-              <span className="text-black block text-[10.5px] leading-tight">Terms of Delivery</span>
-              <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.termsOfDelivery || ''}</span>
+            <div className="flex-1">
+              <div style={{ paddingTop: '8px', paddingLeft: '12px', paddingRight: '12px', paddingBottom: '8px' }}>
+                <span className="text-black block text-[10px] leading-tight">Terms of Delivery</span>
+                <span className="text-[11px] text-black block mt-0.5 leading-tight">{meta.termsOfDelivery || ''}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* 3. Items Table Header */}
-        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] border-t border-b border-black text-center font-bold text-[11px] bg-white">
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] border-t border-b border-black text-center font-bold text-[11px]">
           <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">Sl.<br/>No</div>
           <div className="py-2.5 px-3 border-r border-black flex items-center justify-center">Description of Services</div>
           <div className="py-2.5 px-1 border-r border-black flex items-center justify-center">HSN/SAC</div>
@@ -346,7 +348,7 @@ export default function InvoiceDocument({
         {/* 5. Total Row */}
         <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] border-t border-b border-black text-[11px]">
           <div className="border-r border-black"></div>
-          <div className="border-r border-black py-2 px-3 text-center font-bold">Total</div>
+          <div className="border-r border-black py-2 px-3 text-right font-bold">Total</div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
           <div className="border-r border-black"></div>
@@ -373,37 +375,37 @@ export default function InvoiceDocument({
         </div>
 
         {/* 8. Bottom Section: PAN, Declaration, Bank Details & Signatory */}
-        <div className="grid grid-cols-[1fr_320px]">
+        <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px]">
           {/* Left Sub-Section: PAN (top) + Declaration (bottom) */}
-          <div className="p-3 flex flex-col justify-between border-r border-black">
+          <div className="col-span-2 p-3 flex flex-col justify-between">
             <div>
               <div className="font-bold text-[11.5px] text-black">
                 Company&apos;s PAN : {company.pan || 'CRZPV0007J'}
               </div>
             </div>
 
-            <div className="mt-3">
-              <div className="text-[11px] font-bold text-black mb-1">
-                Declaration:
+                <div className="mt-3">
+                  <div className="text-[11px] font-bold text-black mb-1">
+                    Declaration:
+                  </div>
+                  {invoice.declaration ? (
+                    <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5 whitespace-pre-line">
+                      {invoice.declaration}
+                    </div>
+                  ) : (
+                    <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5">
+                      <p>1) Cheque, DD / RTGS in favour of <strong>GK Metal Testing Lab</strong> Payable at Trichy.</p>
+                      <p>2) GST category: (998346) technical testing and analysis service.</p>
+                      <p>3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. <strong>“This is purely a service contract.”</strong></p>
+                      <p>4) All disputes Subject to Chennai Jurisdiction.</p>
+                    </div>
+                  )}
+                </div>
               </div>
-              {invoice.declaration ? (
-                <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5 whitespace-pre-line">
-                  {invoice.declaration}
-                </div>
-              ) : (
-                <div className="text-[9.5px] text-black leading-[1.38] space-y-0.5">
-                  <p>1) Cheque, DD / RTGS in favour of <strong>GK Metal Testing Lab</strong> Payable at Trichy.</p>
-                  <p>2) GST category: (998346) technical testing and analysis service.</p>
-                  <p>3) We hereby declare that, there is no transfer of property in goods involved in execution of this contract which is leviable to tax as sale of goods. <strong>“This is purely a service contract.”</strong></p>
-                  <p>4) All disputes Subject to Chennai Jurisdiction.</p>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Right Sub-Section: Bank Details + Signatory */}
-          <div className="flex flex-col justify-between">
-            {/* Bank Details */}
+            {/* Right Sub-Section: Bank Details + Signatory */}
+            <div className="col-span-5 flex flex-col justify-between border-l border-black">
+              {/* Bank Details */}
             <div className="p-3 text-[10.5px]">
               <div className="font-bold text-[11px] text-black mb-1.5">Company&apos;s Bank Details :</div>
               <div className="grid grid-cols-[98px_1fr] text-[10.5px] leading-[1.38] text-black gap-y-0.5">
@@ -419,7 +421,7 @@ export default function InvoiceDocument({
             </div>
 
             {/* Authorised Signatory Box */}
-            <div className="border-t border-black px-3 py-2 flex flex-col justify-between h-[92px] text-right bg-white relative overflow-hidden">
+            <div className="border-t border-black px-3 py-2 flex flex-col justify-between h-[92px] text-right relative overflow-hidden">
               <div className="font-bold text-[11px] text-black relative z-10">
                 For {company.companyName || 'GK Metal Testing Lab'}
               </div>

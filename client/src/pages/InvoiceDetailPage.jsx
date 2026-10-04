@@ -54,7 +54,12 @@ export default function InvoiceDetailPage() {
 
   // Direct Print Trigger
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = ' ';
     window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   };
 
   // High-Resolution PDF Generation (Exact Match to 19.679cm x 27.033cm)
@@ -257,42 +262,9 @@ export default function InvoiceDetailPage() {
 
       {/* Printable Tax Invoice Document Container */}
       <div className="bg-slate-200/90 p-4 sm:p-6 rounded-xl border border-slate-300 shadow-inner overflow-x-auto print-container flex justify-center">
-        {/* On-screen Preview & Target for Download PDF (Single original copy with brand header & signature) */}
-        <div className="print:hidden w-full flex justify-center">
+        {/* Single Tax Invoice Document (Exact match on-screen, in PDF download, and during print) */}
+        <div className="w-full flex justify-center">
           <InvoiceDocument invoice={invoice} id="tax-invoice-printable" />
-        </div>
-
-        {/* Dedicated 3-Page Layout for Print (Print to PDF / Printer) */}
-        <div className="hidden print:block w-full">
-          {/* Copy 1: Original for Recipient */}
-          <div className="invoice-print-page">
-            <InvoiceDocument
-              invoice={invoice}
-              id="tax-invoice-print-1"
-              copyTitle="(Original for Recipient)"
-              isPrintMode={true}
-            />
-          </div>
-
-          {/* Copy 2: Duplicate for Supplier */}
-          <div className="invoice-print-page">
-            <InvoiceDocument
-              invoice={invoice}
-              id="tax-invoice-print-2"
-              copyTitle="(Duplicate for Supplier)"
-              isPrintMode={true}
-            />
-          </div>
-
-          {/* Copy 3: Duplicate for Transporter */}
-          <div className="invoice-print-page">
-            <InvoiceDocument
-              invoice={invoice}
-              id="tax-invoice-print-3"
-              copyTitle="(Duplicate for Transporter)"
-              isPrintMode={true}
-            />
-          </div>
         </div>
       </div>
 

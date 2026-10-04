@@ -36,8 +36,8 @@
 /* Professional Print Stylesheet for GST Tax Invoice */
 @media print {
   @page {
-    size: 19.679cm 27.033cm;
-    margin: 0;
+    size: auto;
+    margin: 0mm !important;
   }
 
   html, body {
@@ -82,41 +82,19 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 0 !important;
+    padding: 6mm 0 !important;
     box-shadow: none !important;
     border: none !important;
     background: #ffffff !important;
-    display: block !important;
-  }
-
-  .invoice-print-page {
-    width: 19.679cm !important;
-    max-width: 19.679cm !important;
-    min-width: 19.679cm !important;
-    height: 27.033cm !important;
-    max-height: 27.033cm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    page-break-after: always !important;
-    break-after: page !important;
     display: flex !important;
     justify-content: center !important;
-  }
-
-  .invoice-print-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
   }
 
   .invoice-document {
     border: none !important;
     box-shadow: none !important;
-    width: 19.679cm !important;
-    max-width: 19.679cm !important;
-    min-width: 19.679cm !important;
+    width: 100% !important;
+    max-width: 760px !important;
     margin: 0 auto !important;
     padding: 12px !important;
     box-sizing: border-box !important;
