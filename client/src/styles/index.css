@@ -93,7 +93,7 @@
     width: 100% !important;
     max-width: 760px !important;
     margin: 0 auto !important;
-    padding: 6mm 0 !important;
+    padding: 1.3cm 0 0 0 !important;
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
@@ -113,7 +113,7 @@
     width: 100% !important;
     max-width: 760px !important;
     margin: 0 auto !important;
-    padding: 12px !important;
+    padding: 0 4px !important;
     box-sizing: border-box !important;
     font-family: 'Times New Roman', Times, serif !important;
     page-break-inside: avoid !important;
