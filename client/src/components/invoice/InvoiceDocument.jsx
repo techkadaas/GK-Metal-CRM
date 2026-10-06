@@ -100,8 +100,8 @@ export default function InvoiceDocument({
           <div className="col-span-2 flex flex-col justify-between">
             {/* Company Info Box */}
             <div
-              className={`p-3 border-b border-black flex items-center gap-4 ${isPrintMode ? 'pb-[14px]' : ''}`}
-              style={isPrintMode ? { paddingBottom: '14px' } : undefined}
+              className={`p-3 border-b border-black flex items-center gap-4 ${isPrintMode ? 'pb-[26px]' : 'pb-[18px]'}`}
+              style={{ paddingBottom: isPrintMode ? '26px' : '18px' }}
             >
               <div className={`w-[80px] h-[80px] min-w-[80px] p-1.5 flex items-center justify-center shrink-0 ${isPrintMode ? 'invisible' : ''}`}>
                 <img src={logoIcon} alt="GK" className="max-w-full max-h-full object-contain" />
@@ -247,7 +247,7 @@ export default function InvoiceDocument({
         </div>
 
         {/* 4. Items Table Body (continuous vertical divider lines) */}
-        <div className={`grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] text-[13px] text-black ${isPrintMode ? 'min-h-[240px]' : 'min-h-[200px]'}`}>
+        <div className={`grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] text-[13px] text-black ${isPrintMode ? 'min-h-[230px]' : 'min-h-[200px]'}`}>
           {/* Sl No Col */}
           <div className="border-r border-black py-2.5 px-1 text-center font-normal">
             {items.map((item, idx) => (
@@ -446,7 +446,7 @@ export default function InvoiceDocument({
       </div>
 
       {/* 8. Footer Bar */}
-      <div className="text-center py-1.5 text-[13px] font-bold text-black mt-1">
+      <div className="text-center py-1 text-[13px] font-bold text-black mt-0.5">
         This is a Computer Generated Invoice
       </div>
     </div>
