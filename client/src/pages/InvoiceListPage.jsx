@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { NavLink, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   PlusCircle,
@@ -42,14 +42,15 @@ export default function InvoiceListPage() {
     { label: 'All', value: 'All' }
   ];
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (queryOverride) => {
     try {
       setLoading(true);
       const params = {};
       if (statusFilter && statusFilter !== 'All') {
         params.status = statusFilter;
       }
-      if (searchQuery) params.search = searchQuery;
+      const activeSearch = queryOverride !== undefined ? queryOverride : searchQuery;
+      if (activeSearch) params.search = activeSearch;
       if (sortBy) params.sortBy = sortBy;
       if (sortOrder) params.sortOrder = sortOrder;
       if (startDate) params.startDate = startDate;
@@ -69,6 +70,84 @@ export default function InvoiceListPage() {
   useEffect(() => {
     fetchInvoices();
   }, [statusFilter, sortBy, sortOrder]);
+
+  // Real-time filtered invoices based on company name, invoice number, etc.
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((inv) => {
+      // Status filter
+      if (statusFilter && statusFilter !== 'All') {
+        if (inv.status?.toLowerCase() !== statusFilter.toLowerCase()) return false;
+      }
+
+      // Search query filter (matches company name, invoice number, GSTIN, test report, contact, etc.)
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const invNo = String(inv.invoiceNumber || '').toLowerCase();
+        const formattedInvNo = formatInvoiceNumber(inv.invoiceNumber).toLowerCase();
+        const seq = String(inv.sequenceNumber || '');
+        const buyerCompany = String(inv.buyerSnapshot?.companyName || inv.customer?.companyName || '').toLowerCase();
+        const buyerGstin = String(inv.buyerSnapshot?.gstin || '').toLowerCase();
+        const buyerContact = String(inv.buyerSnapshot?.contactPerson || '').toLowerCase();
+        const buyerPhone = String(inv.buyerSnapshot?.phone || '').toLowerCase();
+        const testReport = String(inv.metadata?.testReportRef || '').toLowerCase();
+        const buyerOrder = String(inv.metadata?.buyerOrderNo || '').toLowerCase();
+        const itemsDesc = Array.isArray(inv.items)
+          ? inv.items.map(it => it.description || '').join(' ').toLowerCase()
+          : '';
+
+        const matches =
+          invNo.includes(q) ||
+          formattedInvNo.includes(q) ||
+          seq.includes(q) ||
+          buyerCompany.includes(q) ||
+          buyerGstin.includes(q) ||
+          buyerContact.includes(q) ||
+          buyerPhone.includes(q) ||
+          testReport.includes(q) ||
+          buyerOrder.includes(q) ||
+          itemsDesc.includes(q);
+
+        if (!matches) return false;
+      }
+
+      // Date range filter
+      if (startDate) {
+        const invDate = new Date(inv.invoiceDate || inv.createdAt);
+        if (invDate < new Date(startDate)) return false;
+      }
+      if (endDate) {
+        const invDate = new Date(inv.invoiceDate || inv.createdAt);
+        if (invDate > new Date(endDate)) return false;
+      }
+
+      return true;
+    });
+  }, [invoices, statusFilter, searchQuery, startDate, endDate]);
+
+  // Sorted invoices
+  const sortedInvoices = useMemo(() => {
+    const list = [...filteredInvoices];
+    list.sort((a, b) => {
+      if (sortBy === 'amount') {
+        const diff = (a.grandTotal || 0) - (b.grandTotal || 0);
+        return sortOrder === 'asc' ? diff : -diff;
+      }
+      if (sortBy === 'invoiceNumber') {
+        const cmp = String(a.invoiceNumber || '').localeCompare(String(b.invoiceNumber || ''));
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      // date: newest first
+      const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
+      const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
+      if (timeA !== timeB) {
+        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      }
+      return sortOrder === 'asc'
+        ? (a.sequenceNumber || 0) - (b.sequenceNumber || 0)
+        : (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+    });
+    return list;
+  }, [filteredInvoices, sortBy, sortOrder]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -165,12 +244,12 @@ export default function InvoiceListPage() {
         {/* Toolbar & Filter Matrix */}
         <div className="p-4 border-b border-slate-200 bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1 max-w-lg">
+            {/* Search Input Form */}
+            <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-lg">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search invoice number, buyer company, GSTIN..."
+                placeholder="Search company name, invoice number, GSTIN..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-8 py-2 bg-slate-50/70 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
@@ -179,12 +258,13 @@ export default function InvoiceListPage() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  title="Clear search"
                 >
                   <XCircle className="w-3.5 h-3.5" />
                 </button>
               )}
-            </div>
+            </form>
 
             {/* Sorting & Counter */}
             <div className="flex items-center gap-3 shrink-0">
@@ -208,7 +288,7 @@ export default function InvoiceListPage() {
               </div>
 
               <span className="text-xs font-mono text-slate-500 pl-2 border-l border-slate-200">
-                Found <strong>{invoices.length}</strong> invoices
+                Found <strong>{sortedInvoices.length}</strong> {sortedInvoices.length === 1 ? 'invoice' : 'invoices'}
               </span>
             </div>
           </div>
@@ -230,8 +310,8 @@ export default function InvoiceListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {invoices.length > 0 ? (
-                invoices.map((inv) => (
+              {sortedInvoices.length > 0 ? (
+                sortedInvoices.map((inv) => (
                   <tr key={inv._id} className="hover:bg-slate-50/80 transition group">
                     {/* Invoice No */}
                     <td className="py-3 px-4">
@@ -316,7 +396,22 @@ export default function InvoiceListPage() {
               ) : (
                 <tr>
                   <td colSpan="8" className="py-12 text-center text-slate-400">
-                    No invoices matching the selected filters.
+                    {searchQuery.trim() ? (
+                      <div className="space-y-2">
+                        <p className="text-slate-600 font-medium">
+                          No invoices matching &ldquo;<span className="text-slate-900 font-bold">{searchQuery}</span>&rdquo;
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          className="text-xs text-sky-600 hover:text-sky-700 font-semibold underline cursor-pointer"
+                        >
+                          Clear search query
+                        </button>
+                      </div>
+                    ) : (
+                      'No invoices matching the selected filters.'
+                    )}
                   </td>
                 </tr>
               )}

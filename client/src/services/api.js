@@ -101,7 +101,17 @@ export const api = {
       }
       return data;
     } catch (e) {
-      const cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
+      let cached = getLocalData(STORAGE_KEYS.INVOICES) || [];
+      if (params.search) {
+        const q = params.search.trim().toLowerCase();
+        cached = cached.filter(inv =>
+          inv.invoiceNumber?.toLowerCase().includes(q) ||
+          String(inv.sequenceNumber || '').includes(q) ||
+          inv.buyerSnapshot?.companyName?.toLowerCase().includes(q) ||
+          inv.buyerSnapshot?.gstin?.toLowerCase().includes(q) ||
+          inv.customer?.companyName?.toLowerCase().includes(q)
+        );
+      }
       return { success: true, data: cached, count: cached.length, isOffline: true };
     }
   },

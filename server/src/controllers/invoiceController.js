@@ -74,13 +74,17 @@ export const getAllInvoices = async (req, res) => {
     }
 
     if (search) {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
       invoices = invoices.filter(inv =>
         inv.invoiceNumber?.toLowerCase().includes(q) ||
+        String(inv.sequenceNumber || '').includes(q) ||
         inv.buyerSnapshot?.companyName?.toLowerCase().includes(q) ||
         inv.buyerSnapshot?.gstin?.toLowerCase().includes(q) ||
+        inv.buyerSnapshot?.contactPerson?.toLowerCase().includes(q) ||
+        inv.customer?.companyName?.toLowerCase().includes(q) ||
         inv.metadata?.buyerOrderNo?.toLowerCase().includes(q) ||
-        inv.metadata?.testReportRef?.toLowerCase().includes(q)
+        inv.metadata?.testReportRef?.toLowerCase().includes(q) ||
+        (Array.isArray(inv.items) && inv.items.some(it => it.description?.toLowerCase().includes(q)))
       );
     }
 

@@ -125,7 +125,9 @@ export default function InvoiceDetailPage() {
       const pageHeight = pdf.internal.pageSize.getHeight(); // 270.33mm (27.033cm)
 
       pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'SLOW');
-      const safeFilename = `${(invoice.invoiceNumber || 'Invoice').replace(/[\/\\]/g, '_')}_Tax_Invoice.pdf`;
+      const invSeq = invoice.sequenceNumber || String(invoice.invoiceNumber || '').split('/').pop() || '0';
+      const buyerName = (invoice.buyerSnapshot?.companyName || 'Customer').replace(/[\/\\:*?"<>|]/g, '');
+      const safeFilename = `Inv No-${invSeq}- ${buyerName} (1).pdf`;
       pdf.save(safeFilename);
 
       toast.success(`Downloaded ${safeFilename}`);
