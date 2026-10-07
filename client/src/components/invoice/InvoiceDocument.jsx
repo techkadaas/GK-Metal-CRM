@@ -247,7 +247,7 @@ export default function InvoiceDocument({
         </div>
 
         {/* 4. Items Table Body (continuous vertical divider lines) */}
-        <div className={`grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] text-[13px] text-black ${isPrintMode ? 'min-h-[170px]' : 'min-h-[170px]'}`}>
+        <div className={`grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] text-[13px] text-black ${isPrintMode ? 'min-h-[300px]' : 'min-h-[300px]'}`}>
           {/* Sl No Col */}
           <div className="border-r border-black py-2.5 px-1 text-center font-normal">
             {items.map((item, idx) => (
