@@ -21,6 +21,8 @@ import { api } from '../services/api';
 import { formatINR, formatDate, formatInvoiceNumber } from '../utils/formatters';
 import InvoiceStatusBadge from '../components/invoice/InvoiceStatusBadge';
 import { useToast } from '../context/ToastContext';
+import DateRangeFilter from '../components/common/DateRangeFilter';
+import { isDateInRange, formatDateRangeLabel } from '../utils/dateFilters';
 
 export default function InvoiceListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,14 +37,15 @@ export default function InvoiceListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(searchParams.get('startDate') || '');
+  const [endDate, setEndDate] = useState(searchParams.get('endDate') || '');
+  const [preset, setPreset] = useState(searchParams.get('period') || (searchParams.get('startDate') ? 'custom' : 'all'));
 
   const statusTabs = [
     { label: 'All', value: 'All' }
   ];
 
-  const fetchInvoices = async (queryOverride) => {
+  const fetchInvoices = async (queryOverride, filterOverride) => {
     try {
       setLoading(true);
       const params = {};
@@ -53,8 +56,11 @@ export default function InvoiceListPage() {
       if (activeSearch) params.search = activeSearch;
       if (sortBy) params.sortBy = sortBy;
       if (sortOrder) params.sortOrder = sortOrder;
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
+
+      const activeStart = filterOverride?.startDate !== undefined ? filterOverride.startDate : startDate;
+      const activeEnd = filterOverride?.endDate !== undefined ? filterOverride.endDate : endDate;
+      if (activeStart) params.startDate = activeStart;
+      if (activeEnd) params.endDate = activeEnd;
 
       const res = await api.getInvoices(params);
       if (res.success && res.data) {
@@ -69,7 +75,35 @@ export default function InvoiceListPage() {
 
   useEffect(() => {
     fetchInvoices();
-  }, [statusFilter, sortBy, sortOrder]);
+  }, [statusFilter, sortBy, sortOrder, startDate, endDate]);
+
+  const handleDateFilterChange = (filter) => {
+    setPreset(filter.preset);
+    setStartDate(filter.startDate);
+    setEndDate(filter.endDate);
+
+    const newParams = new URLSearchParams(searchParams);
+    if (filter.preset && filter.preset !== 'all') {
+      newParams.set('period', filter.preset);
+    } else {
+      newParams.delete('period');
+    }
+
+    if (filter.startDate) {
+      newParams.set('startDate', filter.startDate);
+    } else {
+      newParams.delete('startDate');
+    }
+
+    if (filter.endDate) {
+      newParams.set('endDate', filter.endDate);
+    } else {
+      newParams.delete('endDate');
+    }
+
+    setSearchParams(newParams, { replace: true });
+    fetchInvoices(undefined, filter);
+  };
 
   // Real-time filtered invoices based on company name, invoice number, etc.
   const filteredInvoices = useMemo(() => {
@@ -111,13 +145,10 @@ export default function InvoiceListPage() {
       }
 
       // Date range filter
-      if (startDate) {
-        const invDate = new Date(inv.invoiceDate || inv.createdAt);
-        if (invDate < new Date(startDate)) return false;
-      }
-      if (endDate) {
-        const invDate = new Date(inv.invoiceDate || inv.createdAt);
-        if (invDate > new Date(endDate)) return false;
+      if (startDate || endDate) {
+        if (!isDateInRange(inv.invoiceDate || inv.createdAt, startDate, endDate)) {
+          return false;
+        }
       }
 
       return true;
@@ -242,7 +273,7 @@ export default function InvoiceListPage() {
         </div>
 
         {/* Toolbar & Filter Matrix */}
-        <div className="p-4 border-b border-slate-200 bg-white">
+        <div className="p-4 border-b border-slate-200 bg-white space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Search Input Form */}
             <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-lg">
@@ -289,6 +320,23 @@ export default function InvoiceListPage() {
 
               <span className="text-xs font-mono text-slate-500 pl-2 border-l border-slate-200">
                 Found <strong>{sortedInvoices.length}</strong> {sortedInvoices.length === 1 ? 'invoice' : 'invoices'}
+              </span>
+            </div>
+          </div>
+
+          {/* Date Range Filter Row */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <DateRangeFilter
+              preset={preset}
+              startDate={startDate}
+              endDate={endDate}
+              onChange={handleDateFilterChange}
+            />
+
+            <div className="flex items-center gap-2 text-xs text-slate-500 self-start sm:self-auto">
+              <span className="font-semibold text-slate-400 text-[11px] uppercase tracking-wider">Scope:</span>
+              <span className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 font-mono font-bold text-slate-700 text-xs">
+                {formatDateRangeLabel(startDate, endDate)}
               </span>
             </div>
           </div>
@@ -407,6 +455,19 @@ export default function InvoiceListPage() {
                           className="text-xs text-sky-600 hover:text-sky-700 font-semibold underline cursor-pointer"
                         >
                           Clear search query
+                        </button>
+                      </div>
+                    ) : (preset !== 'all' || startDate || endDate) ? (
+                      <div className="space-y-2">
+                        <p className="text-slate-600 font-medium">
+                          No invoices found for the period <span className="font-bold text-slate-800">{formatDateRangeLabel(startDate, endDate)}</span>.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleDateFilterChange({ preset: 'all', startDate: '', endDate: '' })}
+                          className="text-xs text-sky-600 hover:text-sky-700 font-semibold underline cursor-pointer"
+                        >
+                          Reset period filter
                         </button>
                       </div>
                     ) : (

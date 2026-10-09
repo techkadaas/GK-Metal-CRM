@@ -92,11 +92,34 @@ export const getAllInvoices = async (req, res) => {
       invoices = invoices.filter(inv => inv.buyerSnapshot?.companyName?.toLowerCase().includes(buyer.toLowerCase()));
     }
 
+    const toDateStr = (val) => {
+      if (!val) return '';
+      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}/.test(val)) {
+        return val.substring(0, 10);
+      }
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return '';
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    };
+
     if (startDate) {
-      invoices = invoices.filter(inv => new Date(inv.invoiceDate || inv.createdAt) >= new Date(startDate));
+      invoices = invoices.filter(inv => {
+        const d = toDateStr(inv.invoiceDate || inv.createdAt);
+        return d ? d >= startDate : false;
+      });
     }
     if (endDate) {
-      invoices = invoices.filter(inv => new Date(inv.invoiceDate || inv.createdAt) <= new Date(endDate));
+      invoices = invoices.filter(inv => {
+        const d = toDateStr(inv.invoiceDate || inv.createdAt);
+        return d ? d <= endDate : false;
+      });
     }
 
     // Sorting

@@ -16,6 +16,8 @@ import { api } from '../services/api';
 import { formatINR, formatDate } from '../utils/formatters';
 import { useToast } from '../context/ToastContext';
 import PaymentRecordModal from '../components/invoice/PaymentRecordModal';
+import DateRangeFilter from '../components/common/DateRangeFilter';
+import { DATE_PRESETS, formatDateRangeLabel } from '../utils/dateFilters';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -23,11 +25,21 @@ export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState(null);
+  const [dateFilter, setDateFilter] = useState({
+    preset: 'all',
+    startDate: '',
+    endDate: ''
+  });
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = async (overrideFilter) => {
+    const active = overrideFilter || dateFilter;
     try {
       setLoading(true);
-      const res = await api.getDashboardMetrics();
+      const params = {};
+      if (active.startDate) params.startDate = active.startDate;
+      if (active.endDate) params.endDate = active.endDate;
+
+      const res = await api.getDashboardMetrics(params);
       if (res.success && res.data) {
         setData(res.data);
       }
@@ -37,6 +49,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDateFilterChange = (newFilter) => {
+    setDateFilter(newFilter);
+    fetchMetrics(newFilter);
   };
 
   const handlePaymentRecorded = async (paymentData) => {
@@ -88,6 +105,28 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Date Filter Bar */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <DateRangeFilter
+          preset={dateFilter.preset}
+          startDate={dateFilter.startDate}
+          endDate={dateFilter.endDate}
+          onChange={handleDateFilterChange}
+        />
+
+        <div className="flex items-center gap-2 text-xs text-slate-500 self-start sm:self-auto">
+          <span className="font-semibold text-slate-400 text-[11px] uppercase tracking-wider">Filtered View:</span>
+          <span className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 font-mono font-bold text-slate-700 text-xs">
+            {formatDateRangeLabel(dateFilter.startDate, dateFilter.endDate)}
+          </span>
+          {dateFilter.preset !== 'all' && data?.recentInvoices && (
+            <span className="text-sky-600 font-bold text-xs">
+              ({data.recentInvoices.length} {data.recentInvoices.length === 1 ? 'invoice' : 'invoices'})
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {/* Total Invoices */}
@@ -102,14 +141,34 @@ export default function DashboardPage() {
             <div className="text-xl font-bold font-mono text-slate-900">
               {kpis.totalInvoices}
             </div>
-            <span className="text-[11px] text-slate-400 font-medium">All generated</span>
+            <span className="text-[11px] text-slate-400 font-medium">
+              {dateFilter.preset === 'all' ? 'All generated' : 'In selected range'}
+            </span>
           </div>
         </div>
 
-        {/* This Month Billed */}
+        {/* This Month / Filtered Billed */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold">This Month</span>
+            <span className="text-xs font-semibold truncate">
+              {dateFilter.preset === 'all'
+                ? 'This Month'
+                : dateFilter.preset === 'today'
+                ? 'Today Billed'
+                : dateFilter.preset === 'yesterday'
+                ? 'Yesterday Billed'
+                : dateFilter.preset === 'this_week'
+                ? 'This Week'
+                : dateFilter.preset === 'this_month'
+                ? 'This Month'
+                : dateFilter.preset === 'last_month'
+                ? 'Last Month'
+                : dateFilter.preset === 'last_3_months'
+                ? 'Last 3 Months'
+                : dateFilter.preset === 'last_6_months'
+                ? 'Last 6 Months'
+                : 'Selected Period'}
+            </span>
             <div className="p-1.5 rounded-md bg-blue-50 text-blue-700">
               <TrendingUp className="w-4 h-4" />
             </div>
@@ -118,7 +177,9 @@ export default function DashboardPage() {
             <div className="text-xl font-bold font-mono text-slate-900">
               {formatINR(kpis.thisMonthBilled)}
             </div>
-            <span className="text-[11px] text-emerald-600 font-medium font-mono">Current billing</span>
+            <span className="text-[11px] text-emerald-600 font-medium font-mono">
+              {dateFilter.preset === 'all' ? 'Current billing' : 'Period billing'}
+            </span>
           </div>
         </div>
 
@@ -193,13 +254,23 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900">Recent Tax Invoices</h2>
+            <h2 className="text-sm font-bold text-slate-900">
+              {dateFilter.preset === 'all'
+                ? 'Recent Tax Invoices'
+                : `Tax Invoices (${DATE_PRESETS.find(p => p.value === dateFilter.preset)?.label || 'Filtered'})`}
+            </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Latest testing charges and laboratory billing entries
+              {dateFilter.preset === 'all'
+                ? 'Latest testing charges and laboratory billing entries'
+                : `Showing invoices for ${formatDateRangeLabel(dateFilter.startDate, dateFilter.endDate)}`}
             </p>
           </div>
           <NavLink
-            to="/invoices"
+            to={
+              dateFilter.preset !== 'all' && (dateFilter.startDate || dateFilter.endDate)
+                ? `/invoices?period=${dateFilter.preset}&startDate=${dateFilter.startDate}&endDate=${dateFilter.endDate}`
+                : '/invoices'
+            }
             className="flex items-center gap-1.5 text-xs font-semibold text-sky-600 hover:text-sky-700 hover:underline"
           >
             <span>View All Invoices</span>
@@ -294,7 +365,9 @@ export default function DashboardPage() {
               ) : (
                 <tr>
                   <td colSpan="8" className="py-8 text-center text-slate-400">
-                    No invoices recorded yet. Click "+ Create Invoice" to generate the first tax invoice.
+                    {dateFilter.preset !== 'all'
+                      ? `No invoices recorded for the selected period (${formatDateRangeLabel(dateFilter.startDate, dateFilter.endDate)}).`
+                      : 'No invoices recorded yet. Click "+ Create Invoice" to generate the first tax invoice.'}
                   </td>
                 </tr>
               )}

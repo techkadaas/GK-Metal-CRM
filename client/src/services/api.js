@@ -49,14 +49,33 @@ export const api = {
   },
 
   // Dashboard
-  getDashboardMetrics: async () => {
+  getDashboardMetrics: async (params = {}) => {
     try {
-      const res = await fetch(`${API_BASE}/dashboard/metrics`);
+      const cleanParams = {};
+      if (params.startDate) cleanParams.startDate = params.startDate;
+      if (params.endDate) cleanParams.endDate = params.endDate;
+      const query = new URLSearchParams(cleanParams).toString();
+      const url = query ? `${API_BASE}/dashboard/metrics?${query}` : `${API_BASE}/dashboard/metrics`;
+      const res = await fetch(url);
       return handleResponse(res);
     } catch (e) {
       // Offline calculate basic metrics from local cache
-      const invoices = getLocalData(STORAGE_KEYS.INVOICES) || [];
+      let invoices = getLocalData(STORAGE_KEYS.INVOICES) || [];
       const customers = getLocalData(STORAGE_KEYS.CUSTOMERS) || [];
+
+      if (params.startDate) {
+        invoices = invoices.filter(inv => {
+          const d = inv.invoiceDate ? String(inv.invoiceDate).substring(0, 10) : (inv.createdAt ? String(inv.createdAt).substring(0, 10) : '');
+          return d ? d >= params.startDate : false;
+        });
+      }
+      if (params.endDate) {
+        invoices = invoices.filter(inv => {
+          const d = inv.invoiceDate ? String(inv.invoiceDate).substring(0, 10) : (inv.createdAt ? String(inv.createdAt).substring(0, 10) : '');
+          return d ? d <= params.endDate : false;
+        });
+      }
+
       let totalBilled = 0, paidAmount = 0, pendingPayments = 0;
       invoices.forEach(inv => {
         if (inv.status !== 'Cancelled' && inv.status !== 'Draft') {
@@ -80,7 +99,7 @@ export const api = {
             pendingInvoices: invoices.filter(i => i.status !== 'Paid' && i.status !== 'Draft' && i.status !== 'Cancelled').length
           },
           monthlyRevenue: {},
-          recentInvoices: invoices.slice(0, 7)
+          recentInvoices: invoices
         }
       };
     }
@@ -111,6 +130,18 @@ export const api = {
           inv.buyerSnapshot?.gstin?.toLowerCase().includes(q) ||
           inv.customer?.companyName?.toLowerCase().includes(q)
         );
+      }
+      if (params.startDate) {
+        cached = cached.filter(inv => {
+          const d = inv.invoiceDate ? String(inv.invoiceDate).substring(0, 10) : (inv.createdAt ? String(inv.createdAt).substring(0, 10) : '');
+          return d ? d >= params.startDate : false;
+        });
+      }
+      if (params.endDate) {
+        cached = cached.filter(inv => {
+          const d = inv.invoiceDate ? String(inv.invoiceDate).substring(0, 10) : (inv.createdAt ? String(inv.createdAt).substring(0, 10) : '');
+          return d ? d <= params.endDate : false;
+        });
       }
       return { success: true, data: cached, count: cached.length, isOffline: true };
     }
