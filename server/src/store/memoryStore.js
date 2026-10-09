@@ -12,6 +12,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, 'db_data.json');
 
+export const parseInvoiceSeq = (strOrInv) => {
+  if (!strOrInv) return 0;
+  const numStr = typeof strOrInv === 'string' ? strOrInv.trim() : String(strOrInv.invoiceNumber || '').trim();
+  const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+  if (m) {
+    const val = parseInt(m[1], 10);
+    if (val > 0 && val < 100000) return val;
+  }
+  return typeof strOrInv === 'object' ? (Number(strOrInv.sequenceNumber) || 0) : 0;
+};
+
 // Initial seed data with default company settings and sample structures
 export const initialData = {
   companySettings: {
@@ -202,10 +213,12 @@ class MemoryStore {
         });
         this.data.invoices = Array.from(invoiceMap.values());
         this.data.invoices.sort((a, b) => {
+          const seqA = parseInvoiceSeq(a);
+          const seqB = parseInvoiceSeq(b);
+          if (seqA !== seqB) return seqB - seqA;
           const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
           const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
-          if (timeA !== timeB) return timeB - timeA;
-          return (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+          return timeB - timeA;
         });
 
         // Push all invoices to MongoDB
@@ -353,10 +366,12 @@ class MemoryStore {
           });
           this.data.invoices = Array.from(invoiceMap.values());
           this.data.invoices.sort((a, b) => {
+            const seqA = parseInvoiceSeq(a);
+            const seqB = parseInvoiceSeq(b);
+            if (seqA !== seqB) return seqB - seqA;
             const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
             const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
-            if (timeA !== timeB) return timeB - timeA;
-            return (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+            return timeB - timeA;
           });
           this.save();
           return this.data.invoices;
@@ -384,20 +399,43 @@ class MemoryStore {
 
   async createInvoice(payload) {
     const settings = await this.getSettings();
-    const currentSeq = settings?.invoiceConfig?.currentSequence || 1;
-    const nextSeq = currentSeq + 1;
+    let maxSeq = 0;
+    let lastDigitsStr = '';
+    (this.data.invoices || []).forEach(inv => {
+      const numStr = String(inv.invoiceNumber || '').trim();
+      const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+      if (m) {
+        const val = parseInt(m[1], 10);
+        if (val > 0 && val < 100000 && val > maxSeq) {
+          maxSeq = val;
+          lastDigitsStr = m[1];
+        }
+      }
+    });
+
+    const currentSeq = Math.max(maxSeq, settings?.invoiceConfig?.currentSequence || 0);
+    const nextSeq = Math.max(currentSeq + 1, settings?.invoiceConfig?.startingNumber || 1);
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
-    const formattedSeq = String(nextSeq).padStart(3, '0');
+
+    let formattedSeq = String(nextSeq);
+    if (lastDigitsStr && lastDigitsStr.startsWith('0')) {
+      formattedSeq = String(nextSeq).padStart(lastDigitsStr.length, '0');
+    } else if (!lastDigitsStr) {
+      formattedSeq = String(nextSeq).padStart(3, '0');
+    }
+
     const autoInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
     const invoiceNumber = (payload.invoiceNumber && payload.invoiceNumber.trim()) ? payload.invoiceNumber.trim() : autoInvoiceNumber;
     const customId = payload._id || ('inv_' + Date.now());
+
+    const payloadSeq = parseInvoiceSeq(invoiceNumber) || payload.sequenceNumber || nextSeq;
 
     let newInvoice = {
       _id: customId,
       invoiceNumber: invoiceNumber,
       financialYear: payload.financialYear || fy,
-      sequenceNumber: payload.sequenceNumber || nextSeq,
+      sequenceNumber: payloadSeq,
       status: payload.status || 'Generated',
       paymentStatus: payload.paymentStatus || 'Unpaid',
       paidAmount: payload.paidAmount || 0,
@@ -407,13 +445,14 @@ class MemoryStore {
       updatedAt: new Date().toISOString(),
       ...payload,
       _id: customId,
-      invoiceNumber: invoiceNumber
+      invoiceNumber: invoiceNumber,
+      sequenceNumber: payloadSeq
     };
 
     // Update sequence in settings
     if (settings?.invoiceConfig) {
-      settings.invoiceConfig.currentSequence = Math.max(currentSeq, nextSeq);
-      await this.updateSettings(settings);
+      settings.invoiceConfig.currentSequence = Math.max(currentSeq, payloadSeq, nextSeq);
+      await this.updateSettings(settings).catch(() => {});
     }
 
     // Persist to MongoDB Atlas with guaranteed write check

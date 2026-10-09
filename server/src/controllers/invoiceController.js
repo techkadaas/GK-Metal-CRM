@@ -36,16 +36,56 @@ export function convertNumberToIndianWords(num) {
   return `INR ${str.replace(/\s+/g, ' ').trim()} Rupees Only`;
 }
 
+export const parseInvoiceSeq = (inv) => {
+  if (!inv) return 0;
+  const numStr = typeof inv === 'string' ? inv.trim() : String(inv.invoiceNumber || '').trim();
+  const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+  if (m) {
+    const val = parseInt(m[1], 10);
+    if (val > 0 && val < 100000) return val;
+  }
+  return typeof inv === 'object' ? (Number(inv.sequenceNumber) || 0) : 0;
+};
+
 // Get Next Invoice Number
 export const getNextInvoiceNumber = async (req, res) => {
   try {
     const settings = await store.getSettings();
+    const invoices = (await store.getInvoices()) || [];
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
-    const currentSeq = settings?.invoiceConfig?.currentSequence || 4;
-    const nextSeq = currentSeq + 1;
-    const formattedSeq = String(nextSeq).padStart(3, '0');
+
+    let maxSeq = 0;
+    let lastDigitsStr = '';
+    invoices.forEach(inv => {
+      const numStr = String(inv.invoiceNumber || '').trim();
+      const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+      if (m) {
+        const val = parseInt(m[1], 10);
+        if (val > 0 && val < 100000 && val > maxSeq) {
+          maxSeq = val;
+          lastDigitsStr = m[1];
+        }
+      }
+    });
+
+    const currentSeq = Math.max(maxSeq, settings?.invoiceConfig?.currentSequence || 0);
+    const nextSeq = Math.max(currentSeq + 1, settings?.invoiceConfig?.startingNumber || 1);
+
+    let formattedSeq = String(nextSeq);
+    if (lastDigitsStr && lastDigitsStr.startsWith('0')) {
+      formattedSeq = String(nextSeq).padStart(lastDigitsStr.length, '0');
+    } else if (!lastDigitsStr) {
+      formattedSeq = String(nextSeq).padStart(3, '0');
+    }
+
     const nextInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
+
+    // Update settings sequence if behind
+    if (settings?.invoiceConfig && currentSeq > (settings.invoiceConfig.currentSequence || 0)) {
+      settings.invoiceConfig.currentSequence = currentSeq;
+      await store.updateSettings(settings).catch(() => {});
+    }
 
     res.json({
       success: true,
@@ -122,25 +162,27 @@ export const getAllInvoices = async (req, res) => {
       });
     }
 
-    // Sorting
+    // Sorting: sequential natural order by invoice number by default
     invoices.sort((a, b) => {
       if (sortBy === 'amount') {
         return sortOrder === 'asc' ? (a.grandTotal || 0) - (b.grandTotal || 0) : (b.grandTotal || 0) - (a.grandTotal || 0);
       }
-      if (sortBy === 'invoiceNumber') {
-        return sortOrder === 'asc'
-          ? (a.invoiceNumber || '').localeCompare(b.invoiceNumber || '')
-          : (b.invoiceNumber || '').localeCompare(a.invoiceNumber || '');
+      if (sortBy === 'date') {
+        const timeA = new Date(a.invoiceDate || a.createdAt || 0).getTime();
+        const timeB = new Date(b.invoiceDate || b.createdAt || 0).getTime();
+        if (timeA !== timeB) {
+          return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+        }
       }
-      // Default: date / newest first (last created first)
-      const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
-      const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
-      if (timeA !== timeB) {
-        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      // Invoice number natural sequential sorting
+      const seqA = parseInvoiceSeq(a);
+      const seqB = parseInvoiceSeq(b);
+      if (seqA !== seqB) {
+        return sortOrder === 'asc' ? seqA - seqB : seqB - seqA;
       }
-      const seqA = a.sequenceNumber || 0;
-      const seqB = b.sequenceNumber || 0;
-      return sortOrder === 'asc' ? seqA - seqB : seqB - seqA;
+      return sortOrder === 'asc'
+        ? String(a.invoiceNumber || '').localeCompare(String(b.invoiceNumber || ''), undefined, { numeric: true })
+        : String(b.invoiceNumber || '').localeCompare(String(a.invoiceNumber || ''), undefined, { numeric: true });
     });
 
     res.json({
@@ -322,10 +364,33 @@ export const duplicateInvoice = async (req, res) => {
     }
 
     const settings = await store.getSettings();
+    const invoices = (await store.getInvoices()) || [];
     const prefix = settings?.invoiceConfig?.prefix || 'GK/INV/';
     const fy = settings?.invoiceConfig?.financialYear || '26-27';
-    const nextSeq = (settings?.invoiceConfig?.currentSequence || 4) + 1;
-    const nextInvoiceNumber = `${prefix}${fy}/${String(nextSeq).padStart(3, '0')}`;
+
+    let maxSeq = 0;
+    let lastDigitsStr = '';
+    invoices.forEach(inv => {
+      const numStr = String(inv.invoiceNumber || '').trim();
+      const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+      if (m) {
+        const val = parseInt(m[1], 10);
+        if (val > 0 && val < 100000 && val > maxSeq) {
+          maxSeq = val;
+          lastDigitsStr = m[1];
+        }
+      }
+    });
+
+    const currentSeq = Math.max(maxSeq, settings?.invoiceConfig?.currentSequence || 0);
+    const nextSeq = Math.max(currentSeq + 1, settings?.invoiceConfig?.startingNumber || 1);
+    let formattedSeq = String(nextSeq);
+    if (lastDigitsStr && lastDigitsStr.startsWith('0')) {
+      formattedSeq = String(nextSeq).padStart(lastDigitsStr.length, '0');
+    } else if (!lastDigitsStr) {
+      formattedSeq = String(nextSeq).padStart(3, '0');
+    }
+    const nextInvoiceNumber = `${prefix}${fy}/${formattedSeq}`;
 
     const duplicatedPayload = {
       ...JSON.parse(JSON.stringify(sourceInvoice)),

@@ -799,7 +799,7 @@ export default function SettingsPage() {
               <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg flex items-center justify-between text-xs">
                 <span className="text-sky-900 font-semibold">Generated Invoice Sample Format:</span>
                 <span className="font-mono font-extrabold text-sm text-sky-800">
-                  {formData.invoiceConfig?.prefix}{formData.invoiceConfig?.financialYear}/{String((formData.invoiceConfig?.currentSequence || 66) + 1).padStart(3, '0')}
+                  {formData.invoiceConfig?.prefix}{formData.invoiceConfig?.financialYear}/{String((formData.invoiceConfig?.currentSequence || 0) + 1).padStart(3, '0')}
                 </span>
               </div>
             </div>

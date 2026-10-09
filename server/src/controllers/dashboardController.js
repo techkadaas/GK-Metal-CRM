@@ -40,6 +40,26 @@ export const getDashboardMetrics = async (req, res) => {
       });
     }
 
+    const parseSeq = (inv) => {
+      if (!inv) return 0;
+      const numStr = String(inv.invoiceNumber || '').trim();
+      const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+      if (m) {
+        const val = parseInt(m[1], 10);
+        if (val > 0 && val < 100000) return val;
+      }
+      return Number(inv.sequenceNumber) || 0;
+    };
+
+    targetInvoices.sort((a, b) => {
+      const seqA = parseSeq(a);
+      const seqB = parseSeq(b);
+      if (seqA !== seqB) return seqB - seqA;
+      const timeA = new Date(a.invoiceDate || a.createdAt || 0).getTime();
+      const timeB = new Date(b.invoiceDate || b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();

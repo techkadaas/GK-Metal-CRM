@@ -35,7 +35,7 @@ export default function InvoiceListPage() {
   // Filters state
   const statusFilter = searchParams.get('status') || 'All';
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('date');
+  const [sortBy, setSortBy] = useState('invoiceNumber');
   const [sortOrder, setSortOrder] = useState('desc');
   const [startDate, setStartDate] = useState(searchParams.get('startDate') || '');
   const [endDate, setEndDate] = useState(searchParams.get('endDate') || '');
@@ -155,27 +155,41 @@ export default function InvoiceListPage() {
     });
   }, [invoices, statusFilter, searchQuery, startDate, endDate]);
 
-  // Sorted invoices
+  // Sorted invoices in sequential order
   const sortedInvoices = useMemo(() => {
+    const parseSeq = (inv) => {
+      if (!inv) return 0;
+      const numStr = String(inv.invoiceNumber || '').trim();
+      const m = numStr.match(/(?:^|\/)(\d+)\s*$/);
+      if (m) {
+        const val = parseInt(m[1], 10);
+        if (val > 0 && val < 100000) return val;
+      }
+      return Number(inv.sequenceNumber) || 0;
+    };
+
     const list = [...filteredInvoices];
     list.sort((a, b) => {
       if (sortBy === 'amount') {
         const diff = (a.grandTotal || 0) - (b.grandTotal || 0);
         return sortOrder === 'asc' ? diff : -diff;
       }
-      if (sortBy === 'invoiceNumber') {
-        const cmp = String(a.invoiceNumber || '').localeCompare(String(b.invoiceNumber || ''));
-        return sortOrder === 'asc' ? cmp : -cmp;
+      if (sortBy === 'date') {
+        const timeA = new Date(a.invoiceDate || a.createdAt || 0).getTime();
+        const timeB = new Date(b.invoiceDate || b.createdAt || 0).getTime();
+        if (timeA !== timeB) {
+          return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+        }
       }
-      // date: newest first
-      const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
-      const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
-      if (timeA !== timeB) {
-        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      // Invoice number natural sequential order
+      const seqA = parseSeq(a);
+      const seqB = parseSeq(b);
+      if (seqA !== seqB) {
+        return sortOrder === 'asc' ? seqA - seqB : seqB - seqA;
       }
       return sortOrder === 'asc'
-        ? (a.sequenceNumber || 0) - (b.sequenceNumber || 0)
-        : (b.sequenceNumber || 0) - (a.sequenceNumber || 0);
+        ? String(a.invoiceNumber || '').localeCompare(String(b.invoiceNumber || ''), undefined, { numeric: true })
+        : String(b.invoiceNumber || '').localeCompare(String(a.invoiceNumber || ''), undefined, { numeric: true });
     });
     return list;
   }, [filteredInvoices, sortBy, sortOrder]);
@@ -310,11 +324,12 @@ export default function InvoiceListPage() {
                   }}
                   className="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white cursor-pointer"
                 >
-                  <option value="date-desc">Newest First</option>
-                  <option value="date-asc">Oldest First</option>
+                  <option value="invoiceNumber-desc">Invoice No (Newest First)</option>
+                  <option value="invoiceNumber-asc">Invoice No (Oldest First)</option>
+                  <option value="date-desc">Date (Newest First)</option>
+                  <option value="date-asc">Date (Oldest First)</option>
                   <option value="amount-desc">Highest Amount</option>
                   <option value="amount-asc">Lowest Amount</option>
-                  <option value="invoiceNumber-asc">Invoice No (Asc)</option>
                 </select>
               </div>
 
