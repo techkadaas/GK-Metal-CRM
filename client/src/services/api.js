@@ -269,7 +269,7 @@ export const api = {
     return result;
   },
 
-  deleteInvoice: async (id, permanent = false) => {
+  deleteInvoice: async (id, permanent = true) => {
     const res = await fetch(`${API_BASE}/invoices/${id}?permanent=${permanent}`, {
       method: 'DELETE'
     });

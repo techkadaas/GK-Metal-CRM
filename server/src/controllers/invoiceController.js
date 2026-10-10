@@ -471,14 +471,14 @@ export const deleteInvoice = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
 
-    // Soft cancel or hard delete based on query
-    if (req.query.permanent === 'true') {
-      await store.deleteInvoice(id);
-      return res.json({ success: true, message: 'Invoice permanently deleted' });
+    // Soft cancel if permanent is explicitly 'false', otherwise delete permanently
+    if (req.query.permanent === 'false') {
+      const updated = await store.updateInvoice(id, { status: 'Cancelled' });
+      return res.json({ success: true, data: updated, message: 'Invoice marked as Cancelled' });
     }
 
-    const updated = await store.updateInvoice(id, { status: 'Cancelled' });
-    res.json({ success: true, data: updated, message: 'Invoice marked as Cancelled' });
+    await store.deleteInvoice(id);
+    res.json({ success: true, message: 'Invoice permanently deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

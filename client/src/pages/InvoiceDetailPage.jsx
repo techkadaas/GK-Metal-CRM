@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   Printer,
@@ -7,7 +8,9 @@ import {
   Copy,
   Share2,
   ArrowLeft,
-  IndianRupee
+  IndianRupee,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -29,6 +32,8 @@ export default function InvoiceDetailPage() {
   const [downloading, setDownloading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchInvoice = async () => {
     try {
@@ -152,6 +157,23 @@ export default function InvoiceDetailPage() {
     }
   };
 
+  // Delete Invoice
+  const handleDeleteInvoice = async () => {
+    try {
+      setDeleting(true);
+      const res = await api.deleteInvoice(invoice._id, true);
+      if (res.success) {
+        toast.success(`Deleted invoice ${formatInvoiceNumber(invoice.invoiceNumber)}`);
+        setShowDeleteModal(false);
+        navigate('/invoices');
+      }
+    } catch (e) {
+      toast.error(e.message || 'Failed to delete invoice');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
   // Record Payment Callback
   const handlePaymentRecorded = async (paymentData) => {
@@ -259,6 +281,16 @@ export default function InvoiceDetailPage() {
             <Copy className="w-4 h-4 text-slate-600" />
             <span>Duplicate</span>
           </button>
+
+          {/* Delete */}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 hover:border-rose-300 rounded-lg transition"
+            title="Delete Invoice"
+          >
+            <Trash2 className="w-4 h-4 text-rose-500" />
+            <span>Delete</span>
+          </button>
         </div>
       </div>
 
@@ -316,6 +348,53 @@ export default function InvoiceDetailPage() {
         onClose={() => setShowShareModal(false)}
         invoice={invoice}
       />
+
+      {/* Delete Invoice Confirmation Dialog */}
+      {showDeleteModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in no-print">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4">
+            <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+              <Trash2 className="w-5 h-5" />
+            </div>
+
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Delete Invoice?</h3>
+              <p className="text-xs text-slate-600 mt-1">
+                Are you sure you want to delete invoice <strong className="font-mono text-slate-900">{formatInvoiceNumber(invoice.invoiceNumber)}</strong>?
+              </p>
+              <div className="mt-2.5 p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 space-y-1">
+                <div>Buyer: <strong className="text-slate-800">{invoice.buyerSnapshot?.companyName || '—'}</strong></div>
+                <div>Amount: <strong className="font-mono text-slate-900">{formatINR(invoice.grandTotal)}</strong></div>
+                <div>Date: <strong className="font-mono text-slate-800">{formatDate(invoice.invoiceDate)}</strong></div>
+              </div>
+              <p className="text-[11px] text-rose-600 mt-2">
+                This action is permanent and cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-300 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteInvoice}
+                disabled={deleting}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-xs transition active:scale-95 disabled:opacity-50"
+              >
+                {deleting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                <span>Confirm Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

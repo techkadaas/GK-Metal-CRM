@@ -994,6 +994,19 @@ export default function CustomersPage() {
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
 
+                          {/* Delete Customer Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuId(null);
+                              setDeleteConfirmCust(cust);
+                            }}
+                            title="Delete Customer"
+                            className="p-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md border border-transparent hover:border-rose-200 transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+
                           {/* More Dropdown Menu */}
                           <div className="relative inline-block row-actions-menu">
                             <button
@@ -1247,6 +1260,16 @@ export default function CustomersPage() {
                   title="Edit Customer"
                 >
                   <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteConfirmCust(selectedCustomer);
+                  }}
+                  className="p-1.5 text-slate-300 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+                  title="Delete Customer"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setSelectedCustomer(null)}
