@@ -1,17 +1,21 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
   Building2,
   UserCheck,
   Settings,
-  ClipboardList
+  ClipboardList,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-  const { hasPageAccess } = useAuth();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { hasPageAccess, logout } = useAuth();
 
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
@@ -21,6 +25,14 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     }`;
 
   const showAdminSection = hasPageAccess('employees') || hasPageAccess('settings');
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to log out of your account?')) {
+      logout();
+      toast.success('Logged out successfully.');
+      navigate('/login');
+    }
+  };
 
   return (
     <aside
@@ -100,6 +112,18 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             {isOpen && <span>Settings</span>}
           </NavLink>
         )}
+      </div>
+
+      {/* Sidebar Footer: Logout Button with Confirmation Alert */}
+      <div className="p-3 border-t border-blue-900/40 bg-[#07132a]/60">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-500/20 border border-transparent hover:border-rose-500/30 transition cursor-pointer"
+          title="Sign Out"
+        >
+          <LogOut className="w-4 h-4 shrink-0 text-rose-400" />
+          {isOpen && <span>Sign Out</span>}
+        </button>
       </div>
     </aside>
   );

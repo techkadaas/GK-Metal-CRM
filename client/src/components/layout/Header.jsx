@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function Header({ toggleSidebar, openSearch }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const { currentUser, switchRole, logout, hasPageAccess } = useAuth();
   const { settings } = useSettings();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -25,9 +27,12 @@ export default function Header({ toggleSidebar, openSearch }) {
   const roles = ['Admin', 'Manager', 'Billing Employee', 'Viewer'];
 
   const handleLogout = () => {
-    setUserMenuOpen(false);
-    logout();
-    navigate('/login');
+    if (window.confirm('Are you sure you want to log out of your account?')) {
+      setUserMenuOpen(false);
+      logout();
+      toast.success('Logged out successfully.');
+      navigate('/login');
+    }
   };
 
   return (
@@ -75,6 +80,16 @@ export default function Header({ toggleSidebar, openSearch }) {
             <span className="hidden sm:inline">New Invoice</span>
           </NavLink>
         )}
+
+        {/* Direct Logout Button */}
+        <button
+          onClick={handleLogout}
+          title="Sign Out"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-md transition cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
 
         {/* User / Profile Menu */}
         <div className="relative">

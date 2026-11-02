@@ -414,7 +414,7 @@ export default function EmployeesPage() {
       </div>
 
       {/* Add / Edit Staff Modal */}
-      {showModal && typeof document !== 'undefined' && createPortal(
+      {showModal && typeof document !== 'undefined' && document.body && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-xs flex flex-col max-h-[92vh] animate-scale-in">
             {/* Modal Header */}
@@ -681,7 +681,8 @@ export default function EmployeesPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
