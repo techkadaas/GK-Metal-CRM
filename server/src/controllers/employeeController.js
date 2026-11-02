@@ -5,8 +5,17 @@ const ALL_PAGES = ['dashboard', 'invoices', 'customers', 'services', 'reports', 
 
 const sanitizeEmployee = (emp) => {
   if (!emp) return null;
-  const { password, ...safe } = emp;
+  // Handle both Mongoose documents and plain JS objects safely
+  const plain = emp.toObject ? emp.toObject() : (emp._doc ? { ...emp._doc } : { ...emp });
+  const { password, ...safe } = plain;
+
   safe.hasPassword = Boolean(password);
+  safe.name = safe.name || 'Staff Member';
+  safe.email = safe.email || '';
+  safe.username = safe.username || (safe.email ? String(safe.email).split('@')[0] : 'user');
+  safe.role = safe.role || 'Billing Employee';
+  safe.status = safe.status || 'Active';
+
   if (!safe.allowedPages || !Array.isArray(safe.allowedPages) || safe.allowedPages.length === 0) {
     safe.allowedPages = safe.role === 'Admin'
       ? ALL_PAGES
@@ -18,12 +27,16 @@ const sanitizeEmployee = (emp) => {
 export const getAllEmployees = async (req, res) => {
   try {
     const employees = await store.getEmployees();
+    const cleanList = (Array.isArray(employees) ? employees : [])
+      .map(sanitizeEmployee)
+      .filter(Boolean);
+
     res.json({
       success: true,
-      data: (employees || []).map(sanitizeEmployee)
+      data: cleanList
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message, data: [] });
   }
 };
 
@@ -40,8 +53,8 @@ export const createEmployee = async (req, res) => {
       status: req.body.status || 'Active'
     };
 
-    if (password && password.trim()) {
-      payload.password = bcrypt.hashSync(password.trim(), 10);
+    if (password && String(password).trim()) {
+      payload.password = bcrypt.hashSync(String(password).trim(), 10);
     } else {
       payload.password = bcrypt.hashSync('staff123', 10);
     }

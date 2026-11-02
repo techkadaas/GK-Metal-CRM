@@ -456,10 +456,14 @@ export const api = {
   getEmployees: async () => {
     try {
       const res = await fetch(`${API_BASE}/employees`);
-      return handleResponse(res);
+      const data = await handleResponse(res);
+      if (data && data.success && Array.isArray(data.data)) {
+        setLocalData(STORAGE_KEYS.EMPLOYEES, data.data);
+      }
+      return data;
     } catch (e) {
       const cached = getLocalData(STORAGE_KEYS.EMPLOYEES) || [];
-      return { success: true, data: cached };
+      return { success: true, data: Array.isArray(cached) ? cached : [] };
     }
   },
 

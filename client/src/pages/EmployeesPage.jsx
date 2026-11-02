@@ -17,7 +17,8 @@ import {
   CheckSquare,
   Square,
   Layers,
-  Sparkles
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -59,11 +60,17 @@ export default function EmployeesPage() {
     try {
       setLoading(true);
       const res = await api.getEmployees();
-      if (res.success && res.data) {
+      if (res && res.success && Array.isArray(res.data)) {
         setEmployees(res.data);
+      } else if (res && Array.isArray(res.data)) {
+        setEmployees(res.data);
+      } else {
+        setEmployees([]);
       }
     } catch (e) {
+      console.error('Failed to load employees:', e);
       toast.error('Failed to load staff list');
+      setEmployees([]);
     } finally {
       setLoading(false);
     }
@@ -76,8 +83,9 @@ export default function EmployeesPage() {
   const handleOpenCreate = () => {
     setIsEditing(false);
     setShowPassword(false);
+    const count = Array.isArray(employees) ? employees.length : 0;
     setFormData({
-      employeeId: `EMP-0${employees.length + 1}`,
+      employeeId: `EMP-0${count + 1}`,
       name: '',
       username: '',
       email: '',
@@ -92,20 +100,22 @@ export default function EmployeesPage() {
   };
 
   const handleOpenEdit = (emp) => {
+    if (!emp) return;
     setIsEditing(true);
     setShowPassword(false);
+    const emailStr = String(emp.email || '');
     setFormData({
       _id: emp._id,
       employeeId: emp.employeeId || '',
       name: emp.name || '',
-      username: emp.username || emp.email?.split('@')[0] || '',
-      email: emp.email || '',
+      username: emp.username || (emailStr ? emailStr.split('@')[0] : '') || '',
+      email: emailStr,
       phone: emp.phone || '',
       role: emp.role || 'Billing Employee',
       department: emp.department || 'Operations',
       password: '', // Blank by default when editing
       status: emp.status || 'Active',
-      allowedPages: emp.allowedPages && Array.isArray(emp.allowedPages) && emp.allowedPages.length > 0
+      allowedPages: Array.isArray(emp.allowedPages) && emp.allowedPages.length > 0
         ? emp.allowedPages
         : (emp.role === 'Admin' ? SYSTEM_PAGES.map(p => p.id) : ['dashboard', 'invoices', 'customers', 'services', 'reports'])
     });
@@ -114,7 +124,7 @@ export default function EmployeesPage() {
 
   const togglePagePermission = (pageId) => {
     setFormData(prev => {
-      const current = prev.allowedPages || [];
+      const current = Array.isArray(prev.allowedPages) ? prev.allowedPages : [];
       if (current.includes(pageId)) {
         return { ...prev, allowedPages: current.filter(p => p !== pageId) };
       } else {
@@ -221,8 +231,10 @@ export default function EmployeesPage() {
     }
   };
 
+  const employeeList = Array.isArray(employees) ? employees : [];
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -277,96 +289,125 @@ export default function EmployeesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {employees.map((emp) => {
-                const isUserAdmin = emp.role === 'Admin';
-                const pages = emp.allowedPages || [];
-                const isActive = (emp.status || 'Active').toLowerCase() === 'active';
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="py-12 text-center text-slate-400">
+                    <div className="w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <span className="text-xs font-medium">Loading staff list...</span>
+                  </td>
+                </tr>
+              ) : employeeList.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-12 text-center text-slate-400">
+                    <UserCheck className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="font-semibold text-slate-600">No staff members found</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Click "+ Add Staff Member" to register an employee.</p>
+                  </td>
+                </tr>
+              ) : (
+                employeeList.map((emp) => {
+                  if (!emp) return null;
+                  const empId = emp.employeeId || emp._id || 'EMP-01';
+                  const name = emp.name || 'Staff Member';
+                  const email = emp.email || '';
+                  const username = emp.username || (email ? email.split('@')[0] : 'user');
+                  const role = emp.role || 'Billing Employee';
+                  const department = emp.department || 'Operations';
+                  const phone = emp.phone || '—';
+                  const isUserAdmin = role === 'Admin';
+                  const pages = Array.isArray(emp.allowedPages) ? emp.allowedPages : [];
+                  const isActive = String(emp.status || 'Active').toLowerCase() === 'active';
 
-                return (
-                  <tr key={emp._id || emp.employeeId} className="hover:bg-slate-50/80 transition">
-                    <td className="py-3 px-4 font-mono font-bold text-sky-700">
-                      {emp.employeeId}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900">{emp.name}</div>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                        <span className="font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">
-                          @{emp.username || emp.email?.split('@')[0]}
-                        </span>
-                        <span>•</span>
-                        <span>{emp.email}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                        emp.role === 'Admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : emp.role === 'Manager'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-slate-100 text-slate-800'
-                      }`}>
-                        {emp.role}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="text-slate-800 font-medium">{emp.department || 'Operations'}</div>
-                      <div className="text-[10px] text-slate-500 font-mono mt-0.5">{emp.phone || '—'}</div>
-                    </td>
-                    <td className="py-3 px-3">
-                      {isUserAdmin ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                          <Sparkles className="w-3 h-3" />
-                          <span>All Modules (Full Access)</span>
-                        </span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1 max-w-[240px]">
-                          {pages.map((p) => {
-                            const found = SYSTEM_PAGES.find(sp => sp.id === p);
-                            return (
-                              <span
-                                key={p}
-                                className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium border border-slate-200"
-                              >
-                                {found ? found.label.split(' ')[0] : p}
-                              </span>
-                            );
-                          })}
-                          {pages.length === 0 && (
-                            <span className="text-[10px] text-rose-500 font-semibold">No pages granted</span>
+                  return (
+                    <tr key={emp._id || empId} className="hover:bg-slate-50/80 transition">
+                      <td className="py-3 px-4 font-mono font-bold text-sky-700">
+                        {empId}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900">{name}</div>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                          <span className="font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">
+                            @{username}
+                          </span>
+                          {email && (
+                            <>
+                              <span>•</span>
+                              <span>{email}</span>
+                            </>
                           )}
                         </div>
-                      )}
-                    </td>
-                    <td className="py-3 px-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        isActive
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {isActive ? 'Active' : 'Disabled'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => handleOpenEdit(emp)}
-                          title="Edit Staff, Password & Page Access"
-                          className="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-md transition cursor-pointer"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(emp._id, emp.name, emp.employeeId)}
-                          title="Remove Staff"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                          role === 'Admin'
+                            ? 'bg-purple-100 text-purple-800'
+                            : role === 'Manager'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-slate-100 text-slate-800'
+                        }`}>
+                          {role}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="text-slate-800 font-medium">{department}</div>
+                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">{phone}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        {isUserAdmin ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                            <Sparkles className="w-3 h-3" />
+                            <span>All Modules (Full Access)</span>
+                          </span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1 max-w-[240px]">
+                            {pages.map((p) => {
+                              const found = SYSTEM_PAGES.find(sp => sp.id === p);
+                              return (
+                                <span
+                                  key={p}
+                                  className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium border border-slate-200"
+                                >
+                                  {found ? found.label.split(' ')[0] : p}
+                                </span>
+                              );
+                            })}
+                            {pages.length === 0 && (
+                              <span className="text-[10px] text-rose-500 font-semibold">No pages granted</span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          isActive
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {isActive ? 'Active' : 'Disabled'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => handleOpenEdit(emp)}
+                            title="Edit Staff, Password & Page Access"
+                            className="p-1.5 text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-md transition cursor-pointer"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(emp._id, name, empId)}
+                            title="Remove Staff"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
