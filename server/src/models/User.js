@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  username: {
+    type: String,
+    sparse: true,
+    trim: true
+  },
   name: {
     type: String,
     required: true
@@ -20,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    default: ''
   },
   role: {
     type: String,
@@ -39,6 +44,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['Active', 'Inactive', 'Suspended'],
     default: 'Active'
+  },
+  allowedPages: {
+    type: [String],
+    default: ['dashboard', 'invoices', 'customers', 'services', 'reports']
   },
   avatar: {
     type: String,

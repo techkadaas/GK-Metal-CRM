@@ -38,6 +38,38 @@ function setLocalData(key, value) {
 }
 
 export const api = {
+  // Auth
+  login: async (credentials) => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    return handleResponse(res);
+  },
+
+  getCurrentUser: async () => {
+    const token = localStorage.getItem('gkmetal_crm_token');
+    if (!token) return { success: false, message: 'No token' };
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(res);
+  },
+
+  changeCredentials: async (payload) => {
+    const token = localStorage.getItem('gkmetal_crm_token');
+    const res = await fetch(`${API_BASE}/auth/change-credentials`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    });
+    return handleResponse(res);
+  },
+
   // Health
   getHealth: async () => {
     try {

@@ -5,16 +5,22 @@ import {
   FileText,
   Building2,
   UserCheck,
-  Settings
+  Settings,
+  ClipboardList
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ isOpen, setIsOpen }) {
+  const { hasPageAccess } = useAuth();
+
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
       isActive
         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-md shadow-blue-950/50 border border-blue-400/30'
         : 'text-blue-100/70 hover:text-white hover:bg-white/[0.08] active:scale-[0.98]'
     }`;
+
+  const showAdminSection = hasPageAccess('employees') || hasPageAccess('settings');
 
   return (
     <aside
@@ -41,43 +47,60 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         )}
 
         {/* Dashboard */}
-        <NavLink to="/dashboard" className={navLinkClass}>
-          <LayoutDashboard className="w-4 h-4 shrink-0" />
-          {isOpen && <span>Dashboard</span>}
-        </NavLink>
+        {hasPageAccess('dashboard') && (
+          <NavLink to="/dashboard" className={navLinkClass}>
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Dashboard</span>}
+          </NavLink>
+        )}
 
         {/* Invoices */}
-        <NavLink to="/invoices" className={navLinkClass}>
-          <FileText className="w-4 h-4 shrink-0" />
-          {isOpen && <span>Invoices</span>}
-        </NavLink>
+        {hasPageAccess('invoices') && (
+          <NavLink to="/invoices" className={navLinkClass}>
+            <FileText className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Invoices</span>}
+          </NavLink>
+        )}
 
         {/* Customers / Buyers */}
-        <NavLink to="/customers" className={navLinkClass}>
-          <Building2 className="w-4 h-4 shrink-0" />
-          {isOpen && <span>Customers</span>}
-        </NavLink>
+        {hasPageAccess('customers') && (
+          <NavLink to="/customers" className={navLinkClass}>
+            <Building2 className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Customers</span>}
+          </NavLink>
+        )}
+
+        {/* Report Management */}
+        {hasPageAccess('reports') && (
+          <NavLink to="/reports" className={navLinkClass}>
+            <ClipboardList className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Report Management</span>}
+          </NavLink>
+        )}
 
         {/* Section divider */}
-        {isOpen && (
+        {showAdminSection && isOpen && (
           <div className="pt-3 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-blue-300/50">
             Administration
           </div>
         )}
 
         {/* Employees & RBAC */}
-        <NavLink to="/employees" className={navLinkClass}>
-          <UserCheck className="w-4 h-4 shrink-0" />
-          {isOpen && <span>Employees</span>}
-        </NavLink>
+        {hasPageAccess('employees') && (
+          <NavLink to="/employees" className={navLinkClass}>
+            <UserCheck className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Employees</span>}
+          </NavLink>
+        )}
 
         {/* System Settings */}
-        <NavLink to="/settings" className={navLinkClass}>
-          <Settings className="w-4 h-4 shrink-0" />
-          {isOpen && <span>Settings</span>}
-        </NavLink>
+        {hasPageAccess('settings') && (
+          <NavLink to="/settings" className={navLinkClass}>
+            <Settings className="w-4 h-4 shrink-0" />
+            {isOpen && <span>Settings</span>}
+          </NavLink>
+        )}
       </div>
     </aside>
   );
 }
-

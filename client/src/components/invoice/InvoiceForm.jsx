@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import {
@@ -22,7 +22,8 @@ import {
   ArrowRight,
   ArrowLeft,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  ChevronDown
 } from 'lucide-react';
 import InvoiceDocument from './InvoiceDocument';
 import { calculateInvoiceTotals, INDIAN_STATES } from '../../utils/taxCalculator';
@@ -44,6 +45,8 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
   const [customers, setCustomers] = useState([]);
   const [services, setServices] = useState([]);
   const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
+  const customerDropdownRef = useRef(null);
 
   // New customer quick inline modal state
   const [newCustForm, setNewCustForm] = useState({
@@ -209,6 +212,27 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
       }));
     }
   }, [initialData]);
+
+  // Close customer picker dropdown on click outside or Escape
+  useEffect(() => {
+    if (!isCustomerDropdownOpen) return;
+    const handleClickOutside = (e) => {
+      if (customerDropdownRef.current && !customerDropdownRef.current.contains(e.target)) {
+        setIsCustomerDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsCustomerDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCustomerDropdownOpen]);
 
   // Customer dropdown selection handler
   const handleCustomerSelect = (customerId) => {
@@ -872,18 +896,65 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
             <label className="block text-[11px] font-semibold text-slate-700">
               Select Existing Customer (Auto-Populates Details)
             </label>
-            <select
-              value={formData.customer || ''}
-              onChange={(e) => handleCustomerSelect(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:ring-2 focus:ring-sky-500 bg-slate-50/70 transition"
-            >
-              <option value="">-- Choose from saved customers catalog --</option>
-              {customers.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.companyName} {c.gstin ? `(${c.gstin})` : ''} - {c.billingAddress?.state}
-                </option>
-              ))}
-            </select>
+            <div ref={customerDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsCustomerDropdownOpen(prev => !prev)}
+                className={`w-full flex items-center justify-between px-3 py-2 border rounded-lg text-xs font-medium text-slate-900 bg-slate-50/70 transition text-left cursor-pointer ${
+                  isCustomerDropdownOpen ? 'ring-2 ring-sky-500 border-sky-500' : 'border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500'
+                }`}
+              >
+                <span className="truncate">
+                  {(() => {
+                    const selected = customers.find(c => c._id === formData.customer);
+                    if (selected) {
+                      return `${selected.companyName} ${selected.gstin ? `(${selected.gstin})` : ''} - ${selected.billingAddress?.state || ''}`;
+                    }
+                    return '-- Choose from saved customers catalog --';
+                  })()}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 ml-2 transition-transform duration-200 ${isCustomerDropdownOpen ? 'rotate-180 text-sky-600' : ''}`} />
+              </button>
+
+              {isCustomerDropdownOpen && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto z-50 py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCustomerSelect('');
+                      setIsCustomerDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs transition cursor-pointer ${
+                      !formData.customer
+                        ? 'bg-sky-600 text-white font-medium'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    -- Choose from saved customers catalog --
+                  </button>
+                  {customers.map((c) => {
+                    const isSelected = formData.customer === c._id;
+                    return (
+                      <button
+                        type="button"
+                        key={c._id}
+                        onClick={() => {
+                          handleCustomerSelect(c._id);
+                          setIsCustomerDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs transition cursor-pointer border-t border-slate-100 ${
+                          isSelected
+                            ? 'bg-sky-600 text-white font-medium'
+                            : 'text-slate-800 hover:bg-slate-100'
+                        }`}
+                      >
+                        {c.companyName} {c.gstin ? `(${c.gstin})` : ''} - {c.billingAddress?.state}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Editable Buyer Snapshot Fields */}

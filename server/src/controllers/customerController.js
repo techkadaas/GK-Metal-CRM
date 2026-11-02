@@ -14,9 +14,15 @@ export const getAllCustomers = async (req, res) => {
         (cust.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === cust.companyName?.trim().toLowerCase())
       );
       const totalInvoices = custInvoices.length;
-      const totalBilled = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.grandTotal || 0) : 0), 0);
-      const totalPaid = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.paidAmount || 0) : 0), 0);
-      const outstandingBalance = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (inv.balanceDue || 0) : 0), 0);
+      const totalBilled = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.grandTotal) || 0) : 0), 0);
+      const totalPaid = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.paidAmount) || 0) : 0), 0);
+      const outstandingBalance = custInvoices.reduce((sum, inv) => {
+        if (inv.status === 'Cancelled') return sum;
+        const bal = inv.balanceDue !== undefined && inv.balanceDue !== null
+          ? Number(inv.balanceDue)
+          : Math.max(0, (Number(inv.grandTotal) || 0) - (Number(inv.paidAmount) || 0));
+        return sum + (isNaN(bal) ? 0 : Math.max(0, bal));
+      }, 0);
       const latestInvoice = custInvoices.sort((a, b) => new Date(b.invoiceDate || b.createdAt || 0) - new Date(a.invoiceDate || a.createdAt || 0))[0];
 
       return {
@@ -67,7 +73,32 @@ export const getCustomerById = async (req, res) => {
       (customer.customerId && inv.customer === customer.customerId) ||
       (customer.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === customer.companyName?.trim().toLowerCase())
     );
-    res.json({ success: true, data: { ...customer, invoices } });
+    const totalInvoices = invoices.length;
+    const totalBilled = invoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.grandTotal) || 0) : 0), 0);
+    const totalPaid = invoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.paidAmount) || 0) : 0), 0);
+    const outstandingBalance = invoices.reduce((sum, inv) => {
+      if (inv.status === 'Cancelled') return sum;
+      const bal = inv.balanceDue !== undefined && inv.balanceDue !== null
+        ? Number(inv.balanceDue)
+        : Math.max(0, (Number(inv.grandTotal) || 0) - (Number(inv.paidAmount) || 0));
+      return sum + (isNaN(bal) ? 0 : Math.max(0, bal));
+    }, 0);
+    const latestInvoice = invoices.sort((a, b) => new Date(b.invoiceDate || b.createdAt || 0) - new Date(a.invoiceDate || a.createdAt || 0))[0];
+
+    res.json({
+      success: true,
+      data: {
+        ...customer,
+        stats: {
+          totalInvoices,
+          totalBilled,
+          totalPaid,
+          outstandingBalance,
+          lastInvoiceDate: latestInvoice?.invoiceDate || customer.stats?.lastInvoiceDate
+        },
+        invoices
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

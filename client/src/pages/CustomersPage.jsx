@@ -484,7 +484,7 @@ export default function CustomersPage() {
       'Total Invoices',
       'Total Billed (INR)',
       'Total Paid (INR)',
-      'Outstanding Balance (INR)',
+      'Balance (INR)',
       'Last Invoice Date'
     ];
 
@@ -823,7 +823,7 @@ export default function CustomersPage() {
                   <th className="py-3 px-3 min-w-[160px]">Contact Person</th>
                   <th className="py-3 px-3 min-w-[130px]">Location</th>
                   <th className="py-3 px-2 text-center min-w-[70px]">Invoices</th>
-                  <th className="py-3 px-3 text-right min-w-[110px]">Outstanding</th>
+                  <th className="py-3 px-3 text-right min-w-[110px]">Balance</th>
                   <th className="py-3 px-3 text-center min-w-[100px]">Last Invoice</th>
                   <th className="py-3 px-2 text-center min-w-[70px]">Status</th>
                   <th className="py-3 px-4 text-right min-w-[130px]">Actions</th>

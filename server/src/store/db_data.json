@@ -251,12 +251,23 @@
     {
       "_id": "emp_1",
       "employeeId": "EMP-01",
+      "username": "Admin",
       "name": "G. Karthikeyan",
       "email": "karthik@gkmetallab.com",
+      "password": "Admin123",
       "role": "Admin",
       "department": "Management & Technical QA",
       "phone": "+91 94440 12345",
       "status": "Active",
+      "allowedPages": [
+        "dashboard",
+        "invoices",
+        "customers",
+        "services",
+        "reports",
+        "employees",
+        "settings"
+      ],
       "__v": 0,
       "avatar": "",
       "createdAt": "2026-09-29T12:03:12.781Z",
