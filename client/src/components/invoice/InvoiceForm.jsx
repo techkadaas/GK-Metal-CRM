@@ -968,10 +968,16 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                 required
                 placeholder="e.g. L&T Heavy Engineering Limited"
                 value={formData.buyerSnapshot?.companyName || ''}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  buyerSnapshot: { ...(formData.buyerSnapshot || {}), companyName: e.target.value }
-                })}
+                onChange={(e) => {
+                  const newName = e.target.value;
+                  const selectedCust = customers.find(c => c._id === formData.customer || c.customerId === formData.customer);
+                  const isSame = selectedCust && selectedCust.companyName?.trim().toLowerCase() === newName.trim().toLowerCase();
+                  setFormData({
+                    ...formData,
+                    customer: isSame ? formData.customer : '',
+                    buyerSnapshot: { ...(formData.buyerSnapshot || {}), companyName: newName }
+                  });
+                }}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-sky-500 bg-white transition"
               />
             </div>

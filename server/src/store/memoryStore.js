@@ -165,72 +165,52 @@ class MemoryStore {
           ).catch(err => console.error('Settings cloud sync note:', err.message));
         }
 
-        // 2. Non-destructive merge of Customers (Union by customerId or _id)
-        const customerMap = new Map();
-        (this.data.customers || []).forEach(c => {
-          if (c.customerId) customerMap.set(c.customerId, c);
-          else if (c._id) customerMap.set(c._id, c);
-        });
-        (mongoCustomers || []).forEach(mc => {
-          const key = mc.customerId || mc._id;
-          const local = customerMap.get(key);
-          if (!local || new Date(mc.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
-            customerMap.set(key, { ...local, ...mc });
+        // 2. Customers cloud synchronization (MongoDB is authoritative)
+        if (mongoCustomers && mongoCustomers.length > 0) {
+          this.data.customers = mongoCustomers;
+          this.data.customers.sort((a, b) => {
+            const timeA = new Date(a.createdAt || 0).getTime();
+            const timeB = new Date(b.createdAt || 0).getTime();
+            if (timeA !== timeB) return timeB - timeA;
+            return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
+          });
+        } else if (this.data.customers && this.data.customers.length > 0) {
+          // Only seed MongoDB if MongoDB has 0 customers
+          for (const cust of this.data.customers) {
+            const custId = cust.customerId || cust._id;
+            if (!custId) continue;
+            const { _id: custDocId, ...custFields } = cust;
+            await Customer.findOneAndUpdate(
+              { $or: [{ _id: cust._id }, { customerId: cust.customerId }] },
+              { $set: custFields, $setOnInsert: { _id: custDocId || ('cust_' + Date.now()) } },
+              { upsert: true }
+            ).catch(err => console.error('Customer cloud sync note:', custId, err.message));
           }
-        });
-        this.data.customers = Array.from(customerMap.values());
-        this.data.customers.sort((a, b) => {
-          const timeA = new Date(a.createdAt || 0).getTime();
-          const timeB = new Date(b.createdAt || 0).getTime();
-          if (timeA !== timeB) return timeB - timeA;
-          return (b.customerId || b._id || '').localeCompare(a.customerId || a._id || '');
-        });
-
-        // Push any local customers to MongoDB
-        for (const cust of this.data.customers) {
-          const custId = cust.customerId || cust._id;
-          if (!custId) continue;
-          const { _id: custDocId, ...custFields } = cust;
-          await Customer.findOneAndUpdate(
-            { $or: [{ _id: cust._id }, { customerId: cust.customerId }] },
-            { $set: custFields, $setOnInsert: { _id: custDocId || ('cust_' + Date.now()) } },
-            { upsert: true }
-          ).catch(err => console.error('Customer cloud sync note:', custId, err.message));
         }
 
-        // 3. Non-destructive merge of Invoices (Union by invoiceNumber or _id)
-        const invoiceMap = new Map();
-        (this.data.invoices || []).forEach(inv => {
-          if (inv.invoiceNumber) invoiceMap.set(inv.invoiceNumber, inv);
-          else if (inv._id) invoiceMap.set(inv._id, inv);
-        });
-        (mongoInvoices || []).forEach(minv => {
-          const key = minv.invoiceNumber || minv._id;
-          const local = invoiceMap.get(key);
-          if (!local || new Date(minv.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
-            invoiceMap.set(key, { ...local, ...minv });
+        // 3. Invoices cloud synchronization (MongoDB is authoritative)
+        if (mongoInvoices && mongoInvoices.length > 0) {
+          this.data.invoices = mongoInvoices;
+          this.data.invoices.sort((a, b) => {
+            const seqA = parseInvoiceSeq(a);
+            const seqB = parseInvoiceSeq(b);
+            if (seqA !== seqB) return seqB - seqA;
+            const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
+            const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
+            return timeB - timeA;
+          });
+        } else if (this.data.invoices && this.data.invoices.length > 0) {
+          // Only seed MongoDB if MongoDB has 0 invoices
+          for (const inv of this.data.invoices) {
+            const invNo = inv.invoiceNumber || inv._id;
+            if (!invNo) continue;
+            const { _id: invDocId, ...invFields } = inv;
+            await Invoice.findOneAndUpdate(
+              { $or: [{ _id: inv._id }, { invoiceNumber: inv.invoiceNumber }] },
+              { $set: invFields, $setOnInsert: { _id: invDocId || ('inv_' + Date.now()) } },
+              { upsert: true }
+            ).catch(err => console.error('Invoice cloud sync note:', invNo, err.message));
           }
-        });
-        this.data.invoices = Array.from(invoiceMap.values());
-        this.data.invoices.sort((a, b) => {
-          const seqA = parseInvoiceSeq(a);
-          const seqB = parseInvoiceSeq(b);
-          if (seqA !== seqB) return seqB - seqA;
-          const timeA = new Date(a.createdAt || a.invoiceDate || 0).getTime();
-          const timeB = new Date(b.createdAt || b.invoiceDate || 0).getTime();
-          return timeB - timeA;
-        });
-
-        // Push all invoices to MongoDB
-        for (const inv of this.data.invoices) {
-          const invNo = inv.invoiceNumber || inv._id;
-          if (!invNo) continue;
-          const { _id: invDocId, ...invFields } = inv;
-          await Invoice.findOneAndUpdate(
-            { $or: [{ _id: inv._id }, { invoiceNumber: inv.invoiceNumber }] },
-            { $set: invFields, $setOnInsert: { _id: invDocId || ('inv_' + Date.now()) } },
-            { upsert: true }
-          ).catch(err => console.error('Invoice cloud sync note:', invNo, err.message));
         }
 
         // 4. Non-destructive merge of Services (Union by serviceCode or _id)
@@ -351,20 +331,7 @@ class MemoryStore {
       try {
         const mongoInvoices = await Invoice.find().sort({ createdAt: -1, invoiceDate: -1 }).lean();
         if (mongoInvoices && Array.isArray(mongoInvoices)) {
-          // Non-destructive merge: preserve local records that may not be in MongoDB yet
-          const invoiceMap = new Map();
-          (this.data.invoices || []).forEach(inv => {
-            const key = inv.invoiceNumber || inv._id;
-            if (key) invoiceMap.set(key, inv);
-          });
-          (mongoInvoices || []).forEach(minv => {
-            const key = minv.invoiceNumber || minv._id;
-            const local = invoiceMap.get(key);
-            if (!local || new Date(minv.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
-              invoiceMap.set(key, { ...local, ...minv });
-            }
-          });
-          this.data.invoices = Array.from(invoiceMap.values());
+          this.data.invoices = mongoInvoices;
           this.data.invoices.sort((a, b) => {
             const seqA = parseInvoiceSeq(a);
             const seqB = parseInvoiceSeq(b);
@@ -562,20 +529,7 @@ class MemoryStore {
       try {
         const mongoCustomers = await Customer.find().sort({ createdAt: -1 }).lean();
         if (mongoCustomers && Array.isArray(mongoCustomers)) {
-          // Non-destructive merge: preserve local records that may not be in MongoDB yet
-          const customerMap = new Map();
-          (this.data.customers || []).forEach(c => {
-            const key = c.customerId || c._id;
-            if (key) customerMap.set(key, c);
-          });
-          (mongoCustomers || []).forEach(mc => {
-            const key = mc.customerId || mc._id;
-            const local = customerMap.get(key);
-            if (!local || new Date(mc.updatedAt || 0) >= new Date(local.updatedAt || 0)) {
-              customerMap.set(key, { ...local, ...mc });
-            }
-          });
-          this.data.customers = Array.from(customerMap.values());
+          this.data.customers = mongoCustomers;
           this.data.customers.sort((a, b) => {
             const timeA = new Date(a.createdAt || 0).getTime();
             const timeB = new Date(b.createdAt || 0).getTime();

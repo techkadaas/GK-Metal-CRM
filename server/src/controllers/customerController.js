@@ -1,5 +1,30 @@
 import { store } from '../store/memoryStore.js';
 
+export const isInvoiceForCustomer = (inv, cust) => {
+  if (!inv || !cust) return false;
+  const invBuyerName = (inv.buyerSnapshot?.companyName || '').trim().toLowerCase();
+  const custName = (cust.companyName || '').trim().toLowerCase();
+  const invGstin = (inv.buyerSnapshot?.gstin || '').trim().toUpperCase();
+  const custGstin = (cust.gstin || '').trim().toUpperCase();
+
+  // 1. Direct company name match
+  if (invBuyerName && custName && invBuyerName === custName) return true;
+
+  // 2. Direct GSTIN match (when valid and not empty/unregistered)
+  if (invGstin && custGstin && invGstin === custGstin && invGstin !== 'UNREGISTERED' && invGstin !== '-') return true;
+
+  // 3. ID match - only if buyerSnapshot company name does not contradict
+  const matchesId = (cust._id && inv.customer === cust._id) || (cust.customerId && inv.customer === cust.customerId);
+  if (matchesId) {
+    if (invBuyerName && custName && invBuyerName !== custName) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+};
+
 export const getAllCustomers = async (req, res) => {
   try {
     const customers = await store.getCustomers();
@@ -8,11 +33,7 @@ export const getAllCustomers = async (req, res) => {
 
     let result = (customers || []).map(cust => {
       // Recalculate real-time customer invoice aggregates
-      const custInvoices = (invoices || []).filter(inv =>
-        (cust._id && inv.customer === cust._id) ||
-        (cust.customerId && inv.customer === cust.customerId) ||
-        (cust.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === cust.companyName?.trim().toLowerCase())
-      );
+      const custInvoices = (invoices || []).filter(inv => isInvoiceForCustomer(inv, cust));
       const totalInvoices = custInvoices.length;
       const totalBilled = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.grandTotal) || 0) : 0), 0);
       const totalPaid = custInvoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.paidAmount) || 0) : 0), 0);
@@ -68,11 +89,7 @@ export const getCustomerById = async (req, res) => {
     if (!customer) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
-    const invoices = (await store.getInvoices()).filter(inv =>
-      (customer._id && inv.customer === customer._id) ||
-      (customer.customerId && inv.customer === customer.customerId) ||
-      (customer.companyName && inv.buyerSnapshot?.companyName?.trim().toLowerCase() === customer.companyName?.trim().toLowerCase())
-    );
+    const invoices = (await store.getInvoices()).filter(inv => isInvoiceForCustomer(inv, customer));
     const totalInvoices = invoices.length;
     const totalBilled = invoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.grandTotal) || 0) : 0), 0);
     const totalPaid = invoices.reduce((sum, inv) => sum + (inv.status !== 'Cancelled' ? (Number(inv.paidAmount) || 0) : 0), 0);
