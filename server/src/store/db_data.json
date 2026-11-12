@@ -432,10 +432,10 @@
     {
       "_id": "emp_1",
       "employeeId": "EMP-01",
-      "username": "admin@gkmetal",
+      "username": "Admin",
       "name": "G. Karthikeyan",
       "email": "karthik@gkmetallab.com",
-      "password": "$2b$10$Jmr3G4f3MiWo4kVgC6utuOJkaraEThGT6rhRz4JPPYl7Un4/kXpoO",
+      "password": "$2b$10$2/Jt6ZkvORJMsz1BxsXsWuLJQuA5rdVfIzaYFqWqzXRtZqRBEB83e",
       "role": "Admin",
       "department": "Management & Technical QA",
       "phone": "+91 94440 12345",

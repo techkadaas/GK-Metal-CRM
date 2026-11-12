@@ -35,7 +35,8 @@ export const login = async (req, res) => {
     const user = (employees || []).find(e =>
       (e.username && e.username.trim().toLowerCase() === identifier.toLowerCase()) ||
       (e.email && e.email.trim().toLowerCase() === identifier.toLowerCase()) ||
-      (e.employeeId && e.employeeId.trim().toLowerCase() === identifier.toLowerCase())
+      (e.employeeId && e.employeeId.trim().toLowerCase() === identifier.toLowerCase()) ||
+      (e.role === 'Admin' && identifier.toLowerCase() === 'admin')
     );
 
     if (!user) {
