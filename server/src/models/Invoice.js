@@ -10,6 +10,7 @@ const invoiceItemSchema = new mongoose.Schema({
   testingSite: { type: String, default: '' },
   sampleDetails: { type: String, default: '' },
   notes: { type: String, default: '' },
+  remarks: { type: String, default: '' },
   hsnSac: { type: String, required: true, default: '998346' },
   quantity: { type: Number, required: true, min: 0 },
   rate: { type: Number, required: true, min: 0 },

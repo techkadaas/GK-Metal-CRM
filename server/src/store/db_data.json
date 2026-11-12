@@ -30,7 +30,7 @@
       "prefix": "GK/INV/",
       "financialYear": "26-27",
       "startingNumber": 1,
-      "currentSequence": 105,
+      "currentSequence": 111,
       "defaultPaymentTerms": "30 Days",
       "defaultNotes": "",
       "declaration": "We declare that this invoice shows the actual price of the services described and that all particulars are true and correct.",
@@ -48,7 +48,7 @@
     "_id": "settings_default",
     "__v": 0,
     "createdAt": "2026-09-20T14:45:19.549Z",
-    "updatedAt": "2026-11-02T11:49:12.284Z"
+    "updatedAt": "2026-11-12T11:03:24.465Z"
   },
   "services": [
     {
@@ -68,6 +68,41 @@
     }
   ],
   "customers": [
+    {
+      "_id": "cust_1793938040018",
+      "__v": 0,
+      "billingAddress": {
+        "street": "SF-630 Thamaraikulam Village, Ariyalur - 621705",
+        "city": "Ariyalur",
+        "state": "Tamil Nadu",
+        "stateCode": "33",
+        "pincode": "621705"
+      },
+      "companyName": "M/S. DALMIA CEMENT (B) LIMITED",
+      "contactPerson": "Mr.T.Venkatasubramanian",
+      "createdAt": "2026-11-06T04:07:20.019Z",
+      "customerId": "CUST-1010",
+      "email": "t.venkatasubramanian@dalmiacement.com",
+      "gstin": "33AADCA9414C1Z6",
+      "pan": "AADCA9414C",
+      "paymentTerms": "30 Days Net",
+      "phone": "80125 3080",
+      "shippingAddress": {
+        "street": "SF-630 Thamaraikulam Village, Ariyalur - 621705",
+        "city": "Ariyalur",
+        "state": "Tamil Nadu",
+        "stateCode": "33",
+        "pincode": "621705"
+      },
+      "stats": {
+        "totalInvoices": 0,
+        "totalBilled": 0,
+        "totalPaid": 0,
+        "outstandingBalance": 0
+      },
+      "status": "Active",
+      "updatedAt": "2026-11-06T04:07:20.019Z"
+    },
     {
       "_id": "cust_1792646323258",
       "__v": 0,
@@ -95,14 +130,14 @@
         "pincode": "620007"
       },
       "stats": {
-        "totalInvoices": 4,
-        "totalBilled": 9440,
+        "totalInvoices": 5,
+        "totalBilled": 11800,
         "totalPaid": 0,
-        "outstandingBalance": 9440,
-        "lastInvoiceDate": "2026-11-02T00:00:00.000Z"
+        "outstandingBalance": 11800,
+        "lastInvoiceDate": "2026-11-06T00:00:00.000Z"
       },
       "status": "Active",
-      "updatedAt": "2026-11-04T16:16:44.612Z"
+      "updatedAt": "2026-11-05T17:46:48.464Z"
     },
     {
       "_id": "cust_1791908181776",
@@ -131,14 +166,14 @@
         "pincode": "620013"
       },
       "stats": {
-        "totalInvoices": 2,
-        "totalBilled": 21712,
+        "totalInvoices": 3,
+        "totalBilled": 32804,
         "totalPaid": 0,
-        "outstandingBalance": 21712,
-        "lastInvoiceDate": "2026-10-22T00:00:00.000Z"
+        "outstandingBalance": 32804,
+        "lastInvoiceDate": "2026-11-05T00:00:00.000Z"
       },
       "status": "Active",
-      "updatedAt": "2026-11-04T16:16:44.678Z"
+      "updatedAt": "2026-11-05T17:43:52.530Z"
     },
     {
       "_id": "cust_1791536006746",
@@ -275,14 +310,14 @@
         "pincode": "613 402"
       },
       "stats": {
-        "totalInvoices": 7,
-        "totalBilled": 15930,
+        "totalInvoices": 9,
+        "totalBilled": 19470,
         "totalPaid": 0,
-        "outstandingBalance": 15930,
-        "lastInvoiceDate": "2026-10-27T00:00:00.000Z"
+        "outstandingBalance": 19470,
+        "lastInvoiceDate": "2026-11-12T00:00:00.000Z"
       },
       "status": "Active",
-      "updatedAt": "2026-11-04T16:16:44.945Z"
+      "updatedAt": "2026-11-12T11:03:24.699Z"
     },
     {
       "_id": "cust_1791140839825",
@@ -311,50 +346,50 @@
         "pincode": "613 402"
       },
       "stats": {
-        "totalInvoices": 3,
-        "totalBilled": 5310,
+        "totalInvoices": 4,
+        "totalBilled": 7080,
         "totalPaid": 0,
-        "outstandingBalance": 5310,
-        "lastInvoiceDate": "2026-10-22T00:00:00.000Z"
+        "outstandingBalance": 7080,
+        "lastInvoiceDate": "2026-11-06T00:00:00.000Z"
       },
       "status": "Active",
-      "updatedAt": "2026-11-04T16:16:45.012Z"
+      "updatedAt": "2026-11-05T17:46:10.418Z"
     },
     {
       "_id": "cust_1791140367768",
       "__v": 0,
       "billingAddress": {
-        "street": "No:63, C.T.H Road, Thirumullaivoyal",
-        "city": "Chennai",
+        "street": "SF No: 115/4A, Vadugapatti Village,\nIlupur Taluk, Viralimalai,",
+        "city": "Pudukottai",
         "state": "Tamil Nadu",
         "stateCode": "33",
-        "pincode": "600 062"
+        "pincode": "621 316"
       },
-      "companyName": "M/s.KARTHICK TRADING COMPANY",
-      "contactPerson": "Mr. Naveen Kumar",
+      "companyName": "M/s. Sri Energy Valves Private Limited,",
+      "contactPerson": "Mr.sathya",
       "createdAt": "2026-10-04T18:59:27.768Z",
       "customerId": "CUST-1011",
-      "email": "",
-      "gstin": "33AGQPK3253R1ZS",
-      "pan": "AGQPK3253R",
+      "email": "purchasedept@srienergy.com",
+      "gstin": "33AALCS6303E1ZM",
+      "pan": "AALCS6303E",
       "paymentTerms": "30 Days Net",
-      "phone": "94430 17106",
+      "phone": "99429 04612",
       "shippingAddress": {
-        "street": "No:63, C.T.H Road, Thirumullaivoyal",
-        "city": "Chennai",
+        "street": "SF No: 115/4A, Vadugapatti Village,\nIlupur Taluk, Viralimalai,",
+        "city": "Pudukottai",
         "state": "Tamil Nadu",
         "stateCode": "33",
-        "pincode": "600 062"
+        "pincode": "621 316"
       },
       "stats": {
-        "totalInvoices": 2,
-        "totalBilled": 10620,
+        "totalInvoices": 1,
+        "totalBilled": 2950,
         "totalPaid": 0,
-        "outstandingBalance": 10620,
-        "lastInvoiceDate": "2026-09-30T00:00:00.000Z"
+        "outstandingBalance": 2950,
+        "lastInvoiceDate": "2026-11-12T00:00:00.000Z"
       },
       "status": "Active",
-      "updatedAt": "2026-11-04T16:16:45.079Z"
+      "updatedAt": "2026-11-12T10:59:54.963Z"
     },
     {
       "_id": "cust_1",

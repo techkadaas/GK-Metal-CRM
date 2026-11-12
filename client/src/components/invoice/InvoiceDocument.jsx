@@ -273,7 +273,11 @@ export default function InvoiceDocument({
                   )}
                   {item.testingSite && <div className="text-[13px] text-black leading-snug">Site of Testing : {item.testingSite}</div>}
                   {item.sampleDetails && <div className="text-[13px] text-black leading-snug">{item.sampleDetails}</div>}
-                  {item.notes && <div className="text-[13px] text-black leading-snug">{item.notes}</div>}
+                  {(item.notes || item.remarks) && (
+                    <div className="text-[13px] text-black leading-snug whitespace-pre-wrap">
+                      {item.notes || item.remarks}
+                    </div>
+                  )}
                   {item.discountPercent > 0 && (
                     <div className="text-[12px] text-black leading-snug">Less Discount @ {item.discountPercent}%</div>
                   )}

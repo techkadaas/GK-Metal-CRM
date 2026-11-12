@@ -112,6 +112,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
         slNo: 1,
         serviceId: '',
         description: '',
+        notes: '',
         testedDate: '',
         dayType: '',
         hsnSac: '998346',
@@ -208,7 +209,12 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           ...prev.buyerSnapshot,
           ...(initialData.buyerSnapshot || {})
         },
-        items: initialData.items && initialData.items.length > 0 ? initialData.items : prev.items
+        items: initialData.items && initialData.items.length > 0
+          ? initialData.items.map(it => ({
+              ...it,
+              notes: it.notes || it.remarks || ''
+            }))
+          : prev.items
       }));
     }
   }, [initialData]);
@@ -342,6 +348,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           slNo: prev.items.length + 1,
           serviceId: '',
           description: '',
+          notes: '',
           testedDate: '',
           dayType: '',
           hsnSac: '998346',
@@ -1272,6 +1279,20 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                       {formatINR((Number(item.quantity) || 0) * (Number(item.rate) || 0))}
                     </div>
                   </div>
+                </div>
+
+                {/* Row 3: Optional Remark / Notes */}
+                <div className="space-y-0.5 pt-0.5">
+                  <label className="block text-[10px] font-semibold text-slate-600 uppercase">
+                    Remark / Notes <span className="text-[10px] text-slate-400 font-normal lowercase">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter remark notes (optional)"
+                    value={item.notes || ''}
+                    onChange={(e) => handleItemChange(idx, 'notes', e.target.value)}
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 bg-white placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500 transition"
+                  />
                 </div>
               </div>
             ))}
