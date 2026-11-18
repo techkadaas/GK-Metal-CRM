@@ -26,6 +26,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import InvoiceDocument from './InvoiceDocument';
+import MultiDatePicker from './MultiDatePicker';
 import { calculateInvoiceTotals, INDIAN_STATES } from '../../utils/taxCalculator';
 import { convertNumberToWords } from '../../utils/numberToWords';
 import { formatINR } from '../../utils/formatters';
@@ -114,6 +115,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
         description: '',
         notes: '',
         testedDate: '',
+        testedDates: [],
         dayType: '',
         hsnSac: '998346',
         quantity: 1,
@@ -210,10 +212,22 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           ...(initialData.buyerSnapshot || {})
         },
         items: initialData.items && initialData.items.length > 0
-          ? initialData.items.map(it => ({
-              ...it,
-              notes: it.notes || it.remarks || ''
-            }))
+          ? initialData.items.map(it => {
+              let dates = [];
+              if (Array.isArray(it.testedDates) && it.testedDates.length > 0) {
+                dates = it.testedDates;
+              } else if (it.testedDate) {
+                dates = String(it.testedDate).split(',').map(s => s.trim()).filter(Boolean);
+              } else if (it.testedOn) {
+                dates = String(it.testedOn).split(',').map(s => s.trim()).filter(Boolean);
+              }
+              return {
+                ...it,
+                notes: it.notes || it.remarks || '',
+                testedDates: dates,
+                testedDate: dates.join(', ')
+              };
+            })
           : prev.items
       }));
     }
@@ -350,6 +364,7 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
           description: '',
           notes: '',
           testedDate: '',
+          testedDates: [],
           dayType: '',
           hsnSac: '998346',
           quantity: 1,
@@ -364,7 +379,11 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
 
   const duplicateItemRow = (index) => {
     setFormData(prev => {
-      const itemToDup = { ...prev.items[index], slNo: prev.items.length + 1 };
+      const itemToDup = {
+        ...prev.items[index],
+        slNo: prev.items.length + 1,
+        testedDates: Array.isArray(prev.items[index].testedDates) ? [...prev.items[index].testedDates] : []
+      };
       return {
         ...prev,
         items: [...prev.items, itemToDup]
@@ -1176,13 +1195,17 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Tested Date & Day Type in Row 1 */}
-                    <input
-                      type="date"
-                      title="Tested On Date"
-                      value={item.testedDate || ''}
-                      onChange={(e) => handleItemChange(idx, 'testedDate', e.target.value)}
-                      className="px-2 py-1 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 bg-white"
+                    {/* Tested Date (supports multiple dates) & Day Type in Row 1 */}
+                    <MultiDatePicker
+                      selectedDates={
+                        Array.isArray(item.testedDates) && item.testedDates.length > 0
+                          ? item.testedDates
+                          : (item.testedDate ? item.testedDate.split(',').map(s => s.trim()).filter(Boolean) : [])
+                      }
+                      onChange={(newDates) => {
+                        handleItemChange(idx, 'testedDates', newDates);
+                        handleItemChange(idx, 'testedDate', newDates.join(', '));
+                      }}
                     />
                     <select
                       value={item.dayType || ''}
@@ -1215,6 +1238,35 @@ export default function InvoiceForm({ initialData = null, isEdit = false }) {
                     </button>
                   </div>
                 </div>
+
+                {/* Selected Dates Badges (visible when multiple dates are chosen) */}
+                {Array.isArray(item.testedDates) && item.testedDates.length > 1 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-0.5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                      Tested Dates:
+                    </span>
+                    {item.testedDates.map((dateStr, dIdx) => (
+                      <span
+                        key={dIdx}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 border border-sky-200 text-sky-900 font-mono text-[11px] font-semibold rounded-md shadow-2xs"
+                      >
+                        {dateStr}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = item.testedDates.filter((_, i) => i !== dIdx);
+                            handleItemChange(idx, 'testedDates', updated);
+                            handleItemChange(idx, 'testedDate', updated.join(', '));
+                          }}
+                          className="text-sky-500 hover:text-rose-600 transition ml-0.5 cursor-pointer font-bold"
+                          title="Remove date"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Row 2: Description & Pricing Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">

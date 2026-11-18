@@ -5,6 +5,7 @@ const invoiceItemSchema = new mongoose.Schema({
   serviceId: { type: String },
   description: { type: String, required: true },
   testedDate: { type: String, default: '' },
+  testedDates: [{ type: String }],
   dayType: { type: String, default: '' },
   visitType: { type: String, default: '' },
   testingSite: { type: String, default: '' },

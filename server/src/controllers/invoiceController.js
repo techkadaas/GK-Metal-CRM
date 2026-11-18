@@ -215,24 +215,32 @@ export const createInvoice = async (req, res) => {
     const settings = await store.getSettings();
 
     // Auto calculate if missing or recalculate for guaranteed integrity
-    const items = (payload.items || []).map((item, idx) => ({
-      slNo: idx + 1,
-      serviceId: item.serviceId || '',
-      description: item.description || '',
-      testedDate: item.testedDate || item.testedOn || '',
-      dayType: item.dayType || item.day || item.visitType || '',
-      visitType: item.visitType || item.dayType || item.day || '',
-      testingSite: item.testingSite || '',
-      sampleDetails: item.sampleDetails || '',
-      notes: item.notes || item.remarks || '',
-      remarks: item.remarks || item.notes || '',
-      hsnSac: item.hsnSac || '998346',
-      quantity: Number(item.quantity) || 1,
-      rate: Number(item.rate) || 0,
-      per: item.per || 'No.',
-      discountPercent: Number(item.discountPercent) || 0,
-      taxableAmount: (Number(item.quantity) || 1) * (Number(item.rate) || 0) * (1 - (Number(item.discountPercent) || 0) / 100)
-    }));
+    const items = (payload.items || []).map((item, idx) => {
+      const testedDates = Array.isArray(item.testedDates) && item.testedDates.length > 0
+        ? item.testedDates
+        : (item.testedDate ? String(item.testedDate).split(',').map(s => s.trim()).filter(Boolean) : []);
+      const testedDate = testedDates.length > 0 ? testedDates.join(', ') : (item.testedDate || item.testedOn || '');
+
+      return {
+        slNo: idx + 1,
+        serviceId: item.serviceId || '',
+        description: item.description || '',
+        testedDate,
+        testedDates,
+        dayType: item.dayType || item.day || item.visitType || '',
+        visitType: item.visitType || item.dayType || item.day || '',
+        testingSite: item.testingSite || '',
+        sampleDetails: item.sampleDetails || '',
+        notes: item.notes || item.remarks || '',
+        remarks: item.remarks || item.notes || '',
+        hsnSac: item.hsnSac || '998346',
+        quantity: Number(item.quantity) || 1,
+        rate: Number(item.rate) || 0,
+        per: item.per || 'No.',
+        discountPercent: Number(item.discountPercent) || 0,
+        taxableAmount: (Number(item.quantity) || 1) * (Number(item.rate) || 0) * (1 - (Number(item.discountPercent) || 0) / 100)
+      };
+    });
 
     const subtotal = items.reduce((acc, it) => acc + (it.quantity * it.rate), 0);
     const taxableTotal = items.reduce((acc, it) => acc + it.taxableAmount, 0);
@@ -340,6 +348,19 @@ export const updateInvoice = async (req, res) => {
     }
 
     const payload = req.body;
+    if (payload.items && Array.isArray(payload.items)) {
+      payload.items = payload.items.map((item) => {
+        const testedDates = Array.isArray(item.testedDates) && item.testedDates.length > 0
+          ? item.testedDates
+          : (item.testedDate ? String(item.testedDate).split(',').map(s => s.trim()).filter(Boolean) : []);
+        const testedDate = testedDates.length > 0 ? testedDates.join(', ') : (item.testedDate || item.testedOn || '');
+        return {
+          ...item,
+          testedDates,
+          testedDate
+        };
+      });
+    }
     let grandTotal = payload.grandTotal !== undefined ? payload.grandTotal : existing.grandTotal;
     let amountInWords = payload.amountInWords || convertNumberToIndianWords(grandTotal);
 

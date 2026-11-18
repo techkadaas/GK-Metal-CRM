@@ -20,6 +20,39 @@ function formatInvoiceDate(dateString) {
   }
 }
 
+function formatSingleDate(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split('-');
+    return `${d}-${m}-${y}`;
+  }
+  try {
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  } catch (e) {
+    return s;
+  }
+}
+
+function formatTestedDates(item) {
+  if (!item) return '';
+  if (Array.isArray(item.testedDates) && item.testedDates.length > 0) {
+    return item.testedDates.map(formatSingleDate).filter(Boolean).join(', ');
+  }
+  const raw = item.testedDate || item.testedOn;
+  if (!raw) return '';
+  if (typeof raw === 'string' && raw.includes(',')) {
+    return raw.split(',').map(s => formatSingleDate(s.trim())).filter(Boolean).join(', ');
+  }
+  return formatSingleDate(raw);
+}
+
 export default function InvoiceDocument({
   invoice,
   id = 'tax-invoice-printable',
@@ -261,9 +294,9 @@ export default function InvoiceDocument({
               {items.map((item, idx) => (
                 <div key={idx} className="space-y-0.5">
                   <div className="font-bold text-[13.5px] text-black uppercase leading-snug">{item.description}</div>
-                  {(item.testedDate || item.testedOn) && (
+                  {formatTestedDates(item) && (
                     <div className="text-[13px] text-black leading-snug">
-                      Tested on : {formatInvoiceDate(item.testedDate || item.testedOn)}
+                      Tested on : {formatTestedDates(item)}
                     </div>
                   )}
                   {(item.dayType || item.visitType) && (
