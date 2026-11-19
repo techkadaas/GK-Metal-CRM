@@ -280,82 +280,84 @@ export default function InvoiceDocument({
         </div>
 
         {/* 4. Items Table Body (continuous vertical divider lines) */}
-        <div className={`flex flex-col text-[13px] text-black ${isPrintMode ? 'min-h-[300px]' : 'min-h-[300px]'}`}>
-          {/* Item Rows: each item aligns Sl No, Description, HSN, Qty, Rate, Per, Amount horizontally */}
-          {items.map((item, idx) => (
-            <div key={idx} className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px]">
-              {/* Sl No Col */}
-              <div className="border-r border-black py-1.5 px-1 text-center font-normal leading-snug">
-                {item.slNo || `${idx + 1}.`}
-              </div>
-
-              {/* Description Col */}
-              <div className="border-r border-black py-1.5 px-3 space-y-0.5">
-                <div className="font-bold text-[13.5px] text-black uppercase leading-snug">{item.description}</div>
-                {formatTestedDates(item) && (
-                  <div className="text-[13px] text-black leading-snug">
-                    Tested on : {formatTestedDates(item)}
-                  </div>
-                )}
-                {(item.dayType || item.visitType) && (
-                  <div className="text-[13px] text-black leading-snug">
-                    ({item.dayType || item.visitType})
-                  </div>
-                )}
-                {item.testingSite && <div className="text-[13px] text-black leading-snug">Site of Testing : {item.testingSite}</div>}
-                {item.sampleDetails && <div className="text-[13px] text-black leading-snug">{item.sampleDetails}</div>}
-                {(item.notes || item.remarks) && (
-                  <div className="text-[13px] text-black leading-snug whitespace-pre-wrap">
-                    {item.notes || item.remarks}
-                  </div>
-                )}
-                {item.discountPercent > 0 && (
-                  <div className="text-[12px] text-black leading-snug">Less Discount @ {item.discountPercent}%</div>
-                )}
-              </div>
-
-              {/* HSN/SAC Col */}
-              <div className="border-r border-black py-1.5 px-1 text-center leading-snug">
-                {item.hsnSac || '998346'}
-              </div>
-
-              {/* Quantity Col */}
-              <div className="border-r border-black py-1.5 px-1 text-center leading-snug">
-                {item.quantity}
-              </div>
-
-              {/* Rate Col */}
-              <div className="border-r border-black py-1.5 px-1 text-center leading-snug">
-                {Number(item.rate).toFixed(0)}
-              </div>
-
-              {/* Per Col */}
-              <div className="border-r border-black py-1.5 px-1 text-center leading-snug">
-                {item.per || 'No.'}
-              </div>
-
-              {/* Amount Col */}
-              <div className="py-1.5 px-3 text-right leading-snug">
-                {Number(item.taxableAmount || item.quantity * item.rate).toFixed(2)}
-              </div>
-            </div>
-          ))}
-
-          {/* Vertical divider spacer row to maintain continuous lines and minimum table height */}
-          <div className="flex-1 grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] min-h-[30px]">
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div />
+        <div className={`relative flex flex-col justify-between text-[13px] text-black ${isPrintMode ? 'min-h-[300px]' : 'min-h-[300px]'}`}>
+          {/* Continuous unbroken vertical divider lines spanning full table height */}
+          <div className="absolute inset-0 grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] pointer-events-none">
+            <div className="border-r border-black h-full" />
+            <div className="border-r border-black h-full" />
+            <div className="border-r border-black h-full" />
+            <div className="border-r border-black h-full" />
+            <div className="border-r border-black h-full" />
+            <div className="border-r border-black h-full" />
+            <div className="h-full" />
           </div>
 
-          {/* Tax row right aligned above Total row */}
-          <div className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] pt-4 pb-2">
-            <div className="border-r border-black" />
-            <div className="border-r border-black flex justify-end">
+          {/* Top: Item Rows (each item aligns Sl No, Description, HSN, Qty, Rate, Per, Amount horizontally) */}
+          <div className="relative z-10">
+            {items.map((item, idx) => (
+              <div key={idx} className="grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px]">
+                {/* Sl No Col */}
+                <div className="py-1 px-1 text-center font-normal leading-snug">
+                  {item.slNo || `${idx + 1}.`}
+                </div>
+
+                {/* Description Col */}
+                <div className="py-1 px-3 space-y-0.5">
+                  <div className="font-bold text-[13.5px] text-black uppercase leading-snug">{item.description}</div>
+                  {formatTestedDates(item) && (
+                    <div className="text-[13px] text-black leading-snug">
+                      Tested on : {formatTestedDates(item)}
+                    </div>
+                  )}
+                  {(item.dayType || item.visitType) && (
+                    <div className="text-[13px] text-black leading-snug">
+                      ({item.dayType || item.visitType})
+                    </div>
+                  )}
+                  {item.testingSite && <div className="text-[13px] text-black leading-snug">Site of Testing : {item.testingSite}</div>}
+                  {item.sampleDetails && <div className="text-[13px] text-black leading-snug">{item.sampleDetails}</div>}
+                  {(item.notes || item.remarks) && (
+                    <div className="text-[13px] text-black leading-snug whitespace-pre-wrap">
+                      {item.notes || item.remarks}
+                    </div>
+                  )}
+                  {item.discountPercent > 0 && (
+                    <div className="text-[12px] text-black leading-snug">Less Discount @ {item.discountPercent}%</div>
+                  )}
+                </div>
+
+                {/* HSN/SAC Col */}
+                <div className="py-1 px-1 text-center leading-snug">
+                  {item.hsnSac || '998346'}
+                </div>
+
+                {/* Quantity Col */}
+                <div className="py-1 px-1 text-center leading-snug">
+                  {item.quantity}
+                </div>
+
+                {/* Rate Col */}
+                <div className="py-1 px-1 text-center leading-snug">
+                  {Number(item.rate).toFixed(0)}
+                </div>
+
+                {/* Per Col */}
+                <div className="py-1 px-1 text-center leading-snug">
+                  {item.per || 'No.'}
+                </div>
+
+                {/* Amount Col */}
+                <div className="py-1 px-3 text-right leading-snug">
+                  {Number(item.taxableAmount || item.quantity * item.rate).toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom: Tax row right aligned above Total row */}
+          <div className="relative z-10 grid grid-cols-[40px_1fr_65px_58px_58px_48px_92px] pt-4 pb-2">
+            <div />
+            <div className="flex justify-end">
               <div className="text-right text-[13px] font-normal space-y-1 pr-3">
                 {!invoice.isInterstate ? (
                   <>
@@ -367,10 +369,10 @@ export default function InvoiceDocument({
                 )}
               </div>
             </div>
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
-            <div className="border-r border-black" />
+            <div />
+            <div />
+            <div />
+            <div />
             <div className="px-3 text-right space-y-1 text-[13px]">
               {!invoice.isInterstate ? (
                 <>
